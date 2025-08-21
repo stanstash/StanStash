@@ -424,3 +424,105 @@ button:hover {
   opacity: 1;
 }
 
+
+
+.menu-derecha {
+  position: fixed;
+  top: 0;
+  right: -280px; /* oculto fuera de pantalla */
+  width: 250px;
+  height: 100%;
+  background: #1c1c1c;
+  box-shadow: -4px 0 8px rgba(0,0,0,0.2);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.menu-derecha.visible {
+  right: 0; /* visible */
+}
+
+.menu-derecha ul {
+  list-style: none;
+  padding: 0;
+}
+
+.menu-derecha li {
+  margin-bottom: 15px;
+}
+
+.menu-derecha a, .menu-derecha button {
+  color: #fff;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+
+#cerrarsesion {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+#cerrarsesion:hover {
+  background-color: #d32f2f;
+  transform: scale(1.05);
+}
+
+#cerrarsesion:active {
+  transform: scale(0.98);
+}
+
+li {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.translate-box {
+text-align: center;
+margin: 20px 0;
+}
+
+#google_translate_element select {
+padding: 5px 10px;
+border-radius: 5px;
+border: 1px solid #ccc;
+background: #f0f0f0;
+font-size: 14px;
+cursor: pointer;
+}
+
+.perfil-imagen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 0 10px;
+}
+
+.perfil-imagen img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 5px;
+  border: 2px solid #0078d4;
+}
+
+.perfil-imagen p {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff;
+  text-align: center;
+  margin: 0;
+}
