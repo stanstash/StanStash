@@ -1,24 +1,17 @@
 let usuarioIniciado = false;
 let usuarioNombre = "";
+document.getElementById('send').disabled = true;
+
 
 // update
 
 setInterval(() => {
 
-console.log(foto)
+
 
   
-if (!usuarioIniciado) {
+
   
-document.getElementById('send').disabled = true;
-
-} else {
-  document.getElementById('send').disabled = false;
-  document.getElementById('infosesicom').style.display = 'none';
-}
-
-
-
 }, 100) 
 
 // cierra update
@@ -33,7 +26,8 @@ function handleCredentialResponse(response) {
   
   const data = parseJwt(response.credential);
   const nombre = data.name;
-  
+  document.getElementById('send').disabled = false;
+  document.getElementById('infosesicom').style.display = 'none';
   const foto = data.picture;
 
  
