@@ -5,7 +5,7 @@ let usuarioNombre = "";
 
 setInterval(() => {
 
-
+console.log(foto)
 
   
 if (!usuarioIniciado) {
@@ -33,8 +33,10 @@ function handleCredentialResponse(response) {
   
   const data = parseJwt(response.credential);
   const nombre = data.name;
+  
   const foto = data.picture;
 
+ 
   usuarioIniciado = true;
   usuarioNombre = nombre;
 

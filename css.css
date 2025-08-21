@@ -345,7 +345,7 @@ button:hover {
   background: #141414;
   border: 2px solid #080700;
   border-radius: 16px;
-  padding: 18px;
+  padding: 8px 18px;
   box-shadow: 0 8px 15px rgba(255, 204, 0, 0.25);
   transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
 }
@@ -361,7 +361,7 @@ button:hover {
   justify-content: space-between;
   align-items: center;
   font-weight: 700;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .list article time {
@@ -372,8 +372,8 @@ button:hover {
 .list article p {
   margin: 0;
   color: #ffffff;
-  font-size: 0.95em;
-  line-height: 1.5;
+  font-size: 0.9em;
+  line-height: 1.2;
 }
 
 .paginacion {
