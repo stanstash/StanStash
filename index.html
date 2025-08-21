@@ -158,39 +158,32 @@
 
 <div class="wrap">
   <h1>Añadir un comentario</h1>
-
-
   <div class="card form">
     <label class="muted">Tu nombre</label>
-     <input id="name" placeholder="Nombre" maxlength="50" />
-
-
+    <input id="name" placeholder="Nombre" maxlength="50" />
     <label class="muted">Tu comentario</label>
     <textarea id="comment" placeholder="Escribe algo" maxlength="300"></textarea>
-
-
-      <div id="contenedor-boton" style="display:flex; gap:0.5cm; align-items:center; align-items: center;">
-          <button id="send" class="enviar" >Enviar</button>
-         <span id="infosesicom">Debes iniciar sesion para añadir un comentario</span> 
-      </div> 
- </div>
-
+    <div id="contenedor-boton" style="display:flex; gap:0.5cm; align-items:center;">
+      <button id="send" class="enviar">Enviar</button>
+      <span id="infosesicom">Debes iniciar sesion para añadir un comentario</span>
+    </div>
+  </div>
 </div>
 
-
 <div style="margin: 3cm;">
-  <h1>Comentarios</h1><span id="count" class="muted">0 comentarios</span>
-    <div class="list" id="comments"></div>
-
-
-  
-    <div id="comentarios-list" class="list"></div>
-
-
+  <h1>Comentarios</h1>
+  <div class="list" id="comments"></div>
+  <div style="display:flex; gap:1em; margin-top:2em; justify-content:center;">
+    <button id="prev">Anterior</button>
+    <span id="pagina">Página 1</span>
+    <button id="next">Siguiente</button>
+  </div>
+</div>
 </div>
 
 <footer>
   <p>© 2025 StanStash, Andres Stan</p>
+  <p>Colaboración con online-fix.me</p>
 </footer>
 
 
@@ -203,93 +196,127 @@
 
 </body>
 
-<script type="module">
- 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+ <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { 
+      getFirestore, collection, addDoc, query, orderBy, limit, startAfter, serverTimestamp, getDocs 
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
+    const firebaseConfig = {
+      apiKey: "AIzaSyA3pC9eGaXI_a-F4wG1lDzX_7rsUFn2SPM",
+      authDomain: "stanstash2.firebaseapp.com",
+      projectId: "stanstash2",
+      storageBucket: "stanstash2.firebasestorage.app",
+      messagingSenderId: "198880396242",
+      appId: "1:198880396242:web:bb7f96e42d20ad1cdfbe0b"
+    };
 
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyA3pC9eGaXI_a-F4wG1lDzX_7rsUFn2SPM",
-    authDomain: "stanstash2.firebaseapp.com",
-    projectId: "stanstash2",
-    storageBucket: "stanstash2.firebasestorage.app",
-    messagingSenderId: "198880396242",
-    appId: "1:198880396242:web:bb7f96e42d20ad1cdfbe0b"
-  };
+    const nameInput = document.getElementById("name");
+    const commentInput = document.getElementById("comment");
+    const sendBtn = document.getElementById("send");
+    const list = document.getElementById("comments");
+    const paginaSpan = document.getElementById("pagina");
 
+    let lastVisible = null;
+    let firstVisible = null;
+    let currentPage = 1;
+    const commentsRef = collection(db, "comments");
+    const perPage = 5;
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+    // Enviar comentario
+    let busy = false; 
+    sendBtn.addEventListener("click", async () => {
+      const name = (nameInput.value || "Anónimo").trim().slice(0, 50);
+      const text = (commentInput.value || "").trim().slice(0, 300);
+      if (!text || busy) return;
+      busy = true;
+      try {
+        await addDoc(commentsRef, {
+          name,
+          text,
+          timestamp: serverTimestamp()
+        });
+        commentInput.value = "";
+        // recargar a la primera página
+        cargarComentarios("inicio");
+      } finally {
+        busy = false;
+      }
+    });
 
+    // Cargar comentarios con paginación
+    async function cargarComentarios(direccion = "inicio") {
+      let q;
 
+      if (direccion === "siguiente" && lastVisible) {
+        q = query(commentsRef, orderBy("timestamp", "desc"), startAfter(lastVisible), limit(perPage));
+        currentPage++;
+      } else if (direccion === "anterior" && firstVisible) {
+        // Para "anterior" volvemos a calcular desde el inicio
+        const all = query(commentsRef, orderBy("timestamp", "desc"));
+        const docsSnap = await getDocs(all);
+        const docsArray = docsSnap.docs;
+        const startIndex = (currentPage - 2) * perPage;
+        const slice = docsArray.slice(startIndex, startIndex + perPage);
 
+        list.innerHTML = "";
+        slice.forEach(doc => renderComentario(doc.data()));
+        firstVisible = slice[0];
+        lastVisible = slice[slice.length - 1];
+        currentPage--;
+        paginaSpan.textContent = `Página ${currentPage}`;
+        return;
+      } else {
+        q = query(commentsRef, orderBy("timestamp", "desc"), limit(perPage));
+        currentPage = 1;
+      }
 
-const nameInput = document.getElementById('name');
-const commentInput = document.getElementById('comment');
-const sendBtn = document.getElementById('send');
-const list = document.getElementById('comments');
-const count = document.getElementById('count');
+      const snapshot = await getDocs(q);
+      list.innerHTML = "";
+      snapshot.forEach(doc => renderComentario(doc.data()));
+      firstVisible = snapshot.docs[0];
+      lastVisible = snapshot.docs[snapshot.docs.length - 1];
+      paginaSpan.textContent = `Página ${currentPage}`;
+    }
 
-  
-//  Enviar comentarioss
-let busy = false; 
-sendBtn.addEventListener('click', async () => {
-const name = (nameInput.value || 'Anónimo').trim().slice(0, 50);
-const text = (commentInput.value || '').trim().slice(0, 300);
-if (!text || busy) return;
-busy = true;
-try {
-await addDoc(collection(db, 'comments'), {
-name,
-text,
-timestamp: serverTimestamp()
-});
-commentInput.value = '';
-} finally {
-busy = false;
-}
-});
+    function renderComentario(c) {
+      const art = document.createElement("article");
+      const head = document.createElement("header");
+      const who = document.createElement("span");
+      const when = document.createElement("time");
+      const body = document.createElement("p");
 
+      who.textContent = c.name || "Anónimo";
+      when.textContent = formatTime(c.timestamp);
+      body.textContent = c.text || "";
 
+      head.appendChild(who);
+      head.appendChild(when);
+      art.appendChild(head);
+      art.appendChild(body);
+      list.appendChild(art);
+    }
 
+    function formatTime(ts) {
+      try {
+        if (!ts || !ts.toDate) return "";
+        return ts.toDate().toLocaleString();
+      } catch {
+        return "";
+      }
+    }
 
-const q = query(collection(db, 'comments'), orderBy('timestamp', 'desc'), limit(400));
-onSnapshot(q, snapshot => {
-list.innerHTML = '';
-count.textContent = `${snapshot.size} comentarios`;
-snapshot.forEach(doc => {
-const c = doc.data();
-const art = document.createElement('article');
-const head = document.createElement('header');
-const who = document.createElement('span');
-const when = document.createElement('time');
-const body = document.createElement('p');
+    document.getElementById("next").addEventListener("click", () => cargarComentarios("siguiente"));
+    document.getElementById("prev").addEventListener("click", () => {
+      if (currentPage > 1) cargarComentarios("anterior");
+    });
 
+    // Primera carga
+    cargarComentarios();
+  </script>
 
-who.textContent = c.name || 'Anónimo';
-when.textContent = formatTime(c.timestamp);
-body.textContent = c.text || '';
-
-
-head.appendChild(who);
-head.appendChild(when);
-art.appendChild(head);
-art.appendChild(body);
-list.appendChild(art);
-});
-});
-
-
-function formatTime(ts) {
-if (!ts || !ts.toDate) return '';
-const d = ts.toDate();
-return d.toLocaleString();
-}
-
-
-
-</script>
 
 </html>
