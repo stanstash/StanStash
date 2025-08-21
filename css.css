@@ -16,6 +16,7 @@ body {
 header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 20px 40px;
   background: rgba(20, 20, 20, 0.9);
   border-bottom: 2px solid #ffcc00;
@@ -211,7 +212,6 @@ button { appearance: none; border: 0; border-radius: 12px; padding: 10px 14px; f
 button:disabled { opacity: .5; cursor: default; }
 .list { margin-top: 16px; display: grid; gap: 8px; }
 article { background: #53555a; border: 1px solid #8f9399; border-radius: 12px; padding: 12px; }
-header { font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; align-items: baseline; }
 time { opacity: .7; font-size: 12px; margin-left: 8px; }
 p { margin: 8px 0 0; white-space: pre-wrap; word-wrap: break-word; }
 .muted { opacity: .8; font-size: 13px; }
@@ -525,4 +525,10 @@ cursor: pointer;
   color: #ffffff;
   text-align: center;
   margin: 0;
+}
+
+#google_translate_element select {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
 }

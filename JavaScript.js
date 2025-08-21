@@ -214,6 +214,8 @@ layout: google.translate.TranslateElement.InlineLayout.SIMPLE
 }, 'google_translate_element');
 }
 
+
+
 function actualizarMenuPerfil(foto, nombre) {
   const fotoMenu = document.getElementById("foto-menu");
   const nombreMenu = document.getElementById("nombre-menu");
