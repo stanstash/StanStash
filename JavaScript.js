@@ -1,7 +1,36 @@
 let usuarioIniciado = false;
 let usuarioNombre = "";
 
+// update
+
+setInterval(() => {
+
+
+
+  
+if (!usuarioIniciado) {
+  
+document.getElementById('send').disabled = true;
+
+} else {
+  document.getElementById('send').disabled = false;
+  document.getElementById('infosesicom').style.display = 'none';
+}
+
+
+
+}, 100) 
+
+// cierra update
+
+
+
+
+
+
 function handleCredentialResponse(response) {
+  // usuario a iniciado sesión
+  
   const data = parseJwt(response.credential);
   const nombre = data.name;
   const foto = data.picture;
@@ -181,22 +210,31 @@ function mostrarComentarios() {
 }
 
 enviarBtn.addEventListener("click", (e) => {
-  if (!usuarioIniciado) {
-    e.preventDefault();
-    modal.style.display = "flex";
-    modal.querySelector("p").textContent = "Debes iniciar sesion para añadir un comentario";
-    return;
-  }
+      if (usuarioIniciado) {
+         const nombre = usuarioNombre || nombreInput.value.trim();
+              const mensaje = mensajeInput.value.trim();
+              if (nombre && mensaje) {
+              const fecha = new Date().toLocaleString();
+              comentarios.unshift({nombre, mensaje, fecha});
+              mensajeInput.value = "";
+              pagina = 1;
+              mostrarComentarios();
+              
+                  
+                
 
-  const nombre = usuarioNombre || nombreInput.value.trim();
-  const mensaje = mensajeInput.value.trim();
-  if (nombre && mensaje) {
-    const fecha = new Date().toLocaleString();
-    comentarios.unshift({nombre, mensaje, fecha});
-    mensajeInput.value = "";
-    pagina = 1;
-    mostrarComentarios();
-  }
+              
+
+              }
+      } else {
+
+            e.preventDefault();
+        modal.style.display = "flex";
+        modal.querySelector("p").textContent = "Debes iniciar sesion para añadir un comentario";
+            }
 });
+
+
+// 
 
 

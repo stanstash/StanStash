@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="css.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="JavaScript.js" defer></script>
-  <script src="comentarios.js"></script>
+  <script src="comentarios.js" defer></script>
   
 <script defer src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
@@ -127,7 +127,7 @@
     </article>
 
     
-
+      <!-- Modal de iniciar sesión -->
 
      <div id="modal-login" class="modal">
         <div class="modal-content">
@@ -169,10 +169,10 @@
     <textarea id="comment" placeholder="Escribe algo" maxlength="300"></textarea>
 
 
-      <div style="display:flex; gap:8px; align-items:center">
-          <button id="send" class="enviar">Enviar</button>
-          
-      </div>
+      <div id="contenedor-boton" style="display:flex; gap:0.5cm; align-items:center; align-items: center;">
+          <button id="send" class="enviar" >Enviar</button>
+         <span id="infosesicom">Debes iniciar sesion para añadir un comentario</span> 
+      </div> 
  </div>
 
 </div>
@@ -204,13 +204,12 @@
 </body>
 
 <script type="module">
- // 1) Importa Firebase desde la CDN
+ 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 
-// 2) Pega aquí tu configuración de Firebase
-// Firebase Console > Project settings > Your apps > SDK setup and configuration > Config
+
   const firebaseConfig = {
     apiKey: "AIzaSyA3pC9eGaXI_a-F4wG1lDzX_7rsUFn2SPM",
     authDomain: "stanstash2.firebaseapp.com",
@@ -221,21 +220,21 @@ import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTim
   };
 
 
-// 3) Inicializa Firebase y Firestore
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-// 4) Referencias del DOM
+
+
 const nameInput = document.getElementById('name');
 const commentInput = document.getElementById('comment');
 const sendBtn = document.getElementById('send');
 const list = document.getElementById('comments');
 const count = document.getElementById('count');
 
-
-// 5) Enviar comentario
-let busy = false; // evita dobles envíos
+  
+//  Enviar comentarioss
+let busy = false; 
 sendBtn.addEventListener('click', async () => {
 const name = (nameInput.value || 'Anónimo').trim().slice(0, 50);
 const text = (commentInput.value || '').trim().slice(0, 300);
@@ -254,8 +253,9 @@ busy = false;
 });
 
 
-// 6) Suscripción en tiempo real a los últimos 100
-const q = query(collection(db, 'comments'), orderBy('timestamp', 'desc'), limit(100));
+
+
+const q = query(collection(db, 'comments'), orderBy('timestamp', 'desc'), limit(400));
 onSnapshot(q, snapshot => {
 list.innerHTML = '';
 count.textContent = `${snapshot.size} comentarios`;
@@ -287,7 +287,9 @@ if (!ts || !ts.toDate) return '';
 const d = ts.toDate();
 return d.toLocaleString();
 }
- 
+
+
+
 </script>
 
 </html>
