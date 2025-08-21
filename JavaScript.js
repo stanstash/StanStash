@@ -9,7 +9,7 @@ setInterval(() => {
 
 
 
-  
+
 
   
 }, 100) 
@@ -29,7 +29,8 @@ function handleCredentialResponse(response) {
   document.getElementById('send').disabled = false;
   document.getElementById('infosesicom').style.display = 'none';
   const foto = data.picture;
-
+  window.usuarioFoto = foto;
+  console.log("Foto:", data.picture)
  
   usuarioIniciado = true;
   usuarioNombre = nombre;

@@ -197,126 +197,158 @@
 </body>
 
  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { 
-      getFirestore, collection, addDoc, query, orderBy, limit, startAfter, serverTimestamp, getDocs 
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { 
+    getFirestore, collection, addDoc, query, orderBy, limit, startAfter, serverTimestamp, getDocs 
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA3pC9eGaXI_a-F4wG1lDzX_7rsUFn2SPM",
-      authDomain: "stanstash2.firebaseapp.com",
-      projectId: "stanstash2",
-      storageBucket: "stanstash2.firebasestorage.app",
-      messagingSenderId: "198880396242",
-      appId: "1:198880396242:web:bb7f96e42d20ad1cdfbe0b"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyA3pC9eGaXI_a-F4wG1lDzX_7rsUFn2SPM",
+    authDomain: "stanstash2.firebaseapp.com",
+    projectId: "stanstash2",
+    storageBucket: "stanstash2.firebasestorage.app",
+    messagingSenderId: "198880396242",
+    appId: "1:198880396242:web:bb7f96e42d20ad1cdfbe0b"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    const nameInput = document.getElementById("name");
-    const commentInput = document.getElementById("comment");
-    const sendBtn = document.getElementById("send");
-    const list = document.getElementById("comments");
-    const paginaSpan = document.getElementById("pagina");
+  const nameInput = document.getElementById("name");
+  const commentInput = document.getElementById("comment");
+  const sendBtn = document.getElementById("send");
+  const list = document.getElementById("comments");
+  const paginaSpan = document.getElementById("pagina");
 
-    let lastVisible = null;
-    let firstVisible = null;
-    let currentPage = 1;
-    const commentsRef = collection(db, "comments");
-    const perPage = 5;
+  let lastVisible = null;
+  let firstVisible = null;
+  let currentPage = 1;
+  const commentsRef = collection(db, "comments");
+  const perPage = 5;
 
-    // Enviar comentario
-    let busy = false; 
-    sendBtn.addEventListener("click", async () => {
-      const name = (nameInput.value || "Anónimo").trim().slice(0, 50);
-      const text = (commentInput.value || "").trim().slice(0, 300);
-      if (!text || busy) return;
-      busy = true;
-      try {
-        await addDoc(commentsRef, {
-          name,
-          text,
-          timestamp: serverTimestamp()
-        });
-        commentInput.value = "";
-        // recargar a la primera página
-        cargarComentarios("inicio");
-      } finally {
-        busy = false;
-      }
-    });
+  // Enviar comentario
+  let busy = false; 
+  sendBtn.addEventListener("click", async () => {
+    const name = (nameInput.value || "Anónimo").trim().slice(0, 50);
+    const text = (commentInput.value || "").trim().slice(0, 300);
+    const photo = window.usuarioFoto || ""; // ← foto del login de Google
+    if (!text || busy) return;
+    busy = true;
+    try {
+      await addDoc(commentsRef, {
+        name,
+        text,
+        photo,
+        timestamp: serverTimestamp()
+      });
+      commentInput.value = "";
+      cargarComentarios("inicio"); // recargar a la primera página
+    } finally {
+      busy = false;
+    }
+  });
 
-    // Cargar comentarios con paginación
-    async function cargarComentarios(direccion = "inicio") {
-      let q;
+  // Cargar comentarios con paginación
+  async function cargarComentarios(direccion = "inicio") {
+    let q;
 
-      if (direccion === "siguiente" && lastVisible) {
-        q = query(commentsRef, orderBy("timestamp", "desc"), startAfter(lastVisible), limit(perPage));
-        currentPage++;
-      } else if (direccion === "anterior" && firstVisible) {
-        // Para "anterior" volvemos a calcular desde el inicio
-        const all = query(commentsRef, orderBy("timestamp", "desc"));
-        const docsSnap = await getDocs(all);
-        const docsArray = docsSnap.docs;
-        const startIndex = (currentPage - 2) * perPage;
-        const slice = docsArray.slice(startIndex, startIndex + perPage);
+    if (direccion === "siguiente" && lastVisible) {
+      q = query(commentsRef, orderBy("timestamp", "desc"), startAfter(lastVisible), limit(perPage));
+      currentPage++;
+    } else if (direccion === "anterior" && firstVisible) {
+      const all = query(commentsRef, orderBy("timestamp", "desc"));
+      const docsSnap = await getDocs(all);
+      const docsArray = docsSnap.docs;
+      const startIndex = (currentPage - 2) * perPage;
+      const slice = docsArray.slice(startIndex, startIndex + perPage);
 
-        list.innerHTML = "";
-        slice.forEach(doc => renderComentario(doc.data()));
-        firstVisible = slice[0];
-        lastVisible = slice[slice.length - 1];
-        currentPage--;
-        paginaSpan.textContent = `Página ${currentPage}`;
-        return;
-      } else {
-        q = query(commentsRef, orderBy("timestamp", "desc"), limit(perPage));
-        currentPage = 1;
-      }
-
-      const snapshot = await getDocs(q);
       list.innerHTML = "";
-      snapshot.forEach(doc => renderComentario(doc.data()));
-      firstVisible = snapshot.docs[0];
-      lastVisible = snapshot.docs[snapshot.docs.length - 1];
+      slice.forEach(doc => renderComentario(doc.data()));
+      firstVisible = slice[0];
+      lastVisible = slice[slice.length - 1];
+      currentPage--;
       paginaSpan.textContent = `Página ${currentPage}`;
+      return;
+    } else {
+      q = query(commentsRef, orderBy("timestamp", "desc"), limit(perPage));
+      currentPage = 1;
     }
 
-    function renderComentario(c) {
-      const art = document.createElement("article");
-      const head = document.createElement("header");
-      const who = document.createElement("span");
-      const when = document.createElement("time");
-      const body = document.createElement("p");
+    const snapshot = await getDocs(q);
+    list.innerHTML = "";
+    snapshot.forEach(doc => renderComentario(doc.data()));
+    firstVisible = snapshot.docs[0];
+    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+    paginaSpan.textContent = `Página ${currentPage}`;
+  }
 
-      who.textContent = c.name || "Anónimo";
-      when.textContent = formatTime(c.timestamp);
-      body.textContent = c.text || "";
+  function renderComentario(c) {
+    const art = document.createElement("article");
+    art.style.display = "flex";
+    art.style.alignItems = "flex-start";
+    art.style.gap = "10px";
+    art.style.marginBottom = "12px";
 
-      head.appendChild(who);
-      head.appendChild(when);
-      art.appendChild(head);
-      art.appendChild(body);
-      list.appendChild(art);
+    // Foto
+    if (c.photo) {
+      const img = document.createElement("img");
+      img.src = c.photo;
+      img.alt = c.name || "foto";
+      img.style.width = "40px";
+      img.style.height = "40px";
+      img.style.borderRadius = "50%";
+      img.style.objectFit = "cover";
+      img.style.marginRight = "10px";
+      img.style.border = "2px solid #ffcc00"; 
+      img.style.marginTop = "17px";
+
+      art.appendChild(img);
     }
 
-    function formatTime(ts) {
-      try {
-        if (!ts || !ts.toDate) return "";
-        return ts.toDate().toLocaleString();
-      } catch {
-        return "";
-      }
+    // Contenido
+    const div = document.createElement("div");
+
+    const head = document.createElement("header");
+    head.style.display = "flex";
+    head.style.justifyContent = "space-between";
+    head.style.fontWeight = "600";
+
+    const who = document.createElement("span");
+    who.textContent = c.name || "Anónimo";
+
+    const when = document.createElement("time");
+    when.textContent = formatTime(c.timestamp);
+
+    head.appendChild(who);
+    head.appendChild(when);
+
+    const body = document.createElement("p");
+    body.textContent = c.text || "";
+
+    div.appendChild(head);
+    div.appendChild(body);
+
+    art.appendChild(div);
+    list.appendChild(art);
+  }
+
+  function formatTime(ts) {
+    try {
+      if (!ts || !ts.toDate) return "";
+      return ts.toDate().toLocaleString();
+    } catch {
+      return "";
     }
+  }
 
-    document.getElementById("next").addEventListener("click", () => cargarComentarios("siguiente"));
-    document.getElementById("prev").addEventListener("click", () => {
-      if (currentPage > 1) cargarComentarios("anterior");
-    });
+  document.getElementById("next").addEventListener("click", () => cargarComentarios("siguiente"));
+  document.getElementById("prev").addEventListener("click", () => {
+    if (currentPage > 1) cargarComentarios("anterior");
+  });
 
-    // Primera carga
-    cargarComentarios();
-  </script>
+  // Primera carga
+  cargarComentarios();
+</script>
 
 
 </html>

@@ -2,7 +2,7 @@ body {
   margin: 0;
   font-family: 'Segoe UI', Arial, sans-serif;
   background: linear-gradient(-45deg, #0f0f0f, #1b1b1b, #242424, #0f0f0f);
-  background-size: 400% 400%;
+  background-size: 500% 999%;
   animation: fondo-animado 15s ease infinite;
   color: #e0e0e0;
 }
@@ -352,7 +352,7 @@ button:hover {
 
 .list article:hover {
   transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 16px 30px rgba(255, 204, 0, 0.45);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.45);
   background: #141414;
 }
 
@@ -361,7 +361,7 @@ button:hover {
   justify-content: space-between;
   align-items: center;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .list article time {
@@ -374,6 +374,7 @@ button:hover {
   color: #ffffff;
   font-size: 0.9em;
   line-height: 1.2;
+  margin-bottom: 10px;
 }
 
 .paginacion {
