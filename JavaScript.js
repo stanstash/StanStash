@@ -73,6 +73,11 @@ function crearFotoPerfil(foto, nombre) {
     imagen.classList.add("foto-perfil");
     contenedor.appendChild(imagen);
     headerRight.appendChild(contenedor);
+
+
+
+
+
   }
 
   setTimeout(() => {

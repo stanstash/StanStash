@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil - StanStash</title>
+  <link rel="stylesheet" href="css.css">
+  <script src="JavaScript.js" defer></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<header>
+  <div class="header-left">
+    <img src="https://github.com/stanstash/StanStash/blob/main/ChatGPT%20Image%2019%20ago%202025,%2015_08_37.png?raw=true" alt="Stanstash" class="logo-stanstash" style="width: 6em;">
+  </div>
+  <div class="header-center">
+    <h1>Perfil de Usuario</h1>
+  </div>
+  <div class="header-right">
+   
+  </div>
+</header>
+<!--Menu hamburguesa-->
+
+<div id="menu-perfil" class="menu-derecha">
+  <div class="perfil-imagen">
+    <img id="foto-menu" src="" alt="Foto de perfil">
+    <p id="nombre-menu"></p>
+  </div>
+  <ul>
+    <li><button id="cerrarsesion" onclick="cerrarSesion()">Cerrar sesión</button></li>
+    <li><a href="#">Perfil</a></li>
+    <li><a href="#">Configuración</a></li>
+  </ul>
+</div>
+
+<!--Menu hamburguesa-->
+
+<main>
+  <section class="perfil">
+    <div class="info-perfil">
+      <img id="foto-perfil" src="" alt="Foto de perfil" style="width:120px; border-radius:50%;">
+      <h2 id="nombre-perfil">Nombre de Usuario</h2>
+      <p id="email-perfil">Correo electrónico</p>
+    </div>
+
+    <div class="estadisticas">
+      <h3>Estadísticas</h3>
+      <ul>
+        <li>Juegos descargados: <span id="juegos-descargados">0</span></li>
+        <li>Comentarios realizados: <span id="comentarios-realizados">0</span></li>
+        <li>Última conexión: <span id="ultima-conexion">---</span></li>
+      </ul>
+    </div>
+
+    <div class="comentarios-usuario">
+      <h3>Tus comentarios</h3>
+      <div id="mis-comentarios"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>© 2025 StanStash, Andres Stan</p>
+  <p>Colaboración con online-fix.me</p>
+</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getFirestore, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA3pC9eGaXI_a-F4wG1lDzX_7rsUFn2SPM",
+    authDomain: "stanstash2.firebaseapp.com",
+    projectId: "stanstash2",
+    storageBucket: "stanstash2.firbaseapp.com",
+    messagingSenderId: "198880396242",
+    appId: "1:198880396242:web:bb7f96e42d20ad1cdfbe0b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const userEmail = window.usuarioEmail || "test@correo.com";
+  const fotoPerfil = document.getElementById("foto-perfil");
+  const nombrePerfil = document.getElementById("nombre-perfil");
+  const emailPerfil = document.getElementById("email-perfil");
+  const misComentarios = document.getElementById("mis-comentarios");
+
+  nombrePerfil.textContent = window.usuarioNombre || "Usuario";
+  emailPerfil.textContent = userEmail;
+  fotoPerfil.src = window.usuarioFoto || "";
+
+  async function cargarComentariosUsuario() {
+    const q = query(collection(db, "comments"), where("email", "==", userEmail), orderBy("timestamp", "desc"));
+    const snapshot = await getDocs(q);
+    misComentarios.innerHTML = "";
+    snapshot.forEach(doc => {
+      const c = doc.data();
+      const div = document.createElement("div");
+      div.textContent = c.text;
+      div.style.border = "1px solid #ccc";
+      div.style.padding = "5px";
+      div.style.marginBottom = "5px";
+      misComentarios.appendChild(div);
+    });
+  }
+
+  cargarComentariosUsuario();
+</script>
+</body>
+</html>
