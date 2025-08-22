@@ -58,6 +58,9 @@
 </div>
 
 <!--Menu hamburguesa-->
+<div style="text-align:center; margin:1em 0;">
+  <input type="text" id="buscador" placeholder="Buscar juego..." style="padding:0.5em; width:50%;">
+</div>
 
 
 <main>
@@ -156,6 +159,85 @@
     </div>
     </article>
 
+    <article class="juego">
+    <img src="https://gaming-cdn.com/images/products/19832/orig/abyssus-pc-steam-cover.jpg?v=1755070802" alt="R.E.P.O.">
+    <div class="info">
+        <h2>ABYSSUS</h2>
+        <p>Elige tu arsenal, ábrete paso a través de habitantes corruptos de una antigua civilización sumergida y blande el poder de los dioses en Abyssus, un frenético juego de disparos en primera persona y una aventura roguelite de estilo brinepunk para 1-4 jugadores.</p>
+        <div class="acciones">
+           <a href="https://www.mediafire.com/file/w0w0a799ochyon2/Abyssus.v1.0.150856-OFME.torrent/file" target="_blank">
+                <button class="descargar">Descargar</button>
+            </a>
+        </div>
+    </div>
+    </article>
+
+        <article class="juego">
+    <img src="https://static.bandainamcoent.eu/high/elden-ring/elden-ring-nightreign/01-news/NIGHTREIGN_launch-trailer.jpg" alt="R.E.P.O.">
+    <div class="info">
+        <h2>ELDEN RING NIGHTREIGN</h2>
+        <p>ELDEN RING NIGHTREIGN es una aventura independiente dentro del universo de ELDEN RING creada para ofrecer a los jugadores una nueva experiencia al reinventar el diseño central del juego.</p>
+        <div class="acciones">
+           <a href="https://www.mediafire.com/file/v39u6zagobr7dyi/ELDEN.RING.NIGHTREIGN.v1.02.1-OFME.torrent/file" target="_blank">
+                <button class="descargar">Descargar</button>
+            </a>
+        </div>
+    </div>
+    </article>
+
+      <article class="juego">
+    <img src="https://www.zonammorpg.com/wp-content/uploads/2025/06/grounded2-1620x800.jpg" alt="R.E.P.O.">
+    <div class="info">
+        <h2>Grounded 2</h2>
+        <p>Hace dos años, encogiste al tamaño de una hormiga. Ahora, ha vuelto a ocurrir, pero ya nada es igual...</p>
+        <div class="acciones">
+           <a href="https://www.mediafire.com/file/j17h7zdhg3o0u6u/Grounded.2.v0.1.2.1.1964992-OFME.torrent/file" target="_blank">
+                <button class="descargar">Descargar</button>
+            </a>
+        </div>
+    </div>
+    </article>
+
+          <article class="juego">
+    <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2835530/54a47a9c7f91ae79f5c131d75df9d0e2feb9133e/capsule_616x353.jpg?t=1749112355" alt="R.E.P.O.">
+    <div class="info">
+        <h2>Backrooms: Extractions</h2>
+        <p>Backrooms: Extractions es un juego de terror cooperativo (1-6 jugadores) ambientado en 2062. Como agente del MEG, explora las Backrooms, rescata operativos perdidos y evita entidades aterradoras. Usa herramientas avanzadas, resuelve puzles y sobrevive.</p>
+        <div class="acciones">
+           <a href="https://www.mediafire.com/file/igb12crh89psp1c/Backrooms.Extractions.v0.1.79-OFME.torrent/file" target="_blank">
+                <button class="descargar">Descargar</button>
+            </a>
+        </div>
+    </div>
+    </article>
+
+       <article class="juego">
+    <img src="https://cdn1.epicgames.com/offer/affc33b82405457595a032f00284abd2/EGS_KillingFloor2_TripwireInteractive_S1_2560x1440-644173a0251b030bd2612e8f33b800d5" alt="R.E.P.O.">
+    <div class="info">
+        <h2>Killing Floor 2</h2>
+        <p>In KILLING FLOOR 2, players descend into continental Europe after it has been overrun by horrific, murderous clones called Zeds that were created by rogue elements of the Horzine Corporation. 6-player Co-Op & 12-player VS Zed-slaughtering mayhem.</p>
+        <div class="acciones">
+           <a href="https://www.mediafire.com/file/3nian59bz37wrmr/Killing.Floor.2.v1150-OFME.torrent/file" target="_blank">
+                <button class="descargar">Descargar</button>
+            </a>
+        </div>
+    </div>
+    </article>
+
+       <article class="juego">
+    <img src="https://www.zonammorpg.com/wp-content/uploads/2023/09/Payday-3-Release-Date-Gameplay-Combat-Characters.png" alt="R.E.P.O.">
+    <div class="info">
+        <h2>PAYDAY 3</h2>
+        <p>PAYDAY 3 es la muy esperada secuela de uno de los shooters cooperativos más populares que existen. Desde su lanzamiento, los jugadores de PAYDAY han disfrutado de la emoción de un trabajo perfectamente planeado y ejecutado.</p>
+        <div class="acciones">
+           <a href="https://www.mediafire.com/file/ox0r39m7iqaaykg/PAYDAY.3.v1.0.0.0.843660-OFME.torrent/file" target="_blank">
+                <button class="descargar">Descargar</button>
+            </a>
+        </div>
+    </div>
+    </article>
+
+ 
     
       <!-- Modal de iniciar sesión -->
 
@@ -183,6 +265,16 @@
 
 
   </section>
+
+  
+
+     <div style="display:flex; gap:1em; margin-top:2em; justify-content:center;">
+  <button id="prevJuegos">Anterior</button>
+  <span id="paginaJuegos">Página 1</span>
+  <button id="nextJuegos">Siguiente</button>
+
+
+</div>
 </main>
 <hr>
 
@@ -219,6 +311,56 @@
 
 
 
+<script>
+  const juegos = Array.from(document.querySelectorAll(".juego"));
+  const perPageJuegos = 12;
+  let currentPageJuegos = 1;
+  let juegosFiltrados = [...juegos];
+
+  const totalPages = () => Math.ceil(juegosFiltrados.length / perPageJuegos);
+
+  function mostrarPagina(pagina) {
+    juegos.forEach(j => j.style.display = "none");
+
+    const start = (pagina - 1) * perPageJuegos;
+    const end = pagina * perPageJuegos;
+
+    juegosFiltrados.slice(start, end).forEach(j => j.style.display = "block");
+
+    document.getElementById("paginaJuegos").textContent = 
+      juegosFiltrados.length > 0 
+        ? `Página ${pagina} de ${totalPages()}` 
+        : "No se encontraron juegos";
+  }
+
+  // Paginación
+  document.getElementById("nextJuegos").addEventListener("click", () => {
+    if (currentPageJuegos < totalPages()) {
+      currentPageJuegos++;
+      mostrarPagina(currentPageJuegos);
+    }
+  });
+
+  document.getElementById("prevJuegos").addEventListener("click", () => {
+    if (currentPageJuegos > 1) {
+      currentPageJuegos--;
+      mostrarPagina(currentPageJuegos);
+    }
+  });
+
+  // Buscador
+  document.getElementById("buscador").addEventListener("input", (e) => {
+    const texto = e.target.value.toLowerCase();
+    juegosFiltrados = juegos.filter(j => 
+      j.querySelector("h2").textContent.toLowerCase().includes(texto)
+    );
+    currentPageJuegos = 1;
+    mostrarPagina(currentPageJuegos);
+  });
+
+  // Primera carga
+  mostrarPagina(1);
+</script>
 
 
 
