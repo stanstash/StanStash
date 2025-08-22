@@ -74,16 +74,18 @@ function crearFotoPerfil(foto, nombre) {
   if (!contenedor) {
     contenedor = document.createElement("div");
     contenedor.classList.add("contenedor-sesion");
+    headerRight.appendChild(contenedor);
     const imagen = document.createElement("img");
     imagen.src = foto;
     imagen.alt = nombre;
     imagen.classList.add("foto-perfil");
+  
+      imagen.style.cursor = "pointer";
+    
     contenedor.appendChild(imagen);
     headerRight.appendChild(contenedor);
 
-
-
-
+  
 
   }
 
@@ -214,12 +216,6 @@ function activarBotonesRestrictivos() {
   });
 }
 
-function googleTranslateElementInit() {
-new google.translate.TranslateElement({
-pageLanguage: 'es',
-layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-}, 'google_translate_element');
-}
 
 
 
@@ -229,3 +225,4 @@ function actualizarMenuPerfil(foto, nombre) {
   if(fotoMenu) fotoMenu.src = foto;
   if(nombreMenu) nombreMenu.textContent = nombre;
 }
+

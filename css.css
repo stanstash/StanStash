@@ -532,3 +532,84 @@ cursor: pointer;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+#informacion-legal {
+  max-width: 900px;
+  margin: 3em auto;
+  padding: 2em;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+#informacion-legal h1 {
+  text-align: center;
+  font-size: 2em;
+  margin-bottom: 1.5em;
+  color: #222;
+}
+
+#informacion-legal article {
+  background-color: #fff;
+  padding: 1.5em;
+  margin-bottom: 1.5em;
+  border-left: 5px solid #ffcc00;
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#informacion-legal article:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+#informacion-legal h2 {
+  font-size: 1.3em;
+  margin-bottom: 0.5em;
+  color: #444;
+}
+
+#informacion-legal p {
+  line-height: 1.6em;
+  font-size: 1em;
+  color: #555;
+}
+#google_translate_widget {
+  width: 100%;
+  max-width: 11px; /* ajusta al ancho de tu menú */
+  margin: 0 auto;
+}
+
+.goog-te-gadget-simple {
+  width: 100% !important;
+}
+
+.goog-te-gadget-simple select {
+  width: 100% !important;
+  padding: 0.3em 0.3em;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.85em;
+}
+
+
+.instrucciones {
+  background-color: #373f37;
+  color: rgba(163, 15, 15, 0.671);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.instrucciones:hover {
+  background-color: #000000;
+}
+
