@@ -8,7 +8,15 @@
   <link rel="stylesheet" href="css.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="JavaScript.js" defer></script>
-  
+
+
+  <script async
+  src="https://js.stripe.com/v3/buy-button.js">
+</script>
+
+
+
+
 
 <script type="text/javascript" data-cfasync="false">
 /*<![CDATA[/* */
@@ -70,6 +78,14 @@ function googleTranslateElementInit() {
        <li style="margin-bottom: 25px;"><div><a href="informacion.html" target="_blank">Información legal</a></div></li>
        <hr>
        <li style="margin-top: 25px;"> <button class="instrucciones">Instrucciones para descargar</button></li>
+       <li>
+
+        <stripe-buy-button
+  buy-button-id="buy_btn_1Ryy1DGeEZaSfppaicDxbE1u"
+  publishable-key="pk_live_51Ryxm9GeEZaSfppaemVqrB4NNN99aDNsU1quHniogh0JnOKASbeZtp0xjk7XubLoPTGuTAccxsvODRlfWTQAsCTJ00kISOn7XK"
+>
+</stripe-buy-button>
+       </li>
    </div>
     
 
