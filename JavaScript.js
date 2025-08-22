@@ -1,3 +1,4 @@
+
 let usuarioIniciado = false;
 let usuarioNombre = "";
 document.getElementById('send').disabled = true;
@@ -36,6 +37,12 @@ function handleCredentialResponse(response) {
   const data = parseJwt(response.credential);
   const nombre = data.name;
   const foto = data.picture;
+  const googleId = data.sub; 
+
+
+  
+
+
   usuarioIniciado = true;
   usuarioNombre = nombre;
   window.usuarioFoto = foto;
