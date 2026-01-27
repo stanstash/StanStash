@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stanstash Casino | Crypto</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+
+    <header class="top-navbar">
+        <div class="logo">
+            <i class="fa-solid fa-bolt"></i> STANSTASH
+        </div>
+        
+        <div class="user-panel" id="userPanel">
+            <div class="guest-view">
+                <button class="btn-login" onclick="openModal('loginModal')">Entrar</button>
+            </div>
+            
+            <div class="logged-view hidden">
+                <div class="balance-pill" onclick="openModal('depositModal')">
+                    <span id="userBalance">0.00</span> <i class="fa-brands fa-bitcoin"></i>
+                </div>
+                <div class="profile-icon desktop-only">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+      
+        <section class="hero-banner">
+            <div class="hero-content">
+                <h1>TU CASINO CRYPTO</h1>
+                <p>Retiros instantáneos. Sin KYC.</p>
+            </div>
+        </section>
+
+        <section class="games-grid">
+            <div class="game-card" onclick="alert('Próximamente: Crash')">
+                <div class="card-badge hot">HOT</div>
+                <img src="https://meetlasrozas.es/_next/image?url=https%3A%2F%2Ffrpyol0mhkke.compat.objectstorage.eu-frankfurt-1.oraclecloud.com%2Flpcms-assets%2Fthumbnail%2F68d18a077bb36Crash%2F65d0b31e6e6f811a12800e9621dd1476.png&w=3840&q=75" alt="Crash">
+                <div class="card-info">
+                    <h3>Crash</h3>
+                    <span>RTP 99% • Skill Based</span>
+                </div>
+            </div>
+            <div class="game-card" onclick="alert('Próximamente: Mines')">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnvlXmCpqOnhlJAQByizDJqsUcGa9QYjiIRQ&s" alt="Mines">
+                <div class="card-info">
+                    <h3>Mines</h3>
+                    <span>Estrategia</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav mobile-only">
+        <a href="#" class="nav-item active">
+            <i class="fa-solid fa-house"></i>
+            <span>Inicio</span>
+        </a>
+        <a href="#" class="nav-item" onclick="openModal('depositModal')">
+            <i class="fa-solid fa-wallet"></i>
+            <span>Depositar</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-gamepad"></i>
+            <span>Juegos</span>
+        </a>
+        <a href="#" class="nav-item">
+             <i class="fa-solid fa-user"></i>
+            <span>Perfil</span>
+        </a>
+    </nav>
+
+    <aside class="desktop-sidebar desktop-only">
+        <nav>
+            <a href="#" class="active"><i class="fa-solid fa-rocket"></i> Lobby</a>
+            <a href="#"><i class="fa-solid fa-bomb"></i> Mis Apuestas</a>
+            <hr>
+            <a href="#" onclick="openModal('depositModal')"><i class="fa-solid fa-coins"></i> Cajero</a>
+        </nav>
+    </aside>
+
+    <div id="loginModal" class="modal hidden">
+        <div class="modal-content">
+             <span class="close" onclick="closeModal('loginModal')">&times;</span>
+             <h2>Iniciar Sesión</h2>
+             <input type="text" id="loginUser" placeholder="Usuario" class="input-field">
+             <input type="password" id="loginPass" placeholder="Contraseña" class="input-field">
+             <button class="btn-action" onclick="doLogin()">ENTRAR</button>
+             <p class="switch-modal">¿No tienes cuenta? <a onclick="closeModal('loginModal');openModal('registerModal')">Regístrate</a></p>
+        </div>
+    </div>
+     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
