@@ -1,24 +1,33 @@
 import os
-import time
-from datetime import datetime
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.utils import secure_filename
+import time
 
 app = Flask(__name__)
 
 # --- CONFIGURACIÓN ---
-app.config['SECRET_KEY'] = 'super_secret_key_123'
+app.config['SECRET_KEY'] = 'clave_secreta_super_segura'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/casino_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
+# Configuración de subida de imágenes
+UPLOAD_FOLDER = os.path.join('static', 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # Max 16MB
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+# Crear carpeta de uploads si no existe
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # --- MODELOS ---
 class Usuario(UserMixin, db.Model):
@@ -29,6 +38,7 @@ class Usuario(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     telefono = db.Column(db.String(30), nullable=False)
     saldo = db.Column(db.Numeric(10, 2), default=0.00)
+    # NUEVOS CAMPOS PERFIL
     biografia = db.Column(db.Text, nullable=True)
     avatar = db.Column(db.String(200), default='default.png')
 
@@ -39,23 +49,16 @@ class Deposit(db.Model):
     txid = db.Column(db.String(255))
     status = db.Column(db.String(20), default='pending')
 
-# NUEVO: Tabla de Chat
-class Mensaje(db.Model):
-    __tablename__ = 'mensajes'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50))
-    texto = db.Column(db.String(200))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    avatar = db.Column(db.String(200))
-
 @login_manager.user_loader
 def load_user(user_id):
     return Usuario.query.get(int(user_id))
 
-# --- RUTAS PRINCIPALES ---
+# --- RUTAS ---
+
 @app.route('/')
 def home(): return render_template('index.html')
 
+# ARREGLADO: Ahora devuelve el saldo y el avatar al recargar
 @app.route('/api/check_session')
 def check_session():
     if current_user.is_authenticated:
@@ -68,41 +71,18 @@ def check_session():
         })
     return jsonify({'logged_in': False})
 
-# --- RUTAS DE CHAT (NUEVAS) ---
-@app.route('/api/chat/send', methods=['POST'])
-@login_required
-def send_chat():
-    data = request.json
-    msg = Mensaje(
-        username=current_user.username,
-        texto=data.get('texto'),
-        avatar=current_user.avatar
-    )
-    db.session.add(msg)
-    db.session.commit()
-    return jsonify({'status': 'success'})
-
-@app.route('/api/chat/get')
-def get_chat():
-    # Devolver los últimos 50 mensajes
-    mensajes = Mensaje.query.order_by(Mensaje.timestamp.desc()).limit(50).all()
-    lista = []
-    for m in reversed(mensajes): # Invertir para que el antiguo salga arriba
-        lista.append({
-            'user': m.username,
-            'text': m.texto,
-            'avatar': m.avatar
-        })
-    return jsonify({'messages': lista})
-
-# --- RESTO DE RUTAS ---
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
     user = Usuario.query.filter_by(username=data.get('username')).first()
     if user and user.password == data.get('password'):
         login_user(user)
-        return jsonify({'status': 'success', 'user': user.username, 'saldo': float(user.saldo), 'avatar': user.avatar})
+        return jsonify({
+            'status': 'success',
+            'user': user.username,
+            'saldo': float(user.saldo),
+            'avatar': user.avatar
+        })
     return jsonify({'status': 'error', 'message': 'Datos incorrectos'})
 
 @app.route('/api/register', methods=['POST'])
@@ -121,6 +101,8 @@ def register():
     login_user(new_user)
     return jsonify({'status': 'success', 'user': new_user.username, 'saldo': 100.00})
 
+# --- RUTAS DE PERFIL ---
+
 @app.route('/api/update_bio', methods=['POST'])
 @login_required
 def update_bio():
@@ -132,31 +114,42 @@ def update_bio():
 @app.route('/api/upload_avatar', methods=['POST'])
 @login_required
 def upload_avatar():
-    if 'file' not in request.files: return jsonify({'status': 'error'})
+    if 'file' not in request.files: return jsonify({'status': 'error', 'message': 'No hay archivo'})
     file = request.files['file']
-    if file.filename == '': return jsonify({'status': 'error'})
+    if file.filename == '': return jsonify({'status': 'error', 'message': 'Nombre vacío'})
     
-    ext = file.filename.rsplit('.', 1)[1].lower()
-    if ext in ['png', 'jpg', 'jpeg', 'gif']:
+    if file and allowed_file(file.filename):
+        # Nombre único para evitar caché: usuarioID_timestamp.jpg
+        ext = file.filename.rsplit('.', 1)[1].lower()
         new_filename = f"user_{current_user.id}_{int(time.time())}.{ext}"
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_filename))
+        
+        # Guardar en BBDD
         current_user.avatar = new_filename
         db.session.commit()
+        
         return jsonify({'status': 'success', 'avatar': new_filename})
-    return jsonify({'status': 'error'})
+    
+    return jsonify({'status': 'error', 'message': 'Formato no permitido'})
 
-@app.route('/api/logout')
+@app.route('/api/balance')
 @login_required
-def logout():
-    logout_user()
-    return jsonify({'status': 'success'})
+def get_balance():
+    return jsonify({'balance': float(current_user.saldo)})
 
 @app.route('/api/deposit', methods=['POST'])
 @login_required
 def deposit():
     data = request.json
-    db.session.add(Deposit(user_id=current_user.id, txid=data.get('txid')))
+    new_dep = Deposit(user_id=current_user.id, txid=data.get('txid'))
+    db.session.add(new_dep)
     db.session.commit()
+    return jsonify({'status': 'success', 'message': 'Recibido'})
+
+@app.route('/api/logout')
+@login_required
+def logout():
+    logout_user()
     return jsonify({'status': 'success'})
 
 if __name__ == '__main__':
