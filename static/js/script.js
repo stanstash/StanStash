@@ -11,23 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- SPA NAVIGATION ---
 function navigate(viewId) {
-    // 1. Ocultar todas las secciones
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+    document.getElementById('view-' + viewId).classList.remove('hidden');
     
-    // 2. Mostrar la deseada
-    const target = document.getElementById('view-' + viewId);
-    if(target) target.classList.remove('hidden');
-    
-    // 3. Actualizar Nav Móvil
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     const navItem = document.getElementById('nav-' + viewId);
     if(navItem) navItem.classList.add('active');
 
-    // 4. Actualizar Sidebar PC
     document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
     const sideItem = document.getElementById('side-' + viewId);
     if(sideItem) sideItem.classList.add('active');
-    
     window.scrollTo(0, 0);
 }
 
@@ -57,16 +50,13 @@ function loginSuccess(data) {
 function updateAllAvatars(filename) {
     const defaultImage = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
     let url = defaultImage;
-
-    if (filename && filename !== 'default.png' && filename !== 'null') {
-        url = `/static/uploads/${filename}`;
-    }
-
+    if (filename && filename !== 'default.png' && filename !== 'null') url = `/static/uploads/${filename}`;
+    
     if(document.getElementById('navAvatarImg')) document.getElementById('navAvatarImg').src = url;
     if(document.getElementById('profileAvatarBig')) document.getElementById('profileAvatarBig').src = url;
 }
 
-// --- PERFIL: AHORA LLEVA A LA PÁGINA, NO AL MODAL ---
+// --- PERFIL ---
 function handleProfileClick() {
     if (!currentUser) openModal('loginModal');
     else navigate('profile');
@@ -77,10 +67,44 @@ async function uploadAvatar() {
     if (input.files.length === 0) return;
     const formData = new FormData();
     formData.append('file', input.files[0]);
-    
     const res = await fetch('/api/upload_avatar', { method: 'POST', body: formData });
     const data = await res.json();
     if(data.status === 'success') updateAllAvatars(data.avatar);
+}
+
+// --- CAMBIAR CONTRASEÑA ---
+function togglePasswordEdit() {
+    const form = document.getElementById('passwordEditSection');
+    const chev = document.getElementById('passChevron');
+    form.classList.toggle('hidden');
+    chev.classList.toggle('fa-chevron-up');
+    chev.classList.toggle('fa-chevron-down');
+}
+
+async function changePassword() {
+    const current = document.getElementById('currentPass').value;
+    const new1 = document.getElementById('newPass1').value;
+    const new2 = document.getElementById('newPass2').value;
+
+    if (!current || !new1 || !new2) return alert("Rellena todos los campos");
+    if (new1 !== new2) return alert("Las contraseñas nuevas no coinciden");
+
+    const res = await fetch('/api/change_password', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({current: current, new: new1})
+    });
+    const data = await res.json();
+    
+    if(data.status === 'success') {
+        alert("Contraseña actualizada con éxito");
+        togglePasswordEdit();
+        document.getElementById('currentPass').value = '';
+        document.getElementById('newPass1').value = '';
+        document.getElementById('newPass2').value = '';
+    } else {
+        alert("Error: " + data.message);
+    }
 }
 
 // --- LOGIN/REGISTRO ---
@@ -102,8 +126,7 @@ async function doRegister() {
     const pass = document.getElementById('regPass').value;
     const email = document.getElementById('regEmail').value;
     const phone = document.getElementById('regPhone').value;
-    
-    if(!user || !pass || !email) return alert("Rellena todos los datos");
+    if(!user || !pass || !email) return alert("Rellena datos");
 
     const res = await fetch('/api/register', {
         method: 'POST',
@@ -136,7 +159,6 @@ function simulateLiveWins() {
         const game = games[Math.floor(Math.random() * games.length)];
         const user = users[Math.floor(Math.random() * users.length)];
         const amount = (Math.random() * 100).toFixed(2);
-        
         const row = document.createElement('tr');
         row.innerHTML = `<td>${game}</td><td>${user}</td><td class="win-amount">+${amount}$</td>`;
         row.style.animation = 'fadeIn 0.5s';

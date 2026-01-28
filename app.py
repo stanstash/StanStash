@@ -6,12 +6,12 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 
 app = Flask(__name__)
 
-# --- CONFIGURACIÓN ---
+# CONFIGURACIÓN
 app.config['SECRET_KEY'] = 'clave_secreta_casino'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/casino_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # 16MB Max
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -19,7 +19,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# --- MODELOS ---
+# MODELOS
 class Usuario(UserMixin, db.Model):
     __tablename__ = 'usuarios'
     id = db.Column(db.Integer, primary_key=True)
@@ -41,7 +41,7 @@ class Deposit(db.Model):
 def load_user(user_id):
     return Usuario.query.get(int(user_id))
 
-# --- RUTAS ---
+# RUTAS
 @app.route('/')
 def home(): return render_template('index.html')
 
@@ -87,16 +87,29 @@ def upload_avatar():
     if 'file' not in request.files: return jsonify({'status': 'error'})
     file = request.files['file']
     if file.filename == '': return jsonify({'status': 'error'})
-    
     ext = file.filename.rsplit('.', 1)[1].lower()
     if ext in ['png', 'jpg', 'jpeg', 'gif']:
-        # Nombre único
         fname = f"user_{current_user.id}_{int(time.time())}.{ext}"
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], fname))
         current_user.avatar = fname
         db.session.commit()
         return jsonify({'status': 'success', 'avatar': fname})
     return jsonify({'status': 'error'})
+
+# NUEVO: CAMBIAR CONTRASEÑA
+@app.route('/api/change_password', methods=['POST'])
+@login_required
+def change_password():
+    data = request.json
+    current_pass = data.get('current')
+    new_pass = data.get('new')
+    
+    if current_user.password != current_pass:
+        return jsonify({'status': 'error', 'message': 'La contraseña actual es incorrecta'})
+    
+    current_user.password = new_pass
+    db.session.commit()
+    return jsonify({'status': 'success'})
 
 @app.route('/api/deposit', methods=['POST'])
 @login_required

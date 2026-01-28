@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Stanstash | Crypto Casino</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=12.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=13.0">
 </head>
 <body>
 
@@ -45,9 +45,7 @@
                 <div class="section-header">
                     <div class="live-indicator"><span class="blink"></span> GANADORES EN VIVO</div>
                 </div>
-                <table class="wins-table">
-                    <tbody id="liveWinsBody"></tbody>
-                </table>
+                <table class="wins-table"><tbody id="liveWinsBody"></tbody></table>
             </div>
         </section>
 
@@ -73,85 +71,65 @@
             <div class="profile-page-container">
                 <div class="profile-wrapper">
                     
-                    <div class="profile-header-card">
-                        <div class="profile-info-row">
-                            <div class="profile-avatar-area">
-                                <img id="profileAvatarBig" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png">
-                                <label for="avatarInput" class="camera-btn"><i class="fa-solid fa-camera"></i></label>
-                                <input type="file" id="avatarInput" hidden onchange="uploadAvatar()" accept="image/*">
-                            </div>
-                            <div class="profile-text">
-                                <h3 id="profileUsername">Cargando...</h3>
-                                <div class="badge-row">
-                                    <span class="user-badge verified"><i class="fa-solid fa-check-circle"></i> Verificado</span>
-                                    <span class="user-badge vip">VIP Bronce</span>
+                    <div class="profile-dashboard-grid">
+                        
+                        <div class="profile-header-card">
+                            <div class="profile-info-row">
+                                <div class="profile-avatar-area">
+                                    <img id="profileAvatarBig" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png">
+                                    <label for="avatarInput" class="camera-btn"><i class="fa-solid fa-camera"></i></label>
+                                    <input type="file" id="avatarInput" hidden onchange="uploadAvatar()" accept="image/*">
+                                </div>
+                                <div class="profile-text">
+                                    <h3 id="profileUsername">Cargando...</h3>
+                                    <span class="user-badge verified"><i class="fa-solid fa-check-circle"></i> Cuenta Verificada</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="vip-progress-container">
-                            <div class="vip-labels">
-                                <span>Nivel 1</span>
-                                <span>Nivel 2</span>
+                        <div class="wallet-card">
+                            <div class="wallet-header">SALDO DISPONIBLE</div>
+                            <div class="wallet-amount" id="profileBalanceDisplay">0.00</div>
+                            <div class="wallet-actions">
+                                <button class="btn-dep" onclick="openModal('depositModal')">Depositar</button>
+                                <button class="btn-wd" onclick="alert('Retiros próximamente')">Retirar</button>
                             </div>
-                            <div class="progress-bar-bg">
-                                <div class="progress-bar-fill" style="width: 35%;"></div>
-                            </div>
-                            <p class="vip-text">Apuesta <b>450$</b> más para subir de nivel.</p>
-                        </div>
-                    </div>
-
-                    <div class="wallet-card">
-                        <div class="wallet-header">
-                            <span>SALDO TOTAL</span>
-                            <i class="fa-solid fa-eye" style="cursor:pointer; color:#666;"></i>
-                        </div>
-                        <div class="wallet-amount" id="profileBalanceDisplay">0.00</div>
-                        <div class="wallet-actions">
-                            <button class="btn-dep" onclick="openModal('depositModal')">
-                                <i class="fa-solid fa-arrow-down"></i> Depositar
-                            </button>
-                            <button class="btn-wd" onclick="alert('Retiros habilitados en 24h')">
-                                <i class="fa-solid fa-arrow-up"></i> Retirar
-                            </button>
                         </div>
                     </div>
 
                     <div class="stats-grid">
                         <div class="stat-box">
-                            <span class="stat-label">Jugado</span>
+                            <span class="stat-label">Jugado Total</span>
                             <span class="stat-value">0.00$</span>
                         </div>
                         <div class="stat-box">
-                            <span class="stat-label">Ganado</span>
+                            <span class="stat-label">Beneficio</span>
                             <span class="stat-value text-green">0.00$</span>
                         </div>
                         <div class="stat-box">
-                            <span class="stat-label">Partidas</span>
-                            <span class="stat-value">0</span>
+                            <span class="stat-label">Nivel VIP</span>
+                            <span class="stat-value">Bronce</span>
                         </div>
                     </div>
 
                     <div class="settings-list">
-                        <div class="settings-item" onclick="alert('Sin historial reciente')">
-                            <div class="set-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                            <div class="set-text">Historial de Apuestas</div>
+                        <div class="settings-item" onclick="alert('Soporte 24/7 disponible pronto')">
+                            <div class="set-icon"><i class="fa-solid fa-headset"></i></div>
+                            <div class="set-text">Soporte & Ayuda</div>
                             <i class="fa-solid fa-chevron-right arrow"></i>
                         </div>
-                        <div class="settings-item" onclick="alert('Sin transacciones')">
-                            <div class="set-icon"><i class="fa-solid fa-money-bill-transfer"></i></div>
-                            <div class="set-text">Transacciones</div>
-                            <i class="fa-solid fa-chevron-right arrow"></i>
+
+                        <div class="settings-item" onclick="togglePasswordEdit()">
+                            <div class="set-icon"><i class="fa-solid fa-lock"></i></div>
+                            <div class="set-text">Cambiar Contraseña</div>
+                            <i class="fa-solid fa-chevron-down arrow" id="passChevron"></i>
                         </div>
-                        <div class="settings-item" onclick="alert('Tu enlace de referido es: stans.tash/u/' + currentUser)">
-                            <div class="set-icon"><i class="fa-solid fa-users"></i></div>
-                            <div class="set-text">Referidos & Afiliados</div>
-                            <i class="fa-solid fa-chevron-right arrow"></i>
-                        </div>
-                        <div class="settings-item" onclick="alert('Sistema seguro')">
-                            <div class="set-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                            <div class="set-text">Seguridad (2FA)</div>
-                            <i class="fa-solid fa-chevron-right arrow"></i>
+                        
+                        <div id="passwordEditSection" class="password-form hidden">
+                            <input type="password" id="currentPass" placeholder="Contraseña Actual" class="input-field-sm">
+                            <input type="password" id="newPass1" placeholder="Nueva Contraseña" class="input-field-sm">
+                            <input type="password" id="newPass2" placeholder="Confirmar Nueva" class="input-field-sm">
+                            <button class="btn-save-pass" onclick="changePassword()">Guardar Nueva Contraseña</button>
                         </div>
                         
                         <div class="settings-item danger" onclick="doLogout()">
