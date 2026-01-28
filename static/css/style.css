@@ -3,49 +3,74 @@
 body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-app); color: var(--text); padding-top: var(--nav-height); padding-bottom: 70px; }
 .hidden { display: none !important; }
 
-/* NAVBAR */
-.top-navbar { position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height); background: rgba(21, 26, 33, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 100; border-bottom: 1px solid #252f38; }
-.logo { font-weight: 900; color: var(--accent); }
-.btn-login { background: var(--accent); color: black; border: none; padding: 6px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+/* SECCIONES Y NAVEGACIÓN */
+.view-section { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.section-title { padding-left: 10px; margin-bottom: 15px; border-left: 3px solid var(--accent); }
+
+/* HERO Y HOME */
+.hero-banner { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); padding: 40px 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; border: 1px solid #2a323d; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.hero-content h1 { font-size: 1.8rem; margin-bottom: 5px; color: var(--accent); }
+.btn-cta { background: var(--accent); border: none; padding: 12px 30px; border-radius: 25px; font-weight: 900; margin-top: 15px; cursor: pointer; box-shadow: 0 0 15px rgba(0,255,136,0.4); }
+.features-row { display: flex; justify-content: space-around; margin-bottom: 20px; text-align: center; }
+.feat-box { display: flex; flex-direction: column; color: var(--text-dim); font-size: 0.8rem; gap: 5px; }
+.feat-box i { font-size: 1.5rem; color: #fff; }
+.promo-banner { background: #2e1a1a; border: 1px dashed #ff4757; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; }
+.promo-banner h3 { color: #ff4757; margin: 0; }
+
+/* GAMES GRID */
+.games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+.game-card { background: var(--bg-panel); border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.2s; cursor: pointer; }
+.game-card:active { transform: scale(0.98); }
+.game-placeholder { height: 110px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; background: #252b36; }
+.crash-ph { color: var(--accent); } .mines-ph { color: #ffcc00; } .locked-ph { color: #444; }
+.card-info { padding: 10px; } .card-badge.hot { position: absolute; top: 10px; left: 10px; background: #ff4757; color: white; padding: 3px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: bold; }
+.locked { opacity: 0.6; cursor: not-allowed; }
+
+/* NAVBAR & AVATAR */
+.top-navbar { position: fixed; top: 0; width: 100%; height: var(--nav-height); background: rgba(21, 26, 33, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 100; border-bottom: 1px solid #252f38; }
+.logo { font-weight: 900; color: var(--accent); cursor: pointer; }
+.btn-login { background: var(--accent); border: none; padding: 6px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+.nav-avatar { width: 35px; height: 35px; border-radius: 50%; overflow: hidden; border: 2px solid var(--accent); cursor: pointer; background: #000; }
+.nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .balance-pill { background: #1e2732; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 5px; font-weight: bold; border: 1px solid var(--accent); cursor: pointer; margin-right: 10px; }
 
-/* AVATAR NAVBAR */
-.nav-avatar { width: 35px; height: 35px; border-radius: 50%; overflow: hidden; border: 2px solid var(--accent); cursor: pointer; }
-.nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-/* CONTENT */
-.main-content { padding: 15px; }
-.hero-banner { background: linear-gradient(45deg, var(--bg-panel), #1a2e25); padding: 25px; border-radius: 15px; margin-bottom: 20px; text-align: center; border: 1px solid #252f38; }
-.games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-.game-card { background: var(--bg-panel); border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.2s; cursor: pointer; }
-.card-info { padding: 10px; } .card-badge.hot { position: absolute; top: 10px; left: 10px; background: #ff4757; color: white; padding: 3px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: bold; }
-
-/* MODALES */
-.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-.modal-content { background: var(--bg-panel); width: 90%; max-width: 400px; padding: 30px; border-radius: 15px; position: relative; border: 1px solid #252f38; }
+/* MODAL PERFIL PRO */
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+.modal-content { background: var(--bg-panel); width: 90%; max-width: 400px; padding: 25px; border-radius: 15px; position: relative; border: 1px solid #252f38; }
 .close { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--text-dim); }
-h2 { text-align: center; color: var(--accent); margin-bottom: 20px; margin-top: 0; }
+.profile-header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #2a323d; padding-bottom: 15px; }
+.avatar-container { position: relative; width: 90px; height: 90px; margin: 0 auto 10px; }
+.avatar-container img { width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover; }
+.edit-avatar-icon { position: absolute; bottom: 0; right: 0; background: var(--accent); color: black; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.user-level { background: #333; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; color: #aaa; }
 
-/* PERFIL */
-.profile-header { text-align: center; margin-bottom: 20px; }
-.avatar-wrapper { position: relative; width: 100px; height: 100px; margin: 0 auto 10px; }
-.avatar-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); }
-.avatar-edit-btn { position: absolute; bottom: 0; right: 0; background: var(--accent); color: black; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
-.btn-secondary-red { width: 100%; padding: 12px; background: transparent; border: 1px solid #ff4757; color: #ff4757; border-radius: 8px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+/* MENU PERFIL */
+.profile-menu-list { display: flex; flex-direction: column; gap: 10px; }
+.menu-item { display: flex; align-items: center; padding: 12px; background: #0b0e11; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+.menu-item:active { background: #1a1f26; }
+.menu-item i { width: 30px; color: var(--accent); }
+.menu-item span { flex-grow: 1; font-size: 0.9rem; }
+.menu-item .arrow { width: auto; font-size: 0.8rem; color: #555; }
+.btn-logout-block { width: 100%; padding: 12px; border: 1px solid #ff4757; color: #ff4757; background: transparent; border-radius: 8px; margin-top: 20px; font-weight: bold; cursor: pointer; }
 
-/* INPUTS */
-.input-field { width: 100%; padding: 12px; margin: 8px 0; background: #0b0e11; border: 1px solid #252f38; color: white; border-radius: 8px; font-size: 1rem; font-family: inherit; }
+/* BIO SECTION */
+.bio-section { margin-top: 5px; padding: 10px; background: #000; border-radius: 8px; }
+.bio-section textarea { width: 100%; background: #111; color: white; border: none; font-family: inherit; resize: none; }
+.btn-sm { background: var(--accent); border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; margin-top: 5px; cursor: pointer; }
+
+/* COMMON FORM */
+.input-field { width: 100%; padding: 12px; margin: 8px 0; background: #0b0e11; border: 1px solid #252f38; color: white; border-radius: 8px; font-size: 1rem; }
 .btn-action { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; color: black; cursor: pointer; margin-top: 15px; }
 .phone-group { display: flex; gap: 8px; } .prefix-select { width: 35%; } .phone-input { width: 65%; }
 .modal-footer { text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--text-dim); }
 .modal-footer a { color: var(--accent); cursor: pointer; text-decoration: underline; }
-.copy-box { background: #000; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px dashed #444; cursor: pointer; }
 
-/* NAV MÓVIL Y SIDEBAR */
+/* NAV BOTTOM & SIDEBAR */
 .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background: var(--bg-panel); border-top: 1px solid #252f38; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
 .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--text-dim); font-size: 0.7rem; }
 .nav-item i { font-size: 1.3rem; margin-bottom: 4px; }
-.nav-item:active { color: var(--accent); }
+.nav-item.active { color: var(--accent); }
 .mobile-only { display: flex; } .desktop-only { display: none; }
 
 @media (min-width: 768px) {
@@ -56,4 +81,5 @@ h2 { text-align: center; color: var(--accent); margin-bottom: 20px; margin-top: 
     .desktop-sidebar a { display: flex; align-items: center; gap: 15px; color: var(--text-dim); text-decoration: none; padding: 15px 25px; transition: 0.3s; }
     .desktop-sidebar a:hover { color: var(--text); background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); }
     .mini-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+    .copy-box { background: #000; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px dashed #444; cursor: pointer; }
 }

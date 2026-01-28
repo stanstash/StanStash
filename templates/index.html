@@ -5,93 +5,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Stanstash Casino</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=5.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=6.0">
 </head>
 <body>
 
     <header class="top-navbar">
-        <div class="logo"><i class="fa-solid fa-bolt"></i> STANSTASH</div>
+        <div class="logo" onclick="navigate('home')">
+            <i class="fa-solid fa-bolt"></i> STANSTASH
+        </div>
         
         <div class="user-panel">
-            <div class="guest-view">
+            <div class="guest-view" id="guestNav">
                 <button class="btn-login" onclick="openModal('loginModal')">Entrar</button>
             </div>
-            <div class="logged-view hidden">
+            
+            <div class="logged-view hidden" id="loggedNav">
                 <div class="balance-pill" onclick="openModal('depositModal')">
                     <span id="userBalance">0.00</span> <i class="fa-brands fa-bitcoin"></i>
                 </div>
                 <div class="nav-avatar" onclick="openProfileModal()">
-                    <img id="navAvatarImg" src="https://via.placeholder.com/40" alt="Avatar">
+                    <img id="navAvatarImg" src="https://via.placeholder.com/100/000000/FFFFFF/?text=User" alt="Avatar">
                 </div>
             </div>
         </div>
     </header>
 
     <main class="main-content">
-        <section class="hero-banner">
-            <div class="hero-content">
-                <h1>JUEGA Y GANA</h1>
-                <p>Retiros automáticos. Sin esperas.</p>
+        
+        <section id="view-home" class="view-section active">
+            <div class="hero-banner">
+                <div class="hero-content">
+                    <h1>EL FUTURO DEL JUEGO</h1>
+                    <p>Casino Crypto Descentralizado. Sin KYC.</p>
+                    <button class="btn-cta" onclick="navigate('games')">JUGAR AHORA</button>
+                </div>
+            </div>
+
+            <div class="features-row">
+                <div class="feat-box">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Retiros Flash</span>
+                </div>
+                <div class="feat-box">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Anónimo</span>
+                </div>
+                <div class="feat-box">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                    <span>RTP 99%</span>
+                </div>
+            </div>
+
+            <div class="promo-banner" onclick="openModal('registerModal')">
+                <h3>BONO DE BIENVENIDA</h3>
+                <p>Regístrate y recibe 100 Créditos Gratis</p>
             </div>
         </section>
 
-        <section class="games-grid" id="gamesSection">
-            <div class="game-card" onclick="alert('Crash en mantenimiento')">
-                <div class="card-badge hot">LIVE</div>
-                <div style="height:120px; background:#222; display:flex; align-items:center; justify-content:center; color:#00ff88;">
-                    <i class="fa-solid fa-plane-departure fa-3x"></i>
+        <section id="view-games" class="view-section hidden">
+            <h2 class="section-title">Nuestros Juegos</h2>
+            <div class="games-grid">
+                <div class="game-card" onclick="alert('Crash en mantenimiento')">
+                    <div class="card-badge hot">LIVE</div>
+                    <div class="game-placeholder crash-ph">
+                        <i class="fa-solid fa-plane-departure"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>CRASH</h3>
+                        <span>Multiplicador Infinito</span>
+                    </div>
                 </div>
-                <div class="card-info"><h3>CRASH</h3><span>Multiplicador x100</span></div>
-            </div>
-            <div class="game-card" onclick="alert('Mines en mantenimiento')">
-                <div style="height:120px; background:#222; display:flex; align-items:center; justify-content:center; color:#ffcc00;">
-                    <i class="fa-solid fa-bomb fa-3x"></i>
+                <div class="game-card" onclick="alert('Mines en mantenimiento')">
+                    <div class="game-placeholder mines-ph">
+                        <i class="fa-solid fa-bomb"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>MINES</h3>
+                        <span>Estrategia Pura</span>
+                    </div>
                 </div>
-                <div class="card-info"><h3>MINES</h3><span>Estrategia pura</span></div>
+                <div class="game-card locked">
+                    <div class="game-placeholder locked-ph"><i class="fa-solid fa-lock"></i></div>
+                    <div class="card-info"><h3>SLOTS</h3><span>Próximamente</span></div>
+                </div>
+                <div class="game-card locked">
+                    <div class="game-placeholder locked-ph"><i class="fa-solid fa-lock"></i></div>
+                    <div class="card-info"><h3>RULETA</h3><span>Próximamente</span></div>
+                </div>
             </div>
         </section>
+
     </main>
 
     <nav class="bottom-nav mobile-only">
-        <a href="#" onclick="window.scrollTo(0,0)" class="nav-item"><i class="fa-solid fa-house"></i><span>Inicio</span></a>
-        <a href="#" onclick="openModal('depositModal')" class="nav-item"><i class="fa-solid fa-wallet"></i><span>Depositar</span></a>
-        <a href="#gamesSection" class="nav-item"><i class="fa-solid fa-gamepad"></i><span>Juegos</span></a>
-        <a href="#" onclick="openProfileModal()" class="nav-item"><i class="fa-solid fa-user"></i><span>Perfil</span></a>
+        <a href="#" onclick="navigate('home')" class="nav-item active" id="nav-home">
+            <i class="fa-solid fa-house"></i><span>Inicio</span>
+        </a>
+        <a href="#" onclick="openModal('depositModal')" class="nav-item">
+            <i class="fa-solid fa-wallet"></i><span>Cartera</span>
+        </a>
+        <a href="#" onclick="navigate('games')" class="nav-item" id="nav-games">
+            <i class="fa-solid fa-gamepad"></i><span>Juegos</span>
+        </a>
+        <a href="#" onclick="handleProfileClick()" class="nav-item">
+            <i class="fa-solid fa-user"></i><span>Perfil</span>
+        </a>
     </nav>
 
     <aside class="desktop-sidebar desktop-only">
         <nav>
-            <a href="#" onclick="openProfileModal()" class="profile-link">
+            <a href="#" onclick="handleProfileClick()" class="profile-link">
                 <img id="sidebarAvatarImg" src="https://via.placeholder.com/40" class="mini-avatar"> Mi Perfil
             </a>
             <hr>
-            <a href="#" class="active"><i class="fa-solid fa-rocket"></i> Lobby</a>
+            <a href="#" onclick="navigate('home')"><i class="fa-solid fa-house"></i> Inicio</a>
+            <a href="#" onclick="navigate('games')"><i class="fa-solid fa-gamepad"></i> Juegos</a>
             <a href="#" onclick="openModal('depositModal')"><i class="fa-solid fa-coins"></i> Cajero</a>
-            <a href="#" onclick="doLogout()" style="color:#ff4757;"><i class="fa-solid fa-power-off"></i> Salir</a>
+            <div class="logout-wrapper hidden" id="desktopLogout">
+                <a href="#" onclick="doLogout()" class="logout-link"><i class="fa-solid fa-power-off"></i> Cerrar Sesión</a>
+            </div>
         </nav>
     </aside>
 
     <div id="profileModal" class="modal hidden">
         <div class="modal-content profile-content">
             <span class="close" onclick="closeModal('profileModal')">&times;</span>
-            <h2>Mi Perfil</h2>
             
             <div class="profile-header">
-                <div class="avatar-wrapper">
+                <div class="avatar-container">
                     <img id="profileAvatarBig" src="https://via.placeholder.com/100" alt="Avatar">
-                    <label for="avatarInput" class="avatar-edit-btn"><i class="fa-solid fa-camera"></i></label>
-                    <input type="file" id="avatarInput" accept="image/*" hidden onchange="uploadAvatar()">
+                    <label for="avatarInput" class="edit-avatar-icon"><i class="fa-solid fa-pen"></i></label>
+                    <input type="file" id="avatarInput" hidden onchange="uploadAvatar()" accept="image/*">
                 </div>
-                <h3 id="profileUsername">Usuario</h3>
+                <h3 id="profileUsername">Cargando...</h3>
+                <span class="user-level">Nivel 1</span>
             </div>
 
-            <div class="profile-body">
-                <label>Biografía</label>
-                <textarea id="profileBio" rows="4" class="input-field" placeholder="Escribe algo sobre ti..."></textarea>
-                <button class="btn-action" onclick="saveBio()">GUARDAR CAMBIOS</button>
+            <div class="profile-menu-list">
+                <div class="menu-item" onclick="toggleBioEdit()">
+                    <i class="fa-solid fa-quote-left"></i> <span>Editar Biografía</span> <i class="fa-solid fa-chevron-right arrow"></i>
+                </div>
+                <div id="bioEditSection" class="hidden bio-section">
+                    <textarea id="profileBio" rows="3" placeholder="Tu frase..."></textarea>
+                    <button class="btn-sm" onclick="saveBio()">Guardar</button>
+                </div>
+
+                <div class="menu-item" onclick="shareReferral()">
+                    <i class="fa-solid fa-share-nodes"></i> <span>Invitar Amigos</span> <i class="fa-solid fa-chevron-right arrow"></i>
+                </div>
                 
-                <button class="btn-secondary-red" onclick="doLogout()">CERRAR SESIÓN</button>
+                <div class="menu-item" onclick="alert('Historial vacío')">
+                    <i class="fa-solid fa-clock-rotate-left"></i> <span>Historial de Juego</span> <i class="fa-solid fa-chevron-right arrow"></i>
+                </div>
+                
+                <div class="menu-item" onclick="window.location.href='mailto:soporte@stanstash.org'">
+                    <i class="fa-solid fa-headset"></i> <span>Soporte 24/7</span> <i class="fa-solid fa-chevron-right arrow"></i>
+                </div>
             </div>
+
+            <button class="btn-logout-block" onclick="doLogout()">CERRAR SESIÓN</button>
         </div>
     </div>
 
@@ -101,10 +173,8 @@
              <h2>Bienvenido</h2>
              <input type="text" id="loginUser" placeholder="Usuario" class="input-field">
              <input type="password" id="loginPass" placeholder="Contraseña" class="input-field">
-             <button type="button" class="btn-action" onclick="doLogin()">ENTRAR</button>
-             <div class="modal-footer">
-                 <span>¿Nuevo jugador?</span> <a onclick="switchModal('loginModal', 'registerModal')">Crear Cuenta</a>
-             </div>
+             <button class="btn-action" onclick="doLogin()">ENTRAR</button>
+             <div class="modal-footer"><span>¿Nuevo?</span> <a onclick="switchModal('loginModal', 'registerModal')">Crear Cuenta</a></div>
         </div>
     </div>
 
@@ -119,17 +189,15 @@
                  <select id="regPrefix" class="input-field prefix-select"><option value="+34">🇪🇸</option><option value="+1">🇺🇸</option></select>
                  <input type="tel" id="regPhone" placeholder="Teléfono" class="input-field phone-input">
              </div>
-             <button type="button" class="btn-action" onclick="doRegister()">REGISTRARSE</button>
-             <div class="modal-footer">
-                 <span>¿Ya tienes cuenta?</span> <a onclick="switchModal('registerModal', 'loginModal')">Login</a>
-             </div>
+             <button class="btn-action" onclick="doRegister()">REGISTRARSE</button>
+             <div class="modal-footer"><span>¿Ya tienes cuenta?</span> <a onclick="switchModal('registerModal', 'loginModal')">Login</a></div>
         </div>
     </div>
 
     <div id="depositModal" class="modal hidden">
         <div class="modal-content">
              <span class="close" onclick="closeModal('depositModal')">&times;</span>
-             <h2>Recargar</h2>
+             <h2>Depositar</h2>
              <div class="copy-box" onclick="alert('Copiado')"><span>LtcWallet...</span> <i class="fa-regular fa-copy"></i></div>
              <input type="text" id="txidInput" placeholder="TXID" class="input-field">
              <button class="btn-action" onclick="confirmPayment()">ENVIAR</button>
