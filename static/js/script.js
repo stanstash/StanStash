@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('desktopLogout').classList.add('hidden');
     document.getElementById('guestNav').classList.remove('hidden');
 
-    // 3. Comprobar sesión (Si hay sesión, esto actualizará la UI automáticamente)
+    // 3. Comprobar sesión
     checkSession();
     
     // 4. Iniciar simulación de premios
@@ -85,11 +85,11 @@ async function uploadAvatar() {
     
     const res = await fetch('/api/upload_avatar', { method: 'POST', body: formData });
     const data = await res.json();
-    // Aquí sí actualizamos sin recargar para que se vea al momento
+    // Actualizamos sin recargar
     if(data.status === 'success') updateAllAvatars(data.avatar);
 }
 
-// --- LOGIN Y REGISTRO (MODIFICADO: AHORA RECARGAN PÁGINA) ---
+// --- LOGIN Y REGISTRO (CON RECARGA) ---
 
 async function doLogin() {
     const user = document.getElementById('loginUser').value;
@@ -103,10 +103,9 @@ async function doLogin() {
     const data = await res.json();
 
     if(data.status === 'success') {
-        // SIN ALERTAS, SOLO RECARGA
         window.location.reload();
     } else {
-        alert(data.message); // Mantenemos el aviso solo si hay error
+        alert(data.message);
     }
 }
 
@@ -126,10 +125,9 @@ async function doRegister() {
     const data = await res.json();
 
     if(data.status === 'success') {
-        // SIN ALERTAS, SOLO RECARGA
         window.location.reload();
     } else {
-        alert(data.message); // Mantenemos el aviso solo si hay error
+        alert(data.message);
     }
 }
 
@@ -141,20 +139,24 @@ async function doLogout() {
 }
 
 async function confirmPayment() {
-    alert("Procesando pago..."); // Esto lo dejamos como feedback visual momentáneo
+    alert("Procesando pago...");
     closeModal('depositModal');
 }
 
-// --- SIMULACIÓN GANADORES ---
+// --- SIMULACIÓN GANADORES (NOMBRES PERSONALIZADOS) ---
 function simulateLiveWins() {
     const games = ['Crash', 'Mines', 'Slots'];
-    const users = ['Alex', 'Juan', 'CryptoKing', 'LuckyBoy', 'Sarah'];
+    
+    // AQUÍ ESTÁN TUS NOMBRES NUEVOS
+    const users = ['hecproll', 'Daniel remon', 'PascualGamerRTX', 'ikerLozanoRomero', 'dudu9439'];
+    
     const tbody = document.getElementById('liveWinsBody');
 
     function addWin() {
         if(!tbody) return;
         const game = games[Math.floor(Math.random() * games.length)];
-        const user = users[Math.floor(Math.random() * users.length)] + '***';
+        // Elegir nombre al azar
+        const user = users[Math.floor(Math.random() * users.length)];
         const amount = (Math.random() * 100).toFixed(2);
         
         const row = document.createElement('tr');
@@ -162,6 +164,7 @@ function simulateLiveWins() {
         row.style.animation = 'fadeIn 0.5s';
         tbody.prepend(row);
         if(tbody.children.length > 5) tbody.lastChild.remove();
+        
         setTimeout(addWin, Math.random() * 3000 + 2000);
     }
     addWin();
