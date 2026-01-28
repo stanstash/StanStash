@@ -2,6 +2,7 @@ let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     navigate('home');
+    // Asegurar estado inicial limpio
     document.getElementById('loggedNav').classList.add('hidden');
     document.getElementById('desktopLogout').classList.add('hidden');
     document.getElementById('guestNav').classList.remove('hidden');
@@ -11,16 +12,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- SPA NAVIGATION ---
 function navigate(viewId) {
-    // 1. Ocultar secciones
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     document.getElementById('view-' + viewId).classList.remove('hidden');
     
-    // 2. Nav Inferior (Móvil)
+    // Nav Móvil
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     const navItem = document.getElementById('nav-' + viewId);
     if(navItem) navItem.classList.add('active');
 
-    // 3. Sidebar (Escritorio) - Marcar activo
+    // Sidebar PC
     document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
     const sideItem = document.getElementById('side-' + viewId);
     if(sideItem) sideItem.classList.add('active');
@@ -40,12 +40,10 @@ async function checkSession() {
 function loginSuccess(data) {
     currentUser = data.user;
     
-    // UI Change
     document.getElementById('guestNav').classList.add('hidden');
     document.getElementById('loggedNav').classList.remove('hidden');
     document.getElementById('desktopLogout').classList.remove('hidden');
     
-    // Datos
     document.getElementById('userBalance').innerText = data.saldo.toFixed(2);
     document.getElementById('profileBalanceDisplay').innerText = data.saldo.toFixed(2);
     document.getElementById('profileUsername').innerText = data.user;
@@ -79,7 +77,7 @@ async function uploadAvatar() {
     if(data.status === 'success') updateAllAvatars(data.avatar);
 }
 
-// --- LOGIN / REGISTER / LOGOUT ---
+// --- AUTH ---
 async function doLogin() {
     const user = document.getElementById('loginUser').value;
     const pass = document.getElementById('loginPass').value;
@@ -91,7 +89,7 @@ async function doLogin() {
     const data = await res.json();
     if(data.status === 'success') {
         closeModal('loginModal');
-        loginSuccess({user: data.user, saldo: data.saldo, avatar: data.avatar, bio: ""});
+        loginSuccess({user: data.user, saldo: data.saldo, avatar: data.avatar});
     } else alert(data.message);
 }
 
@@ -111,7 +109,7 @@ async function doRegister() {
     const data = await res.json();
     if(data.status === 'success') {
         closeModal('registerModal');
-        loginSuccess({user: data.user, saldo: 100.00, avatar: 'default.png', bio: ""});
+        loginSuccess({user: data.user, saldo: 100.00, avatar: 'default.png'});
         alert("¡Cuenta Creada!");
     } else alert(data.message);
 }
@@ -121,7 +119,12 @@ async function doLogout() {
     location.reload();
 }
 
-// --- FAKE WINS ---
+async function confirmPayment() {
+    alert("Procesando pago...");
+    closeModal('depositModal');
+}
+
+// --- SIMULACIÓN GANADORES ---
 function simulateLiveWins() {
     const games = ['Crash', 'Mines', 'Slots'];
     const users = ['Alex', 'Juan', 'CryptoKing', 'LuckyBoy', 'Sarah'];
