@@ -78,28 +78,33 @@
         </nav>
     </aside>
 
-    <div id="loginModal" class="modal hidden">
-        <div class="modal-content">
-             <span class="close" onclick="closeModal('loginModal')">&times;</span>
-             <h2>Iniciar Sesión</h2>
-             <input type="text" id="loginUser" placeholder="Usuario" class="input-field">
-             <input type="password" id="loginPass" placeholder="Contraseña" class="input-field">
-             <button type="button" class="btn-action" onclick="doLogin()">ENTRAR</button>
-             <p class="switch-modal" style="margin-top:10px; font-size:0.8rem; color:#888;">
-                 ¿No tienes cuenta? <a href="#" style="color:#00ff88;" onclick="closeModal('loginModal');openModal('registerModal')">Regístrate</a>
-             </p>
-        </div>
+   <div id="registerModal" class="modal hidden">
+    <div class="modal-content">
+         <span class="close" onclick="closeModal('registerModal')">&times;</span>
+         <h2>Crear Cuenta</h2>
+         <input type="text" id="regUser" placeholder="Elige Usuario" class="input-field">
+         <input type="password" id="regPass" placeholder="Elige Contraseña" class="input-field">
+         
+         <button type="button" class="btn-action" onclick="doRegister()">REGISTRARSE</button>
+         
+         <p id="regError" style="color: #ff4757; margin-top: 10px; display: none;"></p>
     </div>
+</div>
 
-    <div id="registerModal" class="modal hidden">
-        <div class="modal-content">
-             <span class="close" onclick="closeModal('registerModal')">&times;</span>
-             <h2>Crear Cuenta</h2>
-             <input type="text" id="regUser" placeholder="Elige Usuario" class="input-field">
-             <input type="password" id="regPass" placeholder="Elige Contraseña" class="input-field">
-             <button type="button" class="btn-action" onclick="doRegister()">REGISTRARSE</button>
-        </div>
+<div id="loginModal" class="modal hidden">
+    <div class="modal-content">
+         <span class="close" onclick="closeModal('loginModal')">&times;</span>
+         <h2>Iniciar Sesión</h2>
+         <input type="text" id="loginUser" placeholder="Usuario" class="input-field">
+         <input type="password" id="loginPass" placeholder="Contraseña" class="input-field">
+         
+         <button type="button" class="btn-action" onclick="doLogin()">ENTRAR</button>
+         <p class="switch-modal" style="margin-top:10px; font-size:0.8rem; color:#888;">
+             ¿No tienes cuenta? <a href="#" style="color:#00ff88;" onclick="closeModal('loginModal');openModal('registerModal')">Regístrate</a>
+         </p>
+         <p id="loginError" style="color: #ff4757; margin-top: 10px; display: none;"></p>
     </div>
+</div>
 
     <div id="depositModal" class="modal hidden">
         <div class="modal-content">
