@@ -1,24 +1,29 @@
 let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Ocultar todo lo de usuario AL PRINCIPIO para evitar parpadeos
-    document.getElementById('loggedNav').classList.add('hidden');
-    document.getElementById('desktopLogout').classList.add('hidden');
-    document.getElementById('guestNav').classList.remove('hidden');
+    // 1. Iniciar en Home
+    navigate('home');
     
-    // 2. Comprobar sesión
+    // 2. Ocultar menús logueados al inicio
+    document.getElementById('loggedNav').classList.add('hidden');
+    document.getElementById('guestNav').classList.remove('hidden');
+
+    // 3. Comprobar sesión
     checkSession();
+    
+    // 4. Iniciar simulación de ganadores
+    simulateLiveWins();
 });
 
-// --- NAVEGACIÓN (SPA) ---
+// --- SPA NAVIGATION ---
 function navigate(viewId) {
     // Ocultar todas las secciones
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     
-    // Mostrar la deseada
+    // Mostrar la elegida
     document.getElementById('view-' + viewId).classList.remove('hidden');
     
-    // Actualizar menú inferior
+    // Actualizar nav inferior
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     const navItem = document.getElementById('nav-' + viewId);
     if(navItem) navItem.classList.add('active');
@@ -27,22 +32,15 @@ function navigate(viewId) {
     window.scrollTo(0, 0);
 }
 
-
 // --- SESIÓN ---
 async function checkSession() {
     try {
         const res = await fetch('/api/check_session');
         const data = await res.json();
-        
         if (data.logged_in) {
             loginSuccess(data);
-        } else {
-            // Asegurar modo invitado
-            currentUser = null;
-            document.getElementById('loggedNav').classList.add('hidden');
-            document.getElementById('guestNav').classList.remove('hidden');
         }
-    } catch (e) { console.log("Modo invitado"); }
+    } catch (e) { console.log("Invitado"); }
 }
 
 function loginSuccess(data) {
@@ -51,47 +49,34 @@ function loginSuccess(data) {
     // UI Change
     document.getElementById('guestNav').classList.add('hidden');
     document.getElementById('loggedNav').classList.remove('hidden');
-    document.getElementById('desktopLogout').classList.remove('hidden');
     
-    // Datos
+    // Datos en todas partes
     document.getElementById('userBalance').innerText = data.saldo.toFixed(2);
-    
-    // Perfil
-    updateAllAvatars(data.avatar);
+    document.getElementById('profileBalanceDisplay').innerText = data.saldo.toFixed(2);
     document.getElementById('profileUsername').innerText = data.user;
-    document.getElementById('profileBio').value = data.bio || "";
+    if(data.bio) document.getElementById('profileBio').value = data.bio;
+
+    // Actualizar avatares
+    updateAllAvatars(data.avatar);
 }
 
 function updateAllAvatars(filename) {
-    // Si no hay avatar, usar placeholder con inicial
     let url = 'https://via.placeholder.com/100/000000/FFFFFF/?text=User';
-    
-    if (filename && filename !== 'default.png') {
-        url = `/static/uploads/${filename}`;
-    } else if (currentUser) {
-         // Placeholder bonito con la inicial del usuario
-         url = `https://via.placeholder.com/100/000000/00FF88/?text=${currentUser.charAt(0).toUpperCase()}`;
-    }
+    if (filename && filename !== 'default.png') url = `/static/uploads/${filename}`;
+    else if (currentUser) url = `https://via.placeholder.com/100/000000/00FF88/?text=${currentUser.charAt(0).toUpperCase()}`;
 
     if(document.getElementById('navAvatarImg')) document.getElementById('navAvatarImg').src = url;
-    if(document.getElementById('sidebarAvatarImg')) document.getElementById('sidebarAvatarImg').src = url;
     if(document.getElementById('profileAvatarBig')) document.getElementById('profileAvatarBig').src = url;
 }
 
-
-// --- PERFIL Y OPCIONES ---
-
+// --- PERFIL ---
 function handleProfileClick() {
-    if (currentUser) {
-        openModal('profileModal');
-    } else {
-        openModal('loginModal');
-    }
+    if (!currentUser) openModal('loginModal');
+    else openModal('profileModal');
 }
 
 function toggleBioEdit() {
-    const section = document.getElementById('bioEditSection');
-    section.classList.toggle('hidden');
+    document.getElementById('bioEditSection').classList.toggle('hidden');
 }
 
 async function saveBio() {
@@ -102,57 +87,44 @@ async function saveBio() {
         body: JSON.stringify({bio: bio})
     });
     toggleBioEdit();
-    alert("Biografía actualizada");
+    alert("Bio guardada");
 }
 
 async function uploadAvatar() {
     const input = document.getElementById('avatarInput');
     if (input.files.length === 0) return;
-
     const formData = new FormData();
     formData.append('file', input.files[0]);
-
-    try {
-        const res = await fetch('/api/upload_avatar', { method: 'POST', body: formData });
-        const data = await res.json();
-        if (data.status === 'success') {
-            updateAllAvatars(data.avatar);
-        } else { alert(data.message); }
-    } catch (e) { alert("Error al subir"); }
+    
+    const res = await fetch('/api/upload_avatar', { method: 'POST', body: formData });
+    const data = await res.json();
+    if(data.status === 'success') updateAllAvatars(data.avatar);
 }
 
-function shareReferral() {
-    const link = window.location.origin + "?ref=" + currentUser;
-    navigator.clipboard.writeText(link);
-    alert("¡Enlace copiado!\nCompártelo con tus amigos:\n" + link);
-}
-
-// --- LOGIN/REGISTRO/LOGOUT (Estándar) ---
-
+// --- LOGIN / REGISTER / LOGOUT ---
 async function doLogin() {
-    const user = document.getElementById('loginUser').value.trim();
-    const pass = document.getElementById('loginPass').value.trim();
+    const user = document.getElementById('loginUser').value;
+    const pass = document.getElementById('loginPass').value;
     const res = await fetch('/api/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username: user, password: pass})
     });
     const data = await res.json();
-    if (data.status === 'success') {
+    if(data.status === 'success') {
         closeModal('loginModal');
         loginSuccess({user: data.user, saldo: data.saldo, avatar: data.avatar, bio: ""});
-    } else { alert(data.message); }
+    } else alert(data.message);
 }
 
 async function doRegister() {
-    // Simular el registro para no hacer el código infinito aquí
-    // Usa la función completa que te pasé antes, es compatible.
+    // Implementación simplificada (usa tus campos reales)
     const user = document.getElementById('regUser').value;
     const pass = document.getElementById('regPass').value;
     const email = document.getElementById('regEmail').value;
     const phone = document.getElementById('regPhone').value;
     
-    if(!user || !pass || !email) return alert("Rellena los datos");
+    if(!user || !pass || !email) return alert("Rellena datos");
 
     const res = await fetch('/api/register', {
         method: 'POST',
@@ -162,9 +134,9 @@ async function doRegister() {
     const data = await res.json();
     if(data.status === 'success') {
         closeModal('registerModal');
-        alert("¡Cuenta Creada! +100 Créditos");
         loginSuccess({user: data.user, saldo: 100.00, avatar: 'default.png', bio: ""});
-    } else { alert(data.message); }
+        alert("¡Cuenta Creada!");
+    } else alert(data.message);
 }
 
 async function doLogout() {
@@ -172,7 +144,36 @@ async function doLogout() {
     location.reload();
 }
 
-// --- UTILS ---
+// --- SIMULACIÓN GANADORES (FAKE LIVE DATA) ---
+function simulateLiveWins() {
+    const games = ['Crash', 'Mines', 'Slots', 'Roulette'];
+    const users = ['Alex', 'Juan', 'CryptoKing', 'LuckyBoy', 'Sarah', 'Winner99'];
+    const tbody = document.getElementById('liveWinsBody');
+
+    function addWin() {
+        const game = games[Math.floor(Math.random() * games.length)];
+        const user = users[Math.floor(Math.random() * users.length)] + '***';
+        const amount = (Math.random() * 100).toFixed(2);
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><span style="color:var(--text-muted)">${game}</span></td>
+            <td>${user}</td>
+            <td class="text-right win-amount">+${amount}$</td>
+        `;
+        
+        // Efecto visual
+        row.style.animation = 'fadeIn 0.5s';
+        tbody.prepend(row);
+        
+        if(tbody.children.length > 5) tbody.lastChild.remove();
+        
+        setTimeout(addWin, Math.random() * 3000 + 2000);
+    }
+    addWin();
+}
+
+// UTILS
 function openModal(id) {
     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
