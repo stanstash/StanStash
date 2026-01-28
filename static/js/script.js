@@ -1,26 +1,34 @@
 let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Iniciar en Home
     navigate('home');
-    // Asegurar estado inicial limpio
+    
+    // 2. Estado visual inicial (Invitado)
     document.getElementById('loggedNav').classList.add('hidden');
     document.getElementById('desktopLogout').classList.add('hidden');
     document.getElementById('guestNav').classList.remove('hidden');
+
+    // 3. Comprobar sesión (Si hay sesión, esto actualizará la UI automáticamente)
     checkSession();
+    
+    // 4. Iniciar simulación de premios
     simulateLiveWins();
 });
 
 // --- SPA NAVIGATION ---
 function navigate(viewId) {
+    // Ocultar todas las secciones
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+    // Mostrar la elegida
     document.getElementById('view-' + viewId).classList.remove('hidden');
     
-    // Nav Móvil
+    // Nav Móvil (Bottom)
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     const navItem = document.getElementById('nav-' + viewId);
     if(navItem) navItem.classList.add('active');
 
-    // Sidebar PC
+    // Sidebar PC (Left)
     document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
     const sideItem = document.getElementById('side-' + viewId);
     if(sideItem) sideItem.classList.add('active');
@@ -28,11 +36,12 @@ function navigate(viewId) {
     window.scrollTo(0, 0);
 }
 
-// --- SESIÓN ---
+// --- SESIÓN (Lógica de carga) ---
 async function checkSession() {
     try {
         const res = await fetch('/api/check_session');
         const data = await res.json();
+        // Si el servidor dice que estamos dentro, actualizamos la UI
         if (data.logged_in) loginSuccess(data);
     } catch (e) {}
 }
@@ -40,10 +49,12 @@ async function checkSession() {
 function loginSuccess(data) {
     currentUser = data.user;
     
+    // Cambiar Navegación
     document.getElementById('guestNav').classList.add('hidden');
     document.getElementById('loggedNav').classList.remove('hidden');
     document.getElementById('desktopLogout').classList.remove('hidden');
     
+    // Poner datos en la web
     document.getElementById('userBalance').innerText = data.saldo.toFixed(2);
     document.getElementById('profileBalanceDisplay').innerText = data.saldo.toFixed(2);
     document.getElementById('profileUsername').innerText = data.user;
@@ -74,23 +85,29 @@ async function uploadAvatar() {
     
     const res = await fetch('/api/upload_avatar', { method: 'POST', body: formData });
     const data = await res.json();
+    // Aquí sí actualizamos sin recargar para que se vea al momento
     if(data.status === 'success') updateAllAvatars(data.avatar);
 }
 
-// --- AUTH ---
+// --- LOGIN Y REGISTRO (MODIFICADO: AHORA RECARGAN PÁGINA) ---
+
 async function doLogin() {
     const user = document.getElementById('loginUser').value;
     const pass = document.getElementById('loginPass').value;
+    
     const res = await fetch('/api/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username: user, password: pass})
     });
     const data = await res.json();
+
     if(data.status === 'success') {
-        closeModal('loginModal');
-        loginSuccess({user: data.user, saldo: data.saldo, avatar: data.avatar});
-    } else alert(data.message);
+        // SIN ALERTAS, SOLO RECARGA
+        window.location.reload();
+    } else {
+        alert(data.message); // Mantenemos el aviso solo si hay error
+    }
 }
 
 async function doRegister() {
@@ -99,7 +116,7 @@ async function doRegister() {
     const email = document.getElementById('regEmail').value;
     const phone = document.getElementById('regPhone').value;
     
-    if(!user || !pass || !email) return alert("Rellena datos");
+    if(!user || !pass || !email) return alert("Rellena todos los datos");
 
     const res = await fetch('/api/register', {
         method: 'POST',
@@ -107,20 +124,24 @@ async function doRegister() {
         body: JSON.stringify({username: user, password: pass, email: email, telefono: phone})
     });
     const data = await res.json();
+
     if(data.status === 'success') {
-        closeModal('registerModal');
-        loginSuccess({user: data.user, saldo: 100.00, avatar: 'default.png'});
-        alert("¡Cuenta Creada!");
-    } else alert(data.message);
+        // SIN ALERTAS, SOLO RECARGA
+        window.location.reload();
+    } else {
+        alert(data.message); // Mantenemos el aviso solo si hay error
+    }
 }
+
+// --- LOGOUT Y OTROS ---
 
 async function doLogout() {
     await fetch('/api/logout');
-    location.reload();
+    window.location.reload();
 }
 
 async function confirmPayment() {
-    alert("Procesando pago...");
+    alert("Procesando pago..."); // Esto lo dejamos como feedback visual momentáneo
     closeModal('depositModal');
 }
 
@@ -131,6 +152,7 @@ function simulateLiveWins() {
     const tbody = document.getElementById('liveWinsBody');
 
     function addWin() {
+        if(!tbody) return;
         const game = games[Math.floor(Math.random() * games.length)];
         const user = users[Math.floor(Math.random() * users.length)] + '***';
         const amount = (Math.random() * 100).toFixed(2);
