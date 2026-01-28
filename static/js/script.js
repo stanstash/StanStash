@@ -63,12 +63,22 @@ function loginSuccess(data) {
 }
 
 function updateAllAvatars(filename) {
-    let url = 'https://via.placeholder.com/100/000000/FFFFFF/?text=User';
-    if (filename && filename !== 'default.png') url = `/static/uploads/${filename}`;
-    else if (currentUser) url = `https://via.placeholder.com/100/000000/00FF88/?text=${currentUser.charAt(0).toUpperCase()}`;
+    // 1. Definimos la foto "Bonita" por defecto (Silueta gris profesional)
+    const defaultImage = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
 
-    if(document.getElementById('navAvatarImg')) document.getElementById('navAvatarImg').src = url;
-    if(document.getElementById('profileAvatarBig')) document.getElementById('profileAvatarBig').src = url;
+    let url = defaultImage;
+
+    // 2. Solo si el archivo existe y NO es "default.png", usamos la foto del usuario
+    if (filename && filename !== 'default.png' && filename !== 'null' && filename !== 'undefined') {
+        url = `/static/uploads/${filename}`;
+    }
+
+    // 3. Aplicamos la imagen a la barra de navegación y al perfil
+    const navImg = document.getElementById('navAvatarImg');
+    const profileImg = document.getElementById('profileAvatarBig');
+
+    if (navImg) navImg.src = url;
+    if (profileImg) profileImg.src = url;
 }
 
 // --- PERFIL ---
