@@ -1,27 +1,34 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, jsonify, request
+from flask_sqlalchemy import SQLAlchemy
 
-# Iniciamos la app. Le decimos que busque los HTML en 'templates'
-# y el CSS/JS en 'static'
 app = Flask(__name__)
 
-# RUTA 1: La Portada
-# Cuando alguien entra a "stanstash.org/", haz esto:
+# CONEXIÓN A LA BBDD (Usuario root, sin contraseña, en localhost)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/casino_db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+# Definimos la tabla para que Python la entienda
+class Usuario(db.Model):
+    __tablename__ = 'usuarios'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True)
+    saldo = db.Column(db.Numeric(10, 2))
+
 @app.route('/')
 def home():
-    # Flask busca 'index.html' DENTRO de la carpeta 'templates' automáticamente
     return render_template('index.html')
 
-# RUTA 2: Una API para tu casino (Ejemplo)
-# Cuando el JS pida saldo o apueste, viene aquí
-@app.route('/api/apostar', methods=['POST'])
-def apostar():
-    datos = request.json
-    apuesta = datos.get('cantidad')
-    # Aquí iría tu lógica matemática de si gana o pierde
-    return jsonify({'status': 'ok', 'mensaje': f'Has apostado {apuesta}'})
+# API: Consultar Saldo de prueba
+@app.route('/api/saldo/<usuario>')
+def get_saldo(usuario):
+    # Busca en la BBDD
+    user = Usuario.query.filter_by(username=usuario).first()
+    if user:
+        return jsonify({'status': 'ok', 'user': user.username, 'saldo': float(user.saldo)})
+    return jsonify({'status': 'error', 'msg': 'Usuario no encontrado'})
 
-# Arrancar el servidor
 if __name__ == '__main__':
-    # host='0.0.0.0' permite que se vea desde fuera (internet/red local)
-    # debug=True hace que si cambias código, se actualice solo sin reiniciar
+    # Esto sustituye a tu comando anterior
     app.run(host='0.0.0.0', port=8080, debug=True)
