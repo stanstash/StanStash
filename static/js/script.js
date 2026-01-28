@@ -1,34 +1,30 @@
 let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Iniciar en Home
     navigate('home');
-    
-    // 2. Ocultar menús logueados al inicio
     document.getElementById('loggedNav').classList.add('hidden');
+    document.getElementById('desktopLogout').classList.add('hidden');
     document.getElementById('guestNav').classList.remove('hidden');
-
-    // 3. Comprobar sesión
     checkSession();
-    
-    // 4. Iniciar simulación de ganadores
     simulateLiveWins();
 });
 
 // --- SPA NAVIGATION ---
 function navigate(viewId) {
-    // Ocultar todas las secciones
+    // 1. Ocultar secciones
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-    
-    // Mostrar la elegida
     document.getElementById('view-' + viewId).classList.remove('hidden');
     
-    // Actualizar nav inferior
+    // 2. Nav Inferior (Móvil)
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     const navItem = document.getElementById('nav-' + viewId);
     if(navItem) navItem.classList.add('active');
+
+    // 3. Sidebar (Escritorio) - Marcar activo
+    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+    const sideItem = document.getElementById('side-' + viewId);
+    if(sideItem) sideItem.classList.add('active');
     
-    // Scroll arriba
     window.scrollTo(0, 0);
 }
 
@@ -37,10 +33,8 @@ async function checkSession() {
     try {
         const res = await fetch('/api/check_session');
         const data = await res.json();
-        if (data.logged_in) {
-            loginSuccess(data);
-        }
-    } catch (e) { console.log("Invitado"); }
+        if (data.logged_in) loginSuccess(data);
+    } catch (e) {}
 }
 
 function loginSuccess(data) {
@@ -49,14 +43,13 @@ function loginSuccess(data) {
     // UI Change
     document.getElementById('guestNav').classList.add('hidden');
     document.getElementById('loggedNav').classList.remove('hidden');
+    document.getElementById('desktopLogout').classList.remove('hidden');
     
-    // Datos en todas partes
+    // Datos
     document.getElementById('userBalance').innerText = data.saldo.toFixed(2);
     document.getElementById('profileBalanceDisplay').innerText = data.saldo.toFixed(2);
     document.getElementById('profileUsername').innerText = data.user;
-    if(data.bio) document.getElementById('profileBio').value = data.bio;
 
-    // Actualizar avatares
     updateAllAvatars(data.avatar);
 }
 
@@ -73,21 +66,6 @@ function updateAllAvatars(filename) {
 function handleProfileClick() {
     if (!currentUser) openModal('loginModal');
     else openModal('profileModal');
-}
-
-function toggleBioEdit() {
-    document.getElementById('bioEditSection').classList.toggle('hidden');
-}
-
-async function saveBio() {
-    const bio = document.getElementById('profileBio').value;
-    await fetch('/api/update_bio', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({bio: bio})
-    });
-    toggleBioEdit();
-    alert("Bio guardada");
 }
 
 async function uploadAvatar() {
@@ -118,7 +96,6 @@ async function doLogin() {
 }
 
 async function doRegister() {
-    // Implementación simplificada (usa tus campos reales)
     const user = document.getElementById('regUser').value;
     const pass = document.getElementById('regPass').value;
     const email = document.getElementById('regEmail').value;
@@ -144,10 +121,10 @@ async function doLogout() {
     location.reload();
 }
 
-// --- SIMULACIÓN GANADORES (FAKE LIVE DATA) ---
+// --- FAKE WINS ---
 function simulateLiveWins() {
-    const games = ['Crash', 'Mines', 'Slots', 'Roulette'];
-    const users = ['Alex', 'Juan', 'CryptoKing', 'LuckyBoy', 'Sarah', 'Winner99'];
+    const games = ['Crash', 'Mines', 'Slots'];
+    const users = ['Alex', 'Juan', 'CryptoKing', 'LuckyBoy', 'Sarah'];
     const tbody = document.getElementById('liveWinsBody');
 
     function addWin() {
@@ -156,18 +133,10 @@ function simulateLiveWins() {
         const amount = (Math.random() * 100).toFixed(2);
         
         const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><span style="color:var(--text-muted)">${game}</span></td>
-            <td>${user}</td>
-            <td class="text-right win-amount">+${amount}$</td>
-        `;
-        
-        // Efecto visual
+        row.innerHTML = `<td>${game}</td><td>${user}</td><td class="win-amount">+${amount}$</td>`;
         row.style.animation = 'fadeIn 0.5s';
         tbody.prepend(row);
-        
         if(tbody.children.length > 5) tbody.lastChild.remove();
-        
         setTimeout(addWin, Math.random() * 3000 + 2000);
     }
     addWin();
