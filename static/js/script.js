@@ -1,34 +1,29 @@
 let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Iniciar en Home
     navigate('home');
-    
-    // 2. Estado visual inicial (Invitado)
     document.getElementById('loggedNav').classList.add('hidden');
     document.getElementById('desktopLogout').classList.add('hidden');
     document.getElementById('guestNav').classList.remove('hidden');
-
-    // 3. Comprobar sesión
     checkSession();
-    
-    // 4. Iniciar simulación de premios
     simulateLiveWins();
 });
 
 // --- SPA NAVIGATION ---
 function navigate(viewId) {
-    // Ocultar todas las secciones
+    // 1. Ocultar todas las secciones
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-    // Mostrar la elegida
-    document.getElementById('view-' + viewId).classList.remove('hidden');
     
-    // Nav Móvil (Bottom)
+    // 2. Mostrar la deseada
+    const target = document.getElementById('view-' + viewId);
+    if(target) target.classList.remove('hidden');
+    
+    // 3. Actualizar Nav Móvil
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     const navItem = document.getElementById('nav-' + viewId);
     if(navItem) navItem.classList.add('active');
 
-    // Sidebar PC (Left)
+    // 4. Actualizar Sidebar PC
     document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
     const sideItem = document.getElementById('side-' + viewId);
     if(sideItem) sideItem.classList.add('active');
@@ -36,12 +31,11 @@ function navigate(viewId) {
     window.scrollTo(0, 0);
 }
 
-// --- SESIÓN (Lógica de carga) ---
+// --- SESIÓN ---
 async function checkSession() {
     try {
         const res = await fetch('/api/check_session');
         const data = await res.json();
-        // Si el servidor dice que estamos dentro, actualizamos la UI
         if (data.logged_in) loginSuccess(data);
     } catch (e) {}
 }
@@ -49,12 +43,10 @@ async function checkSession() {
 function loginSuccess(data) {
     currentUser = data.user;
     
-    // Cambiar Navegación
     document.getElementById('guestNav').classList.add('hidden');
     document.getElementById('loggedNav').classList.remove('hidden');
     document.getElementById('desktopLogout').classList.remove('hidden');
     
-    // Poner datos en la web
     document.getElementById('userBalance').innerText = data.saldo.toFixed(2);
     document.getElementById('profileBalanceDisplay').innerText = data.saldo.toFixed(2);
     document.getElementById('profileUsername').innerText = data.user;
@@ -63,28 +55,21 @@ function loginSuccess(data) {
 }
 
 function updateAllAvatars(filename) {
-    // 1. Definimos la foto "Bonita" por defecto (Silueta gris profesional)
     const defaultImage = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
-
     let url = defaultImage;
 
-    // 2. Solo si el archivo existe y NO es "default.png", usamos la foto del usuario
-    if (filename && filename !== 'default.png' && filename !== 'null' && filename !== 'undefined') {
+    if (filename && filename !== 'default.png' && filename !== 'null') {
         url = `/static/uploads/${filename}`;
     }
 
-    // 3. Aplicamos la imagen a la barra de navegación y al perfil
-    const navImg = document.getElementById('navAvatarImg');
-    const profileImg = document.getElementById('profileAvatarBig');
-
-    if (navImg) navImg.src = url;
-    if (profileImg) profileImg.src = url;
+    if(document.getElementById('navAvatarImg')) document.getElementById('navAvatarImg').src = url;
+    if(document.getElementById('profileAvatarBig')) document.getElementById('profileAvatarBig').src = url;
 }
 
-// --- PERFIL ---
+// --- PERFIL: AHORA LLEVA A LA PÁGINA, NO AL MODAL ---
 function handleProfileClick() {
     if (!currentUser) openModal('loginModal');
-    else openModal('profileModal');
+    else navigate('profile');
 }
 
 async function uploadAvatar() {
@@ -95,28 +80,21 @@ async function uploadAvatar() {
     
     const res = await fetch('/api/upload_avatar', { method: 'POST', body: formData });
     const data = await res.json();
-    // Actualizamos sin recargar
     if(data.status === 'success') updateAllAvatars(data.avatar);
 }
 
-// --- LOGIN Y REGISTRO (CON RECARGA) ---
-
+// --- LOGIN/REGISTRO ---
 async function doLogin() {
     const user = document.getElementById('loginUser').value;
     const pass = document.getElementById('loginPass').value;
-    
     const res = await fetch('/api/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username: user, password: pass})
     });
     const data = await res.json();
-
-    if(data.status === 'success') {
-        window.location.reload();
-    } else {
-        alert(data.message);
-    }
+    if(data.status === 'success') window.location.reload();
+    else alert(data.message);
 }
 
 async function doRegister() {
@@ -133,15 +111,9 @@ async function doRegister() {
         body: JSON.stringify({username: user, password: pass, email: email, telefono: phone})
     });
     const data = await res.json();
-
-    if(data.status === 'success') {
-        window.location.reload();
-    } else {
-        alert(data.message);
-    }
+    if(data.status === 'success') window.location.reload();
+    else alert(data.message);
 }
-
-// --- LOGOUT Y OTROS ---
 
 async function doLogout() {
     await fetch('/api/logout');
@@ -153,19 +125,15 @@ async function confirmPayment() {
     closeModal('depositModal');
 }
 
-// --- SIMULACIÓN GANADORES (NOMBRES PERSONALIZADOS) ---
+// --- GANADORES ---
 function simulateLiveWins() {
     const games = ['Crash', 'Mines', 'Slots'];
-    
-    // AQUÍ ESTÁN TUS NOMBRES NUEVOS
     const users = ['hecproll', 'Daniel remon', 'PascualGamerRTX', 'ikerLozanoRomero', 'dudu9439'];
-    
     const tbody = document.getElementById('liveWinsBody');
 
     function addWin() {
         if(!tbody) return;
         const game = games[Math.floor(Math.random() * games.length)];
-        // Elegir nombre al azar
         const user = users[Math.floor(Math.random() * users.length)];
         const amount = (Math.random() * 100).toFixed(2);
         
@@ -174,7 +142,6 @@ function simulateLiveWins() {
         row.style.animation = 'fadeIn 0.5s';
         tbody.prepend(row);
         if(tbody.children.length > 5) tbody.lastChild.remove();
-        
         setTimeout(addWin, Math.random() * 3000 + 2000);
     }
     addWin();
