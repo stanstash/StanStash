@@ -1,81 +1,59 @@
-:root {
-    --bg-app: #0b0e11;
-    --bg-panel: #151a21;
-    --accent: #00ff88;
-    --text: #ffffff;
-    --text-dim: #8a939b;
-    --nav-height: 60px;
-}
-
-/* RESET & BASE */
+:root { --bg-app: #0b0e11; --bg-panel: #151a21; --accent: #00ff88; --text: #ffffff; --text-dim: #8a939b; --nav-height: 60px; }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-app); color: var(--text); padding-top: var(--nav-height); padding-bottom: 70px; }
 .hidden { display: none !important; }
 
 /* NAVBAR */
-.top-navbar {
-    position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
-    background: rgba(21, 26, 33, 0.95); backdrop-filter: blur(10px);
-    display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 100; border-bottom: 1px solid #252f38;
-}
-.logo { font-weight: 900; font-size: 1.1rem; letter-spacing: 1px; color: var(--accent); }
+.top-navbar { position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height); background: rgba(21, 26, 33, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 100; border-bottom: 1px solid #252f38; }
+.logo { font-weight: 900; color: var(--accent); }
 .btn-login { background: var(--accent); color: black; border: none; padding: 6px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
-.balance-pill { background: #1e2732; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 5px; font-weight: bold; border: 1px solid var(--accent); cursor: pointer; }
-.logout-icon { color: #ff4757; margin-left: 15px; cursor: pointer; }
+.balance-pill { background: #1e2732; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 5px; font-weight: bold; border: 1px solid var(--accent); cursor: pointer; margin-right: 10px; }
+
+/* AVATAR NAVBAR */
+.nav-avatar { width: 35px; height: 35px; border-radius: 50%; overflow: hidden; border: 2px solid var(--accent); cursor: pointer; }
+.nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 /* CONTENT */
 .main-content { padding: 15px; }
 .hero-banner { background: linear-gradient(45deg, var(--bg-panel), #1a2e25); padding: 25px; border-radius: 15px; margin-bottom: 20px; text-align: center; border: 1px solid #252f38; }
 .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
 .game-card { background: var(--bg-panel); border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.2s; cursor: pointer; }
-.game-card:active { transform: scale(0.98); }
-.card-info { padding: 10px; } .card-info h3 { margin: 0; font-size: 0.9rem; } .card-info span { font-size: 0.7rem; color: var(--text-dim); }
-.card-badge.hot { position: absolute; top: 10px; left: 10px; background: #ff4757; color: white; padding: 3px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: bold; }
+.card-info { padding: 10px; } .card-badge.hot { position: absolute; top: 10px; left: 10px; background: #ff4757; color: white; padding: 3px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: bold; }
 
-/* --- MODALES REPARADOS (CENTRADOS) --- */
-.modal {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
-    display: flex; justify-content: center; align-items: center; /* ESTO CENTRA EL MODAL */
-    z-index: 2000;
-}
-.modal-content {
-    background: var(--bg-panel); width: 90%; max-width: 400px;
-    padding: 30px; border-radius: 15px; position: relative;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #252f38;
-}
+/* MODALES */
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+.modal-content { background: var(--bg-panel); width: 90%; max-width: 400px; padding: 30px; border-radius: 15px; position: relative; border: 1px solid #252f38; }
 .close { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--text-dim); }
 h2 { text-align: center; color: var(--accent); margin-bottom: 20px; margin-top: 0; }
 
-/* INPUTS & FORM */
-.input-field { width: 100%; padding: 12px; margin: 8px 0; background: #0b0e11; border: 1px solid #252f38; color: white; border-radius: 8px; font-size: 1rem; }
-.input-field:focus { border-color: var(--accent); outline: none; }
+/* PERFIL */
+.profile-header { text-align: center; margin-bottom: 20px; }
+.avatar-wrapper { position: relative; width: 100px; height: 100px; margin: 0 auto 10px; }
+.avatar-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); }
+.avatar-edit-btn { position: absolute; bottom: 0; right: 0; background: var(--accent); color: black; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+.btn-secondary-red { width: 100%; padding: 12px; background: transparent; border: 1px solid #ff4757; color: #ff4757; border-radius: 8px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+
+/* INPUTS */
+.input-field { width: 100%; padding: 12px; margin: 8px 0; background: #0b0e11; border: 1px solid #252f38; color: white; border-radius: 8px; font-size: 1rem; font-family: inherit; }
 .btn-action { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; color: black; cursor: pointer; margin-top: 15px; }
-
-/* GRUPO TELEFONO */
-.phone-group { display: flex; gap: 8px; margin: 8px 0; }
-.prefix-select { width: 35%; margin: 0; }
-.phone-input { width: 65%; margin: 0; }
-
-/* FOOTER MODAL */
+.phone-group { display: flex; gap: 8px; } .prefix-select { width: 35%; } .phone-input { width: 65%; }
 .modal-footer { text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--text-dim); }
-.modal-footer a { color: var(--accent); cursor: pointer; font-weight: bold; margin-left: 5px; text-decoration: underline; }
-.error-text { color: #ff4757; text-align: center; font-size: 0.9rem; margin-top: 10px; display: none; }
+.modal-footer a { color: var(--accent); cursor: pointer; text-decoration: underline; }
 .copy-box { background: #000; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px dashed #444; cursor: pointer; }
 
-/* NAV MÓVIL */
+/* NAV MÓVIL Y SIDEBAR */
 .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background: var(--bg-panel); border-top: 1px solid #252f38; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
 .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--text-dim); font-size: 0.7rem; }
 .nav-item i { font-size: 1.3rem; margin-bottom: 4px; }
 .nav-item:active { color: var(--accent); }
-
-/* MEDIA QUERIES */
 .mobile-only { display: flex; } .desktop-only { display: none; }
+
 @media (min-width: 768px) {
     body { padding-bottom: 0; padding-left: 220px; }
     .mobile-only { display: none !important; } .desktop-only { display: block !important; }
     .top-navbar { padding-left: 240px; height: 70px; }
     .desktop-sidebar { position: fixed; left: 0; top: 0; width: 220px; height: 100vh; background: var(--bg-panel); padding-top: 80px; border-right: 1px solid #252f38; }
     .desktop-sidebar a { display: flex; align-items: center; gap: 15px; color: var(--text-dim); text-decoration: none; padding: 15px 25px; transition: 0.3s; }
-    .desktop-sidebar a:hover, .desktop-sidebar a.active { color: var(--text); background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); }
+    .desktop-sidebar a:hover { color: var(--text); background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); }
+    .mini-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
 }
