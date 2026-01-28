@@ -1,9 +1,9 @@
 let currentUser = null;
+let chatInterval = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     navigate('home');
     document.getElementById('loggedNav').classList.add('hidden');
-    document.getElementById('desktopLogout').classList.add('hidden');
     document.getElementById('guestNav').classList.remove('hidden');
     checkSession();
     simulateLiveWins();
@@ -11,20 +11,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- SPA NAVIGATION ---
 function navigate(viewId) {
-    // 1. Ocultar secciones
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     document.getElementById('view-' + viewId).classList.remove('hidden');
-    
-    // 2. Nav Inferior (Móvil)
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     const navItem = document.getElementById('nav-' + viewId);
     if(navItem) navItem.classList.add('active');
-
-    // 3. Sidebar (Escritorio) - Marcar activo
     document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
     const sideItem = document.getElementById('side-' + viewId);
     if(sideItem) sideItem.classList.add('active');
-    
     window.scrollTo(0, 0);
 }
 
@@ -39,33 +33,93 @@ async function checkSession() {
 
 function loginSuccess(data) {
     currentUser = data.user;
-    
-    // UI Change
     document.getElementById('guestNav').classList.add('hidden');
     document.getElementById('loggedNav').classList.remove('hidden');
-    document.getElementById('desktopLogout').classList.remove('hidden');
     
-    // Datos
     document.getElementById('userBalance').innerText = data.saldo.toFixed(2);
     document.getElementById('profileBalanceDisplay').innerText = data.saldo.toFixed(2);
     document.getElementById('profileUsername').innerText = data.user;
-
+    
+    // Bio
+    if(data.bio) document.getElementById('bioDisplay').innerText = data.bio;
+    
     updateAllAvatars(data.avatar);
 }
 
 function updateAllAvatars(filename) {
     let url = 'https://via.placeholder.com/100/000000/FFFFFF/?text=User';
     if (filename && filename !== 'default.png') url = `/static/uploads/${filename}`;
-    else if (currentUser) url = `https://via.placeholder.com/100/000000/00FF88/?text=${currentUser.charAt(0).toUpperCase()}`;
-
+    
     if(document.getElementById('navAvatarImg')) document.getElementById('navAvatarImg').src = url;
     if(document.getElementById('profileAvatarBig')) document.getElementById('profileAvatarBig').src = url;
+}
+
+// --- CHAT SYSTEM (NUEVO) ---
+function openChat() {
+    if (!currentUser) return openModal('loginModal');
+    openModal('chatModal');
+    loadChat();
+    if (!chatInterval) chatInterval = setInterval(loadChat, 3000); // Actualizar cada 3s
+}
+
+async function loadChat() {
+    try {
+        const res = await fetch('/api/chat/get');
+        const data = await res.json();
+        const chatBox = document.getElementById('chatBox');
+        chatBox.innerHTML = ''; // Limpiar
+        
+        data.messages.forEach(msg => {
+            const div = document.createElement('div');
+            div.className = 'chat-msg';
+            const avatarUrl = msg.avatar && msg.avatar !== 'default.png' ? `/static/uploads/${msg.avatar}` : 'https://via.placeholder.com/30';
+            
+            div.innerHTML = `
+                <img src="${avatarUrl}" class="chat-avatar">
+                <div class="msg-bubble">
+                    <div class="msg-user">${msg.user}</div>
+                    ${msg.text}
+                </div>
+            `;
+            chatBox.appendChild(div);
+        });
+        chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll abajo
+    } catch(e) {}
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    
+    input.value = ''; // Limpiar input rápido
+    await fetch('/api/chat/send', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({texto: text})
+    });
+    loadChat();
 }
 
 // --- PERFIL ---
 function handleProfileClick() {
     if (!currentUser) openModal('loginModal');
     else openModal('profileModal');
+}
+
+function toggleBioEdit() {
+    document.getElementById('bioEditSection').classList.toggle('hidden');
+}
+
+async function saveBio() {
+    const bio = document.getElementById('profileBio').value;
+    await fetch('/api/update_bio', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({bio: bio})
+    });
+    document.getElementById('bioDisplay').innerText = bio;
+    toggleBioEdit();
 }
 
 async function uploadAvatar() {
@@ -79,7 +133,7 @@ async function uploadAvatar() {
     if(data.status === 'success') updateAllAvatars(data.avatar);
 }
 
-// --- LOGIN / REGISTER / LOGOUT ---
+// --- LOGIN/REGISTRO ---
 async function doLogin() {
     const user = document.getElementById('loginUser').value;
     const pass = document.getElementById('loginPass').value;
@@ -91,7 +145,7 @@ async function doLogin() {
     const data = await res.json();
     if(data.status === 'success') {
         closeModal('loginModal');
-        loginSuccess({user: data.user, saldo: data.saldo, avatar: data.avatar, bio: ""});
+        loginSuccess({user: data.user, saldo: data.saldo, avatar: data.avatar, bio: data.bio || ""});
     } else alert(data.message);
 }
 
@@ -131,7 +185,6 @@ function simulateLiveWins() {
         const game = games[Math.floor(Math.random() * games.length)];
         const user = users[Math.floor(Math.random() * users.length)] + '***';
         const amount = (Math.random() * 100).toFixed(2);
-        
         const row = document.createElement('tr');
         row.innerHTML = `<td>${game}</td><td>${user}</td><td class="win-amount">+${amount}$</td>`;
         row.style.animation = 'fadeIn 0.5s';
@@ -147,5 +200,5 @@ function openModal(id) {
     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
 }
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); if(id==='chatModal') clearInterval(chatInterval); }
 function switchModal(from, to) { closeModal(from); openModal(to); }

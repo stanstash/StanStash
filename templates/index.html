@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Stanstash | Crypto Casino</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=8.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=9.0">
 </head>
 <body>
 
@@ -17,9 +17,8 @@
         <div class="user-panel">
             <div class="guest-view" id="guestNav">
                 <button class="btn-login" onclick="openModal('loginModal')">ENTRAR</button>
-                <button class="btn-register desktop-only" onclick="openModal('registerModal')">REGISTRARSE</button>
+                <button class="btn-register desktop-only" onclick="openModal('registerModal')">REGISTRO</button>
             </div>
-            
             <div class="logged-view hidden" id="loggedNav">
                 <div class="balance-pill" onclick="openModal('depositModal')">
                     <span id="userBalance">0.00</span> <i class="fa-brands fa-bitcoin"></i>
@@ -41,14 +40,11 @@
                     <button class="btn-cta" onclick="navigate('games')">JUGAR AHORA</button>
                 </div>
             </div>
-
             <div class="live-wins-section">
                 <div class="section-header">
                     <div class="live-indicator"><span class="blink"></span> GANADORES EN VIVO</div>
                 </div>
-                <table class="wins-table">
-                    <tbody id="liveWinsBody"></tbody>
-                </table>
+                <table class="wins-table"><tbody id="liveWinsBody"></tbody></table>
             </div>
         </section>
 
@@ -57,24 +53,15 @@
                 <div class="game-card" onclick="alert('Crash en Mantenimiento')">
                     <div class="live-badge">LIVE</div>
                     <div class="game-poster crash-bg"><i class="fa-solid fa-plane-up"></i></div>
-                    <div class="game-details">
-                        <h3>Crash</h3>
-                        <p>Multiplicador x1000</p>
-                    </div>
+                    <div class="game-details"><h3>Crash</h3><p>Multiplicador x1000</p></div>
                 </div>
                 <div class="game-card" onclick="alert('Mines en Mantenimiento')">
                     <div class="game-poster mines-bg"><i class="fa-solid fa-bomb"></i></div>
-                    <div class="game-details">
-                        <h3>Mines</h3>
-                        <p>Estrategia Pura</p>
-                    </div>
+                    <div class="game-details"><h3>Mines</h3><p>Estrategia Pura</p></div>
                 </div>
                 <div class="game-card locked">
                     <div class="game-poster slots-bg" style="opacity:0.5"><i class="fa-solid fa-lock"></i></div>
-                    <div class="game-details">
-                        <h3>Slots VIP</h3>
-                        <p>Próximamente</p>
-                    </div>
+                    <div class="game-details"><h3>Slots VIP</h3><p>Próximamente</p></div>
                 </div>
             </div>
         </section>
@@ -82,46 +69,76 @@
 
     <aside class="desktop-sidebar desktop-only">
         <nav class="sidebar-menu">
-            <a href="#" onclick="navigate('home')" class="sidebar-item active" id="side-home">
-                <i class="fa-solid fa-house"></i> Inicio
-            </a>
-            <a href="#" onclick="navigate('games')" class="sidebar-item" id="side-games">
-                <i class="fa-solid fa-gamepad"></i> Juegos
-            </a>
-            <a href="#" onclick="openModal('depositModal')" class="sidebar-item">
-                <i class="fa-solid fa-wallet"></i> Cartera
-            </a>
-            <a href="#" onclick="alert('Chat Global: Conectando...')" class="sidebar-item">
-                <i class="fa-solid fa-comments"></i> Chat Global
-            </a>
-            <a href="#" onclick="handleProfileClick()" class="sidebar-item">
-                <i class="fa-solid fa-user"></i> Mi Perfil
-            </a>
+            <a href="#" onclick="navigate('home')" class="sidebar-item active" id="side-home"><i class="fa-solid fa-house"></i> Inicio</a>
+            <a href="#" onclick="navigate('games')" class="sidebar-item" id="side-games"><i class="fa-solid fa-gamepad"></i> Juegos</a>
+            <a href="#" onclick="openModal('depositModal')" class="sidebar-item"><i class="fa-solid fa-wallet"></i> Cartera</a>
+            <a href="#" onclick="openChat()" class="sidebar-item"><i class="fa-solid fa-comments"></i> Chat Global</a>
+            <a href="#" onclick="handleProfileClick()" class="sidebar-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
         </nav>
-        <div class="sidebar-footer hidden" id="desktopLogout">
-            <button class="btn-logout-side" onclick="doLogout()">
-                <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
-            </button>
-        </div>
     </aside>
 
     <nav class="bottom-nav mobile-only">
-        <a href="#" onclick="navigate('home')" class="nav-item active" id="nav-home">
-            <i class="fa-solid fa-house"></i><span>Inicio</span>
-        </a>
-        <a href="#" onclick="openModal('depositModal')" class="nav-item">
-            <i class="fa-solid fa-wallet"></i><span>Cartera</span>
-        </a>
-        <div class="nav-center" onclick="navigate('games')">
-            <i class="fa-solid fa-play"></i>
-        </div>
-        <a href="#" onclick="alert('Chat móvil próximamente')" class="nav-item">
-            <i class="fa-solid fa-comments"></i><span>Chat</span>
-        </a>
-        <a href="#" onclick="handleProfileClick()" class="nav-item">
-            <i class="fa-solid fa-user"></i><span>Perfil</span>
-        </a>
+        <a href="#" onclick="navigate('home')" class="nav-item active" id="nav-home"><i class="fa-solid fa-house"></i><span>Inicio</span></a>
+        <a href="#" onclick="openModal('depositModal')" class="nav-item"><i class="fa-solid fa-wallet"></i><span>Cartera</span></a>
+        <div class="nav-center" onclick="navigate('games')"><i class="fa-solid fa-play"></i></div>
+        <a href="#" onclick="openChat()" class="nav-item"><i class="fa-solid fa-comments"></i><span>Chat</span></a>
+        <a href="#" onclick="handleProfileClick()" class="nav-item"><i class="fa-solid fa-user"></i><span>Perfil</span></a>
     </nav>
+
+    <div id="profileModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('profileModal')">&times;</span>
+            
+            <div class="profile-top">
+                <div class="profile-avatar-area">
+                    <img id="profileAvatarBig" src="https://via.placeholder.com/100" alt="Avatar">
+                    <label for="avatarInput" class="camera-btn"><i class="fa-solid fa-camera"></i></label>
+                    <input type="file" id="avatarInput" hidden onchange="uploadAvatar()" accept="image/*">
+                </div>
+                <h3 id="profileUsername">Usuario</h3>
+            </div>
+
+            <div class="wallet-card">
+                <div style="color:#aaa; font-size:0.8rem; text-transform:uppercase;">Saldo Disponible</div>
+                <div class="wallet-amount" id="profileBalanceDisplay">0.00</div>
+                <div class="wallet-btns">
+                    <button class="btn-dep" onclick="closeModal('profileModal'); openModal('depositModal')">Depositar</button>
+                    <button class="btn-wd" onclick="alert('Retiros próximamente')">Retirar</button>
+                </div>
+            </div>
+
+            <div class="bio-container">
+                <label>Sobre mí:</label>
+                <p id="bioDisplay" class="bio-text">Sin biografía...</p>
+                <button class="btn-sm-edit" onclick="toggleBioEdit()">Editar Biografía</button>
+                
+                <div id="bioEditSection" class="hidden bio-editor">
+                    <textarea id="profileBio" placeholder="Escribe tu frase..."></textarea>
+                    <button onclick="saveBio()">Guardar</button>
+                </div>
+            </div>
+
+            <button class="btn-logout-pro" onclick="doLogout()">
+                <i class="fa-solid fa-power-off"></i> CERRAR SESIÓN
+            </button>
+        </div>
+    </div>
+
+    <div id="chatModal" class="modal hidden">
+        <div class="modal-content chat-content">
+             <span class="close" onclick="closeModal('chatModal')">&times;</span>
+             <h2 style="font-size:1.2rem; margin-bottom:10px;"><i class="fa-solid fa-comments"></i> Chat Global</h2>
+             
+             <div class="chat-messages" id="chatBox">
+                 <div class="msg-loading">Cargando chat...</div>
+             </div>
+             
+             <div class="chat-input-area">
+                 <input type="text" id="chatInput" placeholder="Escribe algo..." autocomplete="off">
+                 <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+             </div>
+        </div>
+    </div>
 
     <div id="loginModal" class="modal hidden">
         <div class="modal-content auth-modal">
@@ -147,35 +164,6 @@
              </div>
              <button class="btn-action" onclick="doRegister()">CREAR CUENTA</button>
              <div class="auth-footer"><a onclick="switchModal('registerModal', 'loginModal')">Ya tengo cuenta</a></div>
-        </div>
-    </div>
-
-    <div id="profileModal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('profileModal')">&times;</span>
-            
-            <div class="profile-top">
-                <div class="profile-avatar-area">
-                    <img id="profileAvatarBig" src="https://via.placeholder.com/100" alt="Avatar">
-                    <label for="avatarInput" class="camera-btn"><i class="fa-solid fa-camera"></i></label>
-                    <input type="file" id="avatarInput" hidden onchange="uploadAvatar()" accept="image/*">
-                </div>
-                <h3 id="profileUsername">Usuario</h3>
-            </div>
-
-            <div class="wallet-card">
-                <div style="color:#aaa; font-size:0.8rem; text-transform:uppercase;">Saldo Disponible</div>
-                <div class="wallet-amount" id="profileBalanceDisplay">0.00</div>
-                <div class="wallet-btns">
-                    <button class="btn-dep" onclick="closeModal('profileModal'); openModal('depositModal')">Depositar</button>
-                    <button class="btn-wd" onclick="alert('Retiros próximamente')">Retirar</button>
-                </div>
-            </div>
-
-            <div class="menu-row danger" onclick="doLogout()">
-                <div class="icon-box"><i class="fa-solid fa-power-off"></i></div>
-                <div class="menu-text">Cerrar Sesión</div>
-            </div>
         </div>
     </div>
 
