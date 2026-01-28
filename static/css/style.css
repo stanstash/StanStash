@@ -1,168 +1,81 @@
-/* --- VARIABLES Y RESET --- */
 :root {
-    --bg-app: #0b0e11;    /* Fondo super oscuro */
-    --bg-panel: #151a21;  /* Paneles y tarjetas */
-    --accent: #00ff88;    /* Verde Neon Crypto */
+    --bg-app: #0b0e11;
+    --bg-panel: #151a21;
+    --accent: #00ff88;
     --text: #ffffff;
     --text-dim: #8a939b;
-    --nav-height: 60px;   /* Altura barras de navegación */
+    --nav-height: 60px;
 }
 
-* {
-    margin: 0; padding: 0; box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent; /* Quita el flash azul en Android */
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-app);
-    color: var(--text);
-    padding-top: var(--nav-height); /* Espacio para el header fijo */
-    padding-bottom: var(--nav-height); /* Espacio para la nav inferior fija */
-}
-
-/* --- UTILIDADES --- */
+/* RESET & BASE */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-app); color: var(--text); padding-top: var(--nav-height); padding-bottom: 70px; }
 .hidden { display: none !important; }
-.mobile-only { display: flex; } /* Se muestra en móvil */
-.desktop-only { display: none; } /* Se oculta en móvil */
 
-/* --- HEADER SUPERIOR (Fijo) --- */
+/* NAVBAR */
 .top-navbar {
-    position: fixed; top: 0; left: 0; width: 100%;
-    height: var(--nav-height);
-    background: rgba(21, 26, 33, 0.95); /* Transparente estilo iOS */
-    backdrop-filter: blur(10px);
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0 15px;
-    z-index: 100;
-    border-bottom: 1px solid #252f38;
+    position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+    background: rgba(21, 26, 33, 0.95); backdrop-filter: blur(10px);
+    display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 100; border-bottom: 1px solid #252f38;
 }
-
 .logo { font-weight: 900; font-size: 1.1rem; letter-spacing: 1px; color: var(--accent); }
+.btn-login { background: var(--accent); color: black; border: none; padding: 6px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+.balance-pill { background: #1e2732; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 5px; font-weight: bold; border: 1px solid var(--accent); cursor: pointer; }
+.logout-icon { color: #ff4757; margin-left: 15px; cursor: pointer; }
 
-/* Botones y Saldo */
-.btn-login {
-    background: var(--accent); color: black; border: none;
-    padding: 8px 15px; border-radius: 20px; font-weight: bold;
-}
-.balance-pill {
-    background: #1e2732; padding: 6px 12px; border-radius: 20px;
-    display: flex; align-items: center; gap: 5px; font-weight: bold;
-    border: 1px solid var(--accent);
-}
+/* CONTENT */
+.main-content { padding: 15px; }
+.hero-banner { background: linear-gradient(45deg, var(--bg-panel), #1a2e25); padding: 25px; border-radius: 15px; margin-bottom: 20px; text-align: center; border: 1px solid #252f38; }
+.games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+.game-card { background: var(--bg-panel); border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.2s; cursor: pointer; }
+.game-card:active { transform: scale(0.98); }
+.card-info { padding: 10px; } .card-info h3 { margin: 0; font-size: 0.9rem; } .card-info span { font-size: 0.7rem; color: var(--text-dim); }
+.card-badge.hot { position: absolute; top: 10px; left: 10px; background: #ff4757; color: white; padding: 3px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: bold; }
 
-/* --- NAV INFERIOR MÓVIL (Estilo App) --- */
-.bottom-nav {
-    position: fixed; bottom: 0; left: 0; width: 100%;
-    height: var(--nav-height);
-    background: var(--bg-panel);
-    border-top: 1px solid #252f38;
-    display: flex; justify-content: space-around; align-items: center;
-    z-index: 100;
+/* --- MODALES REPARADOS (CENTRADOS) --- */
+.modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+    display: flex; justify-content: center; align-items: center; /* ESTO CENTRA EL MODAL */
+    z-index: 2000;
 }
+.modal-content {
+    background: var(--bg-panel); width: 90%; max-width: 400px;
+    padding: 30px; border-radius: 15px; position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #252f38;
+}
+.close { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--text-dim); }
+h2 { text-align: center; color: var(--accent); margin-bottom: 20px; margin-top: 0; }
 
-.nav-item {
-    display: flex; flex-direction: column; align-items: center;
-    text-decoration: none; color: var(--text-dim); font-size: 0.7rem;
-}
+/* INPUTS & FORM */
+.input-field { width: 100%; padding: 12px; margin: 8px 0; background: #0b0e11; border: 1px solid #252f38; color: white; border-radius: 8px; font-size: 1rem; }
+.input-field:focus { border-color: var(--accent); outline: none; }
+.btn-action { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; color: black; cursor: pointer; margin-top: 15px; }
+
+/* GRUPO TELEFONO */
+.phone-group { display: flex; gap: 8px; margin: 8px 0; }
+.prefix-select { width: 35%; margin: 0; }
+.phone-input { width: 65%; margin: 0; }
+
+/* FOOTER MODAL */
+.modal-footer { text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--text-dim); }
+.modal-footer a { color: var(--accent); cursor: pointer; font-weight: bold; margin-left: 5px; text-decoration: underline; }
+.error-text { color: #ff4757; text-align: center; font-size: 0.9rem; margin-top: 10px; display: none; }
+.copy-box { background: #000; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px dashed #444; cursor: pointer; }
+
+/* NAV MÓVIL */
+.bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background: var(--bg-panel); border-top: 1px solid #252f38; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
+.nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--text-dim); font-size: 0.7rem; }
 .nav-item i { font-size: 1.3rem; margin-bottom: 4px; }
-.nav-item.active { color: var(--accent); }
+.nav-item:active { color: var(--accent); }
 
-/* --- CONTENIDO PRINCIPAL --- */
-.main-content {
-    padding: 15px;
-    min-height: calc(100vh - 120px); /* Asegura que ocupe la pantalla */
-}
-
-/* Hero Banner */
-.hero-banner {
-    background: linear-gradient(45deg, var(--bg-panel), #1a2e25);
-    padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: center;
-}
-.hero-banner h1 { font-size: 1.5rem; margin-bottom: 5px; }
-
-/* Grid de Juegos (Responsivo Automático) */
-.games-grid {
-    display: grid;
-    /* MAGIA: 1 columna en móvil, 2 en tablet, N en escritorio */
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 15px;
-}
-
-.game-card {
-    background: var(--bg-panel); border-radius: 12px; overflow: hidden;
-    position: relative;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-}
-.game-card img { width: 100%; display: block; }
-.card-info { padding: 10px; }
-.card-info h3 { font-size: 0.9rem; margin: 0; }
-.card-info span { font-size: 0.7rem; color: var(--text-dim); }
-.card-badge.hot {
-    position: absolute; top: 10px; left: 10px;
-    background: #ff4757; color: white; padding: 3px 8px;
-    border-radius: 10px; font-size: 0.6rem; font-weight: bold;
-}
-
-/* Inputs y Modales (Touch Friendly) */
-.input-field {
-    width: 100%; padding: 12px; margin: 10px 0;
-    background: #0b0e11; border: 1px solid #252f38;
-    color: white; border-radius: 8px; font-size: 1rem;
-}
-.btn-action {
-    width: 100%; padding: 12px; background: var(--accent);
-    border: none; border-radius: 8px; font-weight: bold; font-size: 1rem;
-    color: black; cursor: pointer;
-}
-.modal-content { background: var(--bg-panel); width: 95%; border-radius: 15px; }
-
-
-/* =========================================
-   MEDIA QUERIES: LA VERSIÓN DE ESCRITORIO
-   Se activa en pantallas mayores de 768px
-========================================= */
+/* MEDIA QUERIES */
+.mobile-only { display: flex; } .desktop-only { display: none; }
 @media (min-width: 768px) {
-    body {
-        padding-bottom: 0; /* Quitamos espacio inferior */
-        padding-left: 220px; /* Añadimos espacio para la sidebar */
-    }
-
-    /* Ocultar elementos móviles / Mostrar escritorio */
-    .mobile-only { display: none !important; }
-    .desktop-only { display: flex !important; }
-
-    /* Header más grande */
-    .top-navbar {
-        padding-left: 240px; /* Para no tapar el logo con la sidebar */
-        height: 70px;
-    }
-
-    /* Sidebar lateral izquierda */
-    .desktop-sidebar {
-        position: fixed; left: 0; top: 0;
-        width: 220px; height: 100vh;
-        background: var(--bg-panel);
-        padding-top: 80px; border-right: 1px solid #252f38;
-        z-index: 90; /* Por debajo del header */
-    }
-    .desktop-sidebar a {
-        display: flex; align-items: center; gap: 15px;
-        color: var(--text-dim); text-decoration: none;
-        padding: 15px 25px; transition: 0.3s;
-    }
-    .desktop-sidebar a:hover, .desktop-sidebar a.active {
-        color: var(--text); background: rgba(255,255,255,0.05);
-        border-left: 3px solid var(--accent);
-    }
-
-    /* Mejoras en juegos para ratón (Hover) */
-    .game-card { transition: transform 0.2s, box-shadow 0.2s; }
-    .game-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 255, 136, 0.2);
-    }
-    
-    /* Modales más pequeños en pantalla grande */
-    .modal-content { width: 400px; }
+    body { padding-bottom: 0; padding-left: 220px; }
+    .mobile-only { display: none !important; } .desktop-only { display: block !important; }
+    .top-navbar { padding-left: 240px; height: 70px; }
+    .desktop-sidebar { position: fixed; left: 0; top: 0; width: 220px; height: 100vh; background: var(--bg-panel); padding-top: 80px; border-right: 1px solid #252f38; }
+    .desktop-sidebar a { display: flex; align-items: center; gap: 15px; color: var(--text-dim); text-decoration: none; padding: 15px 25px; transition: 0.3s; }
+    .desktop-sidebar a:hover, .desktop-sidebar a.active { color: var(--text); background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); }
 }

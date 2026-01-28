@@ -1,94 +1,89 @@
 let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Javascript cargado correctamente");
     checkSession();
 });
 
-// --- FUNCIONES DE SESIÓN ---
-
+// --- SESIÓN ---
 async function checkSession() {
     try {
         const res = await fetch('/api/check_session');
         const data = await res.json();
         if (data.logged_in) {
-            console.log("Sesión encontrada:", data.user);
             loginSuccess(data.user);
             updateBalance();
         }
-    } catch (e) {
-        console.log("Usuario no logueado");
+    } catch (e) { console.log("Modo invitado"); }
+}
+
+function loginSuccess(username) {
+    currentUser = username;
+    document.querySelector('.guest-view').classList.add('hidden');
+    document.querySelector('.logged-view').classList.remove('hidden');
+}
+
+// --- BOTÓN CUENTA (NAV INFERIOR) ---
+function handleProfileClick() {
+    if (currentUser) {
+        alert("Hola " + currentUser + ". Aquí iría tu perfil y ajustes.");
+    } else {
+        openModal('loginModal');
     }
 }
 
-// --- REGISTRO (CON DEBUG) ---
+// --- VALIDACIONES ---
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidPhone(phone) {
+    // Solo números, entre 6 y 15 dígitos
+    return /^[0-9]{6,15}$/.test(phone);
+}
+
+// --- REGISTRO ---
 async function doRegister() {
-    console.log("Botón Registro pulsado...");
-    
-    // 1. Obtener elementos
-    const userInput = document.getElementById('regUser');
-    const passInput = document.getElementById('regPass');
+    const user = document.getElementById('regUser').value.trim();
+    const pass = document.getElementById('regPass').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const prefix = document.getElementById('regPrefix').value;
     const errorMsg = document.getElementById('regError');
 
-    // 2. Validar que existen en el HTML (Evita que no haga nada)
-    if (!userInput || !passInput) {
-        alert("ERROR CRÍTICO: No encuentro los inputs 'regUser' o 'regPass' en el HTML.");
-        return;
-    }
+    // Validar
+    if (!user || !pass || !email || !phone) return showError(errorMsg, "Rellena todos los campos");
+    if (!isValidEmail(email)) return showError(errorMsg, "Email inválido");
+    if (!isValidPhone(phone)) return showError(errorMsg, "Teléfono inválido (solo números)");
 
-    const user = userInput.value;
-    const pass = passInput.value;
+    const fullPhone = prefix + phone;
 
-    if (!user || !pass) {
-        errorMsg.innerText = "Por favor, rellena todos los campos.";
-        errorMsg.style.display = "block";
-        return;
-    }
-
-    // 3. Enviar al servidor
     try {
         const res = await fetch('/api/register', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({username: user, password: pass})
+            body: JSON.stringify({
+                username: user, password: pass,
+                email: email, telefono: fullPhone
+            })
         });
-        
         const data = await res.json();
-        console.log("Respuesta servidor:", data);
 
         if (data.status === 'success') {
-            alert("✅ ¡CUENTA CREADA CON ÉXITO!\nTe hemos regalado 100 créditos.");
+            closeModal('registerModal');
             loginSuccess(data.user);
             document.getElementById('userBalance').innerText = data.saldo.toFixed(2);
-            closeModal('registerModal');
-            // Limpiar formulario
-            userInput.value = '';
-            passInput.value = '';
+            alert("¡Bienvenido! +100 Créditos Gratis");
         } else {
-            errorMsg.innerText = "Error: " + data.message;
-            errorMsg.style.display = "block";
+            showError(errorMsg, data.message);
         }
-    } catch (error) {
-        console.error("Error de red:", error);
-        alert("Error de conexión con el servidor (Python). Mira la consola.");
-    }
+    } catch (e) { showError(errorMsg, "Error de conexión"); }
 }
 
-// --- LOGIN (CON DEBUG) ---
+// --- LOGIN ---
 async function doLogin() {
-    console.log("Botón Login pulsado...");
-
-    const userInput = document.getElementById('loginUser');
-    const passInput = document.getElementById('loginPass');
+    const user = document.getElementById('loginUser').value.trim();
+    const pass = document.getElementById('loginPass').value.trim();
     const errorMsg = document.getElementById('loginError');
-
-    if (!userInput || !passInput) {
-        alert("ERROR: Faltan inputs de login.");
-        return;
-    }
-
-    const user = userInput.value;
-    const pass = passInput.value;
 
     try {
         const res = await fetch('/api/login', {
@@ -96,52 +91,39 @@ async function doLogin() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({username: user, password: pass})
         });
-        
         const data = await res.json();
 
         if (data.status === 'success') {
-            // LOGIN CORRECTO
+            closeModal('loginModal');
             loginSuccess(data.user);
             document.getElementById('userBalance').innerText = data.saldo.toFixed(2);
-            closeModal('loginModal');
-            userInput.value = '';
-            passInput.value = '';
         } else {
-            // LOGIN FALLIDO
-            errorMsg.innerText = data.message;
-            errorMsg.style.display = "block";
-            // Efecto visual de vibración si quieres
-            userInput.style.borderColor = "red";
+            showError(errorMsg, data.message);
         }
-    } catch (error) {
-        console.error(error);
-        alert("Error al conectar con el servidor.");
-    }
+    } catch (e) { showError(errorMsg, "Error de conexión"); }
 }
 
 // --- UTILS ---
-function loginSuccess(username) {
-    currentUser = username;
-    document.querySelector('.guest-view').classList.add('hidden');
-    document.querySelector('.logged-view').classList.remove('hidden');
+function showError(element, msg) {
+    element.innerText = msg;
+    element.style.display = 'block';
+    setTimeout(() => element.style.display = 'none', 3000);
 }
 
-async function updateBalance() {
-    const res = await fetch('/api/balance');
-    const data = await res.json();
-    if(data.balance !== undefined) {
-        document.getElementById('userBalance').innerText = data.balance.toFixed(2);
-    }
+function openModal(id) {
+    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+// Función para cambiar de uno a otro
+function switchModal(fromId, toId) {
+    document.getElementById(fromId).classList.add('hidden');
+    document.getElementById(toId).classList.remove('hidden');
 }
 
 async function doLogout() {
     await fetch('/api/logout');
     window.location.reload();
 }
-
-function openModal(id) { 
-    document.getElementById(id).classList.remove('hidden');
-    // Limpiar errores viejos
-    document.querySelectorAll('p[id$="Error"]').forEach(e => e.style.display = 'none');
-}
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
