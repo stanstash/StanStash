@@ -196,3 +196,35 @@ img { max-width: 100%; display: block; } /* Regla de oro para evitar fotos gigan
     color: black; font-size: 1.6rem; border: 5px solid var(--bg-dark);
     box-shadow: 0 0 15px rgba(0,255,136,0.3);
 }
+
+.profile-page {
+    max-width: 500px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.btn-logout-profile {
+    width: 100%;
+    background: #ff4757;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: 0.2s;
+}
+
+.btn-logout-profile:hover {
+    background: #ff6b81;
+}
