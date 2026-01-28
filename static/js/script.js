@@ -1,68 +1,104 @@
-// Variable de estado global
 let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     checkSession();
 });
 
-// 1. CHEQUEAR SI ESTÁ LOGUEADO AL ENTRAR
+// --- SESIÓN Y NAVEGACIÓN ---
+
 async function checkSession() {
     try {
-        // Petición a tu Flask para ver si hay sesión
         const response = await fetch('/api/check_session');
         const data = await response.json();
         
         if (data.logged_in) {
-            currentUser = data.user;
-            document.querySelector('.guest-view').classList.add('hidden');
-            document.querySelector('.logged-view').classList.remove('hidden');
+            loginSuccess(data.user);
             updateBalance();
         }
-    } catch (e) {
-        console.log("Modo invitado");
-    }
+    } catch (e) { console.log("Invitado"); }
 }
 
-// 2. ACTUALIZAR SALDO (Llama a BBDD)
+function loginSuccess(username) {
+    currentUser = username;
+    document.querySelector('.guest-view').classList.add('hidden');
+    document.querySelector('.logged-view').classList.remove('hidden');
+}
+
 async function updateBalance() {
-    const response = await fetch('/api/balance');
-    const data = await response.json();
+    const res = await fetch('/api/balance');
+    const data = await res.json();
     document.getElementById('userBalance').innerText = data.balance.toFixed(2);
 }
 
-// 3. SISTEMA DE DEPÓSITO
-async function confirmPayment() {
-    const txid = document.getElementById('txidInput').value;
-    if (!txid) return alert("Pega el ID de transacción primero");
+// --- ACCIONES DE USUARIO ---
 
-    const response = await fetch('/api/deposit', {
+async function doLogin() {
+    const user = document.getElementById('loginUser').value;
+    const pass = document.getElementById('loginPass').value;
+
+    const res = await fetch('/api/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ txid: txid, method: 'LTC' })
+        body: JSON.stringify({username: user, password: pass})
     });
+    const data = await res.json();
 
-    const result = await response.json();
-    if (result.status === 'success') {
-        alert("¡Depósito recibido! Esperando confirmación de red...");
-        closeModal('depositModal');
+    if(data.status === 'success') {
+        loginSuccess(data.user);
+        document.getElementById('userBalance').innerText = data.saldo.toFixed(2);
+        closeModal('loginModal');
     } else {
-        alert("Error: " + result.message);
+        alert(data.message);
     }
 }
 
-// UTILS
+async function doRegister() {
+    const user = document.getElementById('regUser').value;
+    const pass = document.getElementById('regPass').value;
+
+    if(!user || !pass) return alert("Rellena todo");
+
+    const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username: user, password: pass})
+    });
+    const data = await res.json();
+
+    if(data.status === 'success') {
+        alert("¡Bienvenido! Tienes 100 créditos de regalo.");
+        loginSuccess(data.user);
+        document.getElementById('userBalance').innerText = data.saldo.toFixed(2);
+        closeModal('registerModal');
+    } else {
+        alert(data.message);
+    }
+}
+
+async function doLogout() {
+    await fetch('/api/logout');
+    location.reload();
+}
+
+// --- PAGOS ---
+
+async function confirmPayment() {
+    const txid = document.getElementById('txidInput').value;
+    if (!txid) return alert("Falta el TXID");
+
+    const res = await fetch('/api/deposit', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ txid: txid })
+    });
+    const data = await res.json();
+    
+    if(data.status === 'success') {
+        alert("Depósito registrado. Espera confirmación del admin.");
+        closeModal('depositModal');
+    }
+}
+
+// --- UTILS ---
 function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-function copyAddress() {
-    const copyText = document.getElementById("cryptoAddress");
-    copyText.select();
-    navigator.clipboard.writeText(copyText.value);
-    alert("Dirección copiada: " + copyText.value);
-}
-
-function loadGame(gameName) {
-    if (!currentUser) return alert("Debes iniciar sesión para jugar");
-    // Aquí rediriges a la página del juego
-    window.location.href = `/play/${gameName}`;
-}

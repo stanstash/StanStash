@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Stanstash Casino | Crypto</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3.0">
 </head>
 <body>
 
@@ -26,12 +26,12 @@
                 <div class="profile-icon desktop-only">
                     <i class="fa-solid fa-user-astronaut"></i>
                 </div>
+                <i class="fa-solid fa-right-from-bracket" style="margin-left:10px; cursor:pointer; color: #ff4757;" onclick="doLogout()"></i>
             </div>
         </div>
     </header>
 
     <main class="main-content">
-      
         <section class="hero-banner">
             <div class="hero-content">
                 <h1>TU CASINO CRYPTO</h1>
@@ -40,16 +40,20 @@
         </section>
 
         <section class="games-grid">
-            <div class="game-card" onclick="alert('Próximamente: Crash')">
+            <div class="game-card" onclick="alert('Juego no disponible en demo')">
                 <div class="card-badge hot">HOT</div>
-                <img src="https://meetlasrozas.es/_next/image?url=https%3A%2F%2Ffrpyol0mhkke.compat.objectstorage.eu-frankfurt-1.oraclecloud.com%2Flpcms-assets%2Fthumbnail%2F68d18a077bb36Crash%2F65d0b31e6e6f811a12800e9621dd1476.png&w=3840&q=75" alt="Crash">
+                <div style="height:120px; background:#222; display:flex; align-items:center; justify-content:center; color:#00ff88;">
+                    <i class="fa-solid fa-plane-departure fa-3x"></i>
+                </div>
                 <div class="card-info">
                     <h3>Crash</h3>
                     <span>RTP 99% • Skill Based</span>
                 </div>
             </div>
-            <div class="game-card" onclick="alert('Próximamente: Mines')">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnvlXmCpqOnhlJAQByizDJqsUcGa9QYjiIRQ&s" alt="Mines">
+            <div class="game-card" onclick="alert('Juego no disponible en demo')">
+                <div style="height:120px; background:#222; display:flex; align-items:center; justify-content:center; color:#ffcc00;">
+                    <i class="fa-solid fa-bomb fa-3x"></i>
+                </div>
                 <div class="card-info">
                     <h3>Mines</h3>
                     <span>Estrategia</span>
@@ -59,22 +63,10 @@
     </main>
 
     <nav class="bottom-nav mobile-only">
-        <a href="#" class="nav-item active">
-            <i class="fa-solid fa-house"></i>
-            <span>Inicio</span>
-        </a>
-        <a href="#" class="nav-item" onclick="openModal('depositModal')">
-            <i class="fa-solid fa-wallet"></i>
-            <span>Depositar</span>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fa-solid fa-gamepad"></i>
-            <span>Juegos</span>
-        </a>
-        <a href="#" class="nav-item">
-             <i class="fa-solid fa-user"></i>
-            <span>Perfil</span>
-        </a>
+        <a href="#" class="nav-item active"><i class="fa-solid fa-house"></i><span>Inicio</span></a>
+        <a href="#" class="nav-item" onclick="openModal('depositModal')"><i class="fa-solid fa-wallet"></i><span>Depositar</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-gamepad"></i><span>Juegos</span></a>
+        <a href="#" class="nav-item" onclick="doLogout()"><i class="fa-solid fa-user"></i><span>Salir</span></a>
     </nav>
 
     <aside class="desktop-sidebar desktop-only">
@@ -93,9 +85,38 @@
              <input type="text" id="loginUser" placeholder="Usuario" class="input-field">
              <input type="password" id="loginPass" placeholder="Contraseña" class="input-field">
              <button class="btn-action" onclick="doLogin()">ENTRAR</button>
-             <p class="switch-modal">¿No tienes cuenta? <a onclick="closeModal('loginModal');openModal('registerModal')">Regístrate</a></p>
+             <p class="switch-modal" style="margin-top:10px; font-size:0.8rem; color:#888;">
+                 ¿No tienes cuenta? <a href="#" style="color:#00ff88;" onclick="closeModal('loginModal');openModal('registerModal')">Regístrate</a>
+             </p>
         </div>
     </div>
-     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <div id="registerModal" class="modal hidden">
+        <div class="modal-content">
+             <span class="close" onclick="closeModal('registerModal')">&times;</span>
+             <h2>Crear Cuenta</h2>
+             <input type="text" id="regUser" placeholder="Elige Usuario" class="input-field">
+             <input type="password" id="regPass" placeholder="Elige Contraseña" class="input-field">
+             <button class="btn-action" onclick="doRegister()">REGISTRARSE</button>
+        </div>
+    </div>
+
+    <div id="depositModal" class="modal hidden">
+        <div class="modal-content">
+             <span class="close" onclick="closeModal('depositModal')">&times;</span>
+             <h2><i class="fa-brands fa-bitcoin"></i> Depósito</h2>
+             <p style="color:#888; font-size:0.9rem; margin-bottom:10px;">Envía LTC y pega el TXID:</p>
+             
+             <div class="input-field" style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+                 <span id="cryptoAddress">LtcWalletExample123...</span>
+                 <i class="fa-regular fa-copy" onclick="alert('Dirección copiada')" style="cursor:pointer; color:#00ff88;"></i>
+             </div>
+
+             <input type="text" id="txidInput" placeholder="ID de Transacción (TXID)" class="input-field">
+             <button class="btn-action" onclick="confirmPayment()">CONFIRMAR PAGO</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
