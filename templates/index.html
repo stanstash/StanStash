@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Stanstash | Crypto Casino</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=13.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=14.0">
 </head>
 <body>
 
@@ -17,11 +17,11 @@
         <div class="user-panel">
             <div class="guest-view" id="guestNav">
                 <button class="btn-login" onclick="openModal('loginModal')">ENTRAR</button>
-                <button class="btn-register desktop-only" onclick="openModal('registerModal')">REGISTRARSE</button>
+                <button class="btn-register desktop-only" onclick="openModal('registerModal')">REGISTRO</button>
             </div>
             
             <div class="logged-view hidden" id="loggedNav">
-                <div class="balance-pill" onclick="openModal('depositModal')">
+                <div class="balance-pill" onclick="navigate('deposit')">
                     <span id="userBalance">0.00</span> <i class="fa-brands fa-bitcoin"></i>
                     <span class="add-fund-icon"><i class="fa-solid fa-plus"></i></span>
                 </div>
@@ -33,6 +33,7 @@
     </header>
 
     <main class="main-content">
+        
         <section id="view-home" class="view-section active">
             <div class="hero-banner">
                 <div class="hero-text">
@@ -70,9 +71,7 @@
         <section id="view-profile" class="view-section hidden">
             <div class="profile-page-container">
                 <div class="profile-wrapper">
-                    
                     <div class="profile-dashboard-grid">
-                        
                         <div class="profile-header-card">
                             <div class="profile-info-row">
                                 <div class="profile-avatar-area">
@@ -86,70 +85,99 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="wallet-card">
                             <div class="wallet-header">SALDO DISPONIBLE</div>
                             <div class="wallet-amount" id="profileBalanceDisplay">0.00</div>
                             <div class="wallet-actions">
-                                <button class="btn-dep" onclick="openModal('depositModal')">Depositar</button>
+                                <button class="btn-dep" onclick="navigate('deposit')">Depositar</button>
                                 <button class="btn-wd" onclick="alert('Retiros próximamente')">Retirar</button>
                             </div>
                         </div>
                     </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <span class="stat-label">Jugado Total</span>
-                            <span class="stat-value">0.00$</span>
-                        </div>
-                        <div class="stat-box">
-                            <span class="stat-label">Beneficio</span>
-                            <span class="stat-value text-green">0.00$</span>
-                        </div>
-                        <div class="stat-box">
-                            <span class="stat-label">Nivel VIP</span>
-                            <span class="stat-value">Bronce</span>
-                        </div>
-                    </div>
-
+                    
                     <div class="settings-list">
                         <div class="settings-item" onclick="alert('Soporte 24/7 disponible pronto')">
-                            <div class="set-icon"><i class="fa-solid fa-headset"></i></div>
-                            <div class="set-text">Soporte & Ayuda</div>
-                            <i class="fa-solid fa-chevron-right arrow"></i>
+                            <div class="set-icon"><i class="fa-solid fa-headset"></i></div><div class="set-text">Soporte & Ayuda</div><i class="fa-solid fa-chevron-right arrow"></i>
                         </div>
-
                         <div class="settings-item" onclick="togglePasswordEdit()">
-                            <div class="set-icon"><i class="fa-solid fa-lock"></i></div>
-                            <div class="set-text">Cambiar Contraseña</div>
-                            <i class="fa-solid fa-chevron-down arrow" id="passChevron"></i>
+                            <div class="set-icon"><i class="fa-solid fa-lock"></i></div><div class="set-text">Cambiar Contraseña</div><i class="fa-solid fa-chevron-down arrow" id="passChevron"></i>
                         </div>
-                        
                         <div id="passwordEditSection" class="password-form hidden">
                             <input type="password" id="currentPass" placeholder="Contraseña Actual" class="input-field-sm">
                             <input type="password" id="newPass1" placeholder="Nueva Contraseña" class="input-field-sm">
                             <input type="password" id="newPass2" placeholder="Confirmar Nueva" class="input-field-sm">
                             <button class="btn-save-pass" onclick="changePassword()">Guardar Nueva Contraseña</button>
                         </div>
-                        
                         <div class="settings-item danger" onclick="doLogout()">
-                            <div class="set-icon"><i class="fa-solid fa-power-off"></i></div>
-                            <div class="set-text">Cerrar Sesión</div>
+                            <div class="set-icon"><i class="fa-solid fa-power-off"></i></div><div class="set-text">Cerrar Sesión</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-deposit" class="view-section hidden">
+            <div class="deposit-page-container">
+                <div class="deposit-wrapper">
+                    
+                    <h2 class="page-title"><i class="fa-solid fa-wallet"></i> Añadir Fondos</h2>
+                    
+                    <div class="method-grid">
+                        <div class="method-card active">
+                            <i class="fa-brands fa-bitcoin"></i>
+                            <span>Privy / Crypto</span>
+                            <div class="check-mark"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                        <div class="method-card disabled">
+                            <i class="fa-solid fa-credit-card"></i>
+                            <span>Tarjeta</span>
+                            <small>(Pronto)</small>
+                        </div>
+                    </div>
+
+                    <div class="deposit-box">
+                        <label class="input-label">Selecciona Red</label>
+                        <div class="crypto-selector">
+                            <div class="crypto-option selected" onclick="selectCrypto('LTC')"><img src="https://cryptologos.cc/logos/litecoin-ltc-logo.png?v=026"> LTC</div>
+                            <div class="crypto-option" onclick="selectCrypto('BTC')"><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=026"> BTC</div>
+                            <div class="crypto-option" onclick="selectCrypto('ETH')"><img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=026"> ETH</div>
+                        </div>
+
+                        <label class="input-label">Monto a Depositar (USD)</label>
+                        <div class="amount-input-group">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="depositAmount" placeholder="0.00" class="amount-field">
+                        </div>
+
+                        <button class="btn-pay-privy" onclick="initPrivyPayment()">
+                            CONECTAR BILLETERA (PRIVY)
+                        </button>
+                        
+                        <p class="deposit-note"><i class="fa-solid fa-circle-info"></i> Depósito mínimo: 10$. Procesado por Privy.</p>
+                    </div>
+
+                    <div class="history-section">
+                        <h4>Transacciones Recientes</h4>
+                        <div class="history-list">
+                            <div class="history-item empty">
+                                <i class="fa-solid fa-receipt"></i> No hay depósitos recientes
+                            </div>
                         </div>
                     </div>
 
                 </div>
             </div>
         </section>
+
     </main>
 
     <aside class="desktop-sidebar desktop-only">
         <nav class="sidebar-menu">
             <a href="#" onclick="navigate('home')" class="sidebar-item active" id="side-home"><i class="fa-solid fa-house"></i> Inicio</a>
             <a href="#" onclick="navigate('games')" class="sidebar-item" id="side-games"><i class="fa-solid fa-gamepad"></i> Juegos</a>
-            <a href="#" onclick="openModal('depositModal')" class="sidebar-item"><i class="fa-solid fa-wallet"></i> Cartera</a>
+            <a href="#" onclick="navigate('deposit')" class="sidebar-item" id="side-deposit"><i class="fa-solid fa-wallet"></i> Cartera</a>
             <a href="#" onclick="alert('Chat Global: Conectando...')" class="sidebar-item"><i class="fa-solid fa-comments"></i> Chat Global</a>
-            <a href="#" onclick="handleProfileClick()" class="sidebar-item" id="side-profile"><i class="fa-solid fa-user"></i> Mi Perfil</a>
+            <a href="#" onclick="navigate('profile')" class="sidebar-item" id="side-profile"><i class="fa-solid fa-user"></i> Mi Perfil</a>
         </nav>
         <div class="sidebar-footer hidden" id="desktopLogout">
             <button class="btn-logout-side" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button>
@@ -158,10 +186,10 @@
 
     <nav class="bottom-nav mobile-only">
         <a href="#" onclick="navigate('home')" class="nav-item active" id="nav-home"><i class="fa-solid fa-house"></i><span>Inicio</span></a>
-        <a href="#" onclick="openModal('depositModal')" class="nav-item"><i class="fa-solid fa-wallet"></i><span>Cartera</span></a>
+        <a href="#" onclick="navigate('deposit')" class="nav-item" id="nav-deposit"><i class="fa-solid fa-wallet"></i><span>Cartera</span></a>
         <div class="nav-center" onclick="navigate('games')"><i class="fa-solid fa-play"></i></div>
         <a href="#" onclick="alert('Chat móvil próximamente')" class="nav-item"><i class="fa-solid fa-comments"></i><span>Chat</span></a>
-        <a href="#" onclick="handleProfileClick()" class="nav-item" id="nav-profile"><i class="fa-solid fa-user"></i><span>Perfil</span></a>
+        <a href="#" onclick="navigate('profile')" class="nav-item" id="nav-profile"><i class="fa-solid fa-user"></i><span>Perfil</span></a>
     </nav>
 
     <div id="loginModal" class="modal hidden">
@@ -187,14 +215,6 @@
              </div>
              <button class="btn-action" onclick="doRegister()">CREAR CUENTA</button>
              <div class="auth-footer"><a onclick="switchModal('registerModal', 'loginModal')">Ya tengo cuenta</a></div>
-        </div>
-    </div>
-    <div id="depositModal" class="modal hidden">
-        <div class="modal-content">
-             <span class="close" onclick="closeModal('depositModal')">&times;</span>
-             <h2>Depósito</h2>
-             <input type="text" id="txidInput" placeholder="TXID Transacción" class="input-field">
-             <button class="btn-action" onclick="confirmPayment()">CONFIRMAR</button>
         </div>
     </div>
 

@@ -176,3 +176,52 @@ function openModal(id) {
 }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 function switchModal(from, to) { closeModal(from); openModal(to); }
+
+// ... (CÓDIGO ANTERIOR SIN CAMBIOS HASTA EL FINAL) ...
+
+// --- FUNCIONES DEPÓSITO (NUEVAS) ---
+
+function selectCrypto(coin) {
+    // Visual update
+    document.querySelectorAll('.crypto-option').forEach(el => el.classList.remove('selected'));
+    // Encontrar el elemento clicado es más complejo con eventos inline, simplificamos visualmente:
+    event.currentTarget.classList.add('selected');
+}
+
+async function initPrivyPayment() {
+    const amount = document.getElementById('depositAmount').value;
+    if (!amount || amount < 10) return alert("El depósito mínimo es de 10$");
+
+    // AQUÍ IRÍA LA INTEGRACIÓN REAL CON PRIVY SDK
+    // Privy.login() -> connect wallet -> sendTransaction()
+    
+    // Simulación:
+    const btn = document.querySelector('.btn-pay-privy');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Conectando Privy...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+        // Simular que abre el modal de Privy
+        const mockTxid = "0x" + Math.random().toString(16).substr(2, 40);
+        const confirm = window.confirm(`Simulación Privy:\n\nSolicitud de conexión aprobada.\n¿Confirmar envío de ${amount}$ en Crypto?`);
+        
+        if (confirm) {
+            // Enviar al backend
+            fetch('/api/deposit', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({txid: mockTxid, amount: amount})
+            }).then(() => {
+                alert("¡Depósito Detectado!\nSaldo actualizado.");
+                window.location.reload();
+            });
+        } else {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }, 1500);
+}
+
+// ... (RESTO DEL CÓDIGO DE UTILS) ...
