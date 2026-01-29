@@ -5,75 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Stanstash | Crypto Casino</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=21.0">
 </head>
 <body>
 
+    <div id="toast-container"></div>
+
     <header class="top-navbar">
-        <div class="logo-container" onclick="navigate('home')">
-            <i class="fa-solid fa-bolt accent-color"></i> <span class="brand-name">STANSTASH</span>
-        </div>
-        
+        <div class="logo-container" onclick="navigate('home')"><i class="fa-solid fa-bolt accent-color"></i> <span class="brand-name">STANSTASH</span></div>
         <div class="user-panel">
             <div class="guest-view" id="guestNav">
                 <button class="btn-login" onclick="openModal('loginModal')">ENTRAR</button>
                 <button class="btn-register desktop-only" onclick="openModal('registerModal')">REGISTRO</button>
             </div>
-            
             <div class="logged-view hidden" id="loggedNav">
-                <div class="balance-pill" onclick="navigate('deposit')">
-                    <span id="userBalance">0.00</span> <i class="fa-brands fa-bitcoin"></i>
-                    <span class="add-fund-icon"><i class="fa-solid fa-plus"></i></span>
-                </div>
-                <div class="nav-avatar desktop-only" onclick="navigate('profile')">
-                    <img id="navAvatarImg" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Avatar">
-                </div>
+                <div class="balance-pill" onclick="navigate('deposit')"><span id="userBalance">0.00</span> <i class="fa-brands fa-bitcoin"></i> <span class="add-fund-icon"><i class="fa-solid fa-plus"></i></span></div>
+                <div class="nav-avatar desktop-only" onclick="navigate('profile')"><img id="navAvatarImg" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"></div>
             </div>
         </div>
     </header>
 
     <main class="main-content">
-        
         <section id="view-home" class="view-section active">
             <div class="hero-banner">
-                <div class="hero-text">
-                    <h1>CASINO CRYPTO <br><span class="text-gradient">SIN LÍMITES</span></h1>
-                    <p>Retiros Instantáneos • Sin KYC • 100% Anónimo</p>
-                    <button class="btn-cta" onclick="navigate('games')">JUGAR AHORA</button>
-                </div>
+                <div class="hero-text"><h1>CASINO CRYPTO <br><span class="text-gradient">SIN LÍMITES</span></h1><p>Retiros Instantáneos • Sin KYC</p><button class="btn-cta" onclick="navigate('games')">JUGAR AHORA</button></div>
             </div>
-            <div class="live-wins-section">
-                <div class="section-header">
-                    <div class="live-indicator"><span class="blink"></span> GANADORES EN VIVO</div>
-                </div>
-                <table class="wins-table">
-                    <tbody id="liveWinsBody"></tbody>
-                </table>
-            </div>
+            <div class="live-wins-section"><div class="section-header"><div class="live-indicator"><span class="blink"></span> GANADORES EN VIVO</div></div><table class="wins-table"><tbody id="liveWinsBody"></tbody></table></div>
         </section>
 
         <section id="view-games" class="view-section hidden">
             <div class="games-grid">
-                <div class="game-card" onclick="alert('Crash en Mantenimiento')">
-                    <div class="live-badge">LIVE</div>
-                    <div class="game-poster crash-bg"><i class="fa-solid fa-plane-up"></i></div>
-                    <div class="game-details"><h3>Crash</h3><p>Multiplicador x1000</p></div>
-                </div>
-                <div class="game-card" onclick="alert('Mines en Mantenimiento')">
-                    <div class="game-poster mines-bg"><i class="fa-solid fa-bomb"></i></div>
-                    <div class="game-details"><h3>Mines</h3><p>Estrategia Pura</p></div>
-                </div>
-                <div class="game-card locked">
-                    <div class="game-poster slots-bg" style="opacity:0.5"><i class="fa-solid fa-lock"></i></div>
-                    <div class="game-details"><h3>Slots VIP</h3><p>Próximamente</p></div>
-                </div>
+                <div class="game-card" onclick="showToast('Mantenimiento temporal', 'info')"><div class="live-badge">LIVE</div><div class="game-poster crash-bg"><i class="fa-solid fa-plane-up"></i></div><div class="game-details"><h3>Crash</h3><p>x1000</p></div></div>
+                <div class="game-card" onclick="showToast('Mantenimiento temporal', 'info')"><div class="game-poster mines-bg"><i class="fa-solid fa-bomb"></i></div><div class="game-details"><h3>Mines</h3><p>Estrategia</p></div></div>
+                <div class="game-card locked"><div class="game-poster slots-bg" style="opacity:0.5"><i class="fa-solid fa-lock"></i></div><div class="game-details"><h3>Slots</h3><p>Pronto</p></div></div>
             </div>
         </section>
 
         <section id="view-profile" class="view-section hidden">
             <div class="profile-page-container">
                 <div class="profile-wrapper">
-                    
                     <div class="profile-dashboard-grid">
                         <div class="profile-header-card">
                             <div class="profile-info-row">
@@ -82,43 +52,22 @@
                                     <label for="avatarInput" class="camera-btn"><i class="fa-solid fa-camera"></i></label>
                                     <input type="file" id="avatarInput" hidden onchange="uploadAvatar()" accept="image/*">
                                 </div>
-                                <div class="profile-text">
-                                    <h3 id="profileUsername">Cargando...</h3>
-                                    <span class="user-badge verified"><i class="fa-solid fa-check-circle"></i> Cuenta Verificada</span>
-                                </div>
+                                <div class="profile-text"><h3 id="profileUsername">...</h3><span class="user-badge verified">Cuenta Verificada</span></div>
                             </div>
                         </div>
-
                         <div class="wallet-card">
                             <div class="wallet-header">SALDO DISPONIBLE</div>
                             <div class="wallet-amount" id="profileBalanceDisplay">0.00</div>
-                            <div class="wallet-actions">
-                                <button class="btn-dep" onclick="navigate('deposit')">Depositar</button>
-                                <button class="btn-wd" onclick="alert('Retiros en 24h')">Retirar</button>
-                            </div>
+                            <div class="wallet-actions"><button class="btn-dep" onclick="navigate('deposit')">Depositar</button><button class="btn-wd" onclick="showToast('Retiros habilitados en 24h', 'info')">Retirar</button></div>
                         </div>
                     </div>
-
                     <div class="settings-list">
-                        <div class="settings-item" onclick="togglePasswordEdit()">
-                            <div class="set-icon"><i class="fa-solid fa-lock"></i></div>
-                            <div class="set-text">Cambiar Contraseña</div>
-                            <i class="fa-solid fa-chevron-down arrow" id="passChevron"></i>
-                        </div>
-                        
+                        <div class="settings-item" onclick="togglePasswordEdit()"><div class="set-icon"><i class="fa-solid fa-lock"></i></div><div class="set-text">Cambiar Contraseña</div><i class="fa-solid fa-chevron-down arrow" id="passChevron"></i></div>
                         <div id="passwordEditSection" class="password-form hidden">
-                            <input type="password" id="currentPass" placeholder="Contraseña Actual" class="input-field-sm">
-                            <input type="password" id="newPass1" placeholder="Nueva Contraseña" class="input-field-sm">
-                            <input type="password" id="newPass2" placeholder="Confirmar Nueva" class="input-field-sm">
-                            <button class="btn-save-pass" onclick="changePassword()">Guardar Nueva Contraseña</button>
+                            <input type="password" id="currentPass" placeholder="Contraseña Actual" class="input-field-sm"><input type="password" id="newPass1" placeholder="Nueva Contraseña" class="input-field-sm"><input type="password" id="newPass2" placeholder="Confirmar Nueva" class="input-field-sm"><button class="btn-save-pass" onclick="changePassword()">Guardar</button>
                         </div>
-                        
-                        <div class="settings-item danger" onclick="doLogout()">
-                            <div class="set-icon"><i class="fa-solid fa-power-off"></i></div>
-                            <div class="set-text">Cerrar Sesión</div>
-                        </div>
+                        <div class="settings-item danger" onclick="doLogout()"><div class="set-icon"><i class="fa-solid fa-power-off"></i></div><div class="set-text">Cerrar Sesión</div></div>
                     </div>
-
                 </div>
             </div>
         </section>
@@ -127,75 +76,42 @@
             <div class="deposit-page-container">
                 <div class="deposit-wrapper">
                     <h2 class="page-title"><i class="fa-solid fa-wallet"></i> Añadir Fondos</h2>
-                    
                     <div id="depositForm">
                         <div class="method-grid">
                             <div class="method-card active"><i class="fa-brands fa-bitcoin"></i><span>Cripto</span><div class="check-mark"><i class="fa-solid fa-check"></i></div></div>
                             <div class="method-card disabled"><i class="fa-solid fa-credit-card"></i><span>Tarjeta</span><small>(Pronto)</small></div>
                         </div>
-
                         <div class="deposit-box">
                             <label class="input-label">Selecciona Moneda</label>
-                            
                             <div class="crypto-scroll-container">
-                                <div class="crypto-option selected" id="opt-btc" onclick="selectCrypto('btc')">
-                                    <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=026"> BTC
-                                </div>
-                                <div class="crypto-option" id="opt-eth" onclick="selectCrypto('eth')">
-                                    <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=026"> ETH
-                                </div>
-                                <div class="crypto-option" id="opt-sol" onclick="selectCrypto('sol')">
-                                    <img src="https://cryptologos.cc/logos/solana-sol-logo.png?v=026"> SOL
-                                </div>
-                                <div class="crypto-option" id="opt-usdt" onclick="selectCrypto('usdt')">
-                                    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=026"> USDT
-                                </div>
-                                <div class="crypto-option" id="opt-trx" onclick="selectCrypto('trx')">
-                                    <img src="https://cryptologos.cc/logos/tron-trx-logo.png?v=026"> TRX
-                                </div>
-                                <div class="crypto-option" id="opt-ltc" onclick="selectCrypto('ltc')">
-                                    <img src="https://cryptologos.cc/logos/litecoin-ltc-logo.png?v=026"> LTC
-                                </div>
-                                <div class="crypto-option" id="opt-doge" onclick="selectCrypto('doge')">
-                                    <img src="https://cryptologos.cc/logos/dogecoin-doge-logo.png?v=026"> DOGE
-                                </div>
-                                <div class="crypto-option" id="opt-xrp" onclick="selectCrypto('xrp')">
-                                    <img src="https://cryptologos.cc/logos/xrp-xrp-logo.png?v=026"> XRP
-                                </div>
+                                <div class="crypto-option selected" id="opt-btc" onclick="selectCrypto('btc')"><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=026"> BTC</div>
+                                <div class="crypto-option" id="opt-eth" onclick="selectCrypto('eth')"><img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=026"> ETH</div>
+                                <div class="crypto-option" id="opt-sol" onclick="selectCrypto('sol')"><img src="https://cryptologos.cc/logos/solana-sol-logo.png?v=026"> SOL</div>
+                                <div class="crypto-option" id="opt-usdt" onclick="selectCrypto('usdt')"><img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=026"> USDT</div>
+                                <div class="crypto-option" id="opt-trx" onclick="selectCrypto('trx')"><img src="https://cryptologos.cc/logos/tron-trx-logo.png?v=026"> TRX</div>
+                                <div class="crypto-option" id="opt-ltc" onclick="selectCrypto('ltc')"><img src="https://cryptologos.cc/logos/litecoin-ltc-logo.png?v=026"> LTC</div>
+                                <div class="crypto-option" id="opt-doge" onclick="selectCrypto('doge')"><img src="https://cryptologos.cc/logos/dogecoin-doge-logo.png?v=026"> DOGE</div>
                             </div>
-
                             <label class="input-label">Monto (USD)</label>
-                            <div class="amount-input-group">
-                                <span class="currency-symbol">$</span>
-                                <input type="number" id="depositAmount" placeholder="50.00" class="amount-field">
-                            </div>
-
+                            <div class="amount-input-group"><span class="currency-symbol">$</span><input type="number" id="depositAmount" placeholder="50.00" class="amount-field"></div>
                             <button class="btn-pay-now" onclick="createPayment()">GENERAR DIRECCIÓN</button>
                             <p class="deposit-note">Mínimo 10$. Procesado por NOWPayments.</p>
                         </div>
                     </div>
-
                     <div id="depositWaiting" class="hidden">
                         <div class="deposit-box center-content">
                             <div class="spinner-box"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
                             <h3>Esperando Pago...</h3>
                             <p>Envía <b>exactamente</b> <span id="payAmountDisplay" style="color:#00ff88">0</span> <span id="payCurrencyDisplay">BTC</span> a:</p>
-                            
-                            <div class="address-box" onclick="copyAddress()">
-                                <span id="payAddressDisplay">Generando...</span>
-                                <i class="fa-solid fa-copy"></i>
-                            </div>
-                            
+                            <div class="address-box" onclick="copyAddress()"><span id="payAddressDisplay">Generando...</span><i class="fa-solid fa-copy"></i></div>
                             <div class="timer-bar"><div class="timer-fill"></div></div>
                             <p class="deposit-note">Detectando transacción en blockchain... (Simulación 5s)</p>
                             <button class="btn-cancel" onclick="cancelPayment()">CANCELAR</button>
                         </div>
                     </div>
-
                 </div>
             </div>
         </section>
-
     </main>
 
     <aside class="desktop-sidebar desktop-only">
@@ -206,9 +122,7 @@
             <a href="#" onclick="toggleChat()" class="sidebar-item"><i class="fa-solid fa-comments"></i> Chat Global</a>
             <a href="#" onclick="navigate('profile')" class="sidebar-item" id="side-profile"><i class="fa-solid fa-user"></i> Mi Perfil</a>
         </nav>
-        <div class="sidebar-footer hidden" id="desktopLogout">
-            <button class="btn-logout-side" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button>
-        </div>
+        <div class="sidebar-footer hidden" id="desktopLogout"><button class="btn-logout-side" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button></div>
     </aside>
 
     <nav class="bottom-nav mobile-only">
@@ -220,84 +134,37 @@
     </nav>
 
     <div id="chatSidebar" class="chat-sidebar closed">
-        <div class="chat-header">
-            <h3>Chat Global <span class="online-count">● LIVE</span></h3>
-            <button class="btn-close-chat" onclick="toggleChat()"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="chat-messages" id="chatMessages">
-            <div class="chat-msg system">
-                <div class="sys-text">Bienvenido al chat global.</div>
-            </div>
-        </div>
-        <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Escribe un mensaje..." onkeypress="handleChatKeyPress(event)">
-            <button class="btn-send-chat" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
-        </div>
+        <div class="chat-header"><h3>Chat Global <span class="online-count">● LIVE</span></h3><button class="btn-close-chat" onclick="toggleChat()"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="chat-messages" id="chatMessages"><div class="chat-msg system"><div class="sys-text">Bienvenido al chat.</div></div></div>
+        <div class="chat-input-area"><input type="text" id="chatInput" placeholder="Escribe..." onkeypress="handleChatKeyPress(event)"><button class="btn-send-chat" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button></div>
     </div>
 
     <div id="loginModal" class="modal hidden">
         <div class="modal-content auth-modal">
              <span class="close" onclick="closeModal('loginModal')">&times;</span>
              <h2>Bienvenido</h2>
-             <input type="text" id="loginUser" placeholder="Usuario" class="input-field">
+             <input type="text" id="loginUser" placeholder="Usuario o Email" class="input-field">
              <input type="password" id="loginPass" placeholder="Contraseña" class="input-field">
-             
-             <div style="text-align:right; margin-bottom:15px;">
-                 <a onclick="switchModal('loginModal', 'forgotModal')" style="color:#8b949e; font-size:0.8rem; cursor:pointer; text-decoration:none;">¿Olvidaste tu contraseña?</a>
-             </div>
-
+             <div style="text-align:right; margin-bottom:15px;"><a onclick="switchModal('loginModal', 'forgotModal')" style="color:#8b949e; font-size:0.8rem; cursor:pointer;">¿Olvidaste tu contraseña?</a></div>
              <button class="btn-action" onclick="doLogin()">INICIAR SESIÓN</button>
              <div class="auth-footer"><a onclick="switchModal('loginModal', 'registerModal')">Crear cuenta nueva</a></div>
         </div>
     </div>
 
+    <div id="registerModal" class="modal hidden">
+        <div class="modal-content auth-modal"><span class="close" onclick="closeModal('registerModal')">&times;</span><h2>Registro</h2><input type="text" id="regUser" placeholder="Usuario" class="input-field"><input type="password" id="regPass" placeholder="Contraseña" class="input-field"><input type="email" id="regEmail" placeholder="Email Real" class="input-field"><div class="phone-group"><select id="regPrefix" class="input-field prefix"><option value="+34">🇪🇸 +34</option><option value="+1">🇺🇸 +1</option></select><input type="tel" id="regPhone" placeholder="Teléfono" class="input-field phone"></div><button class="btn-action" onclick="doRegister()">CREAR CUENTA</button><div class="auth-footer"><a onclick="switchModal('registerModal', 'loginModal')">Ya tengo cuenta</a></div></div>
+    </div>
+    
+    <div id="verifyModal" class="modal hidden">
+        <div class="modal-content auth-modal"><h2><i class="fa-solid fa-envelope-circle-check"></i> Verificar Email</h2><p style="color:#aaa; text-align:center; font-size:0.9rem; margin-bottom:20px;">Código enviado a: <b id="verifyEmailDisplay" style="color:white;"></b></p><input type="text" id="verifyCodeInput" placeholder="123456" class="input-field" style="text-align:center; letter-spacing:5px; font-size:1.5rem;"><button class="btn-action" onclick="doVerify()">VERIFICAR</button><div class="auth-footer"><a onclick="switchModal('verifyModal', 'loginModal')">Volver al login</a></div></div>
+    </div>
+
     <div id="forgotModal" class="modal hidden">
-        <div class="modal-content auth-modal">
-             <span class="close" onclick="closeModal('forgotModal')">&times;</span>
-             <h2>Recuperar</h2>
-             <p style="color:#aaa; text-align:center; font-size:0.9rem; margin-bottom:20px;">Introduce tu email y te enviaremos un código.</p>
-             <input type="email" id="forgotEmail" placeholder="Tu Email Registrado" class="input-field">
-             <button class="btn-action" onclick="sendForgotCode()">ENVIAR CÓDIGO</button>
-             <div class="auth-footer"><a onclick="switchModal('forgotModal', 'loginModal')">Volver</a></div>
-        </div>
+        <div class="modal-content auth-modal"><span class="close" onclick="closeModal('forgotModal')">&times;</span><h2>Recuperar</h2><p style="color:#aaa; text-align:center; font-size:0.9rem; margin-bottom:20px;">Introduce tu email y te enviaremos un código.</p><input type="email" id="forgotEmail" placeholder="Tu Email Registrado" class="input-field"><button class="btn-action" onclick="sendForgotCode()">ENVIAR CÓDIGO</button><div class="auth-footer"><a onclick="switchModal('forgotModal', 'loginModal')">Volver</a></div></div>
     </div>
 
     <div id="resetModal" class="modal hidden">
-        <div class="modal-content auth-modal">
-             <h2>Nueva Contraseña</h2>
-             <p style="color:#aaa; text-align:center; font-size:0.9rem; margin-bottom:20px;">Código enviado a tu correo.</p>
-             <input type="text" id="resetCode" placeholder="Código (6 dígitos)" class="input-field" style="text-align:center; letter-spacing:5px;">
-             <input type="password" id="resetNewPass" placeholder="Nueva Contraseña" class="input-field">
-             <button class="btn-action" onclick="doResetPassword()">CAMBIAR CONTRASEÑA</button>
-        </div>
-    </div>
-
-    <div id="registerModal" class="modal hidden">
-        <div class="modal-content auth-modal">
-             <span class="close" onclick="closeModal('registerModal')">&times;</span>
-             <h2>Registro</h2>
-             <input type="text" id="regUser" placeholder="Usuario" class="input-field">
-             <input type="password" id="regPass" placeholder="Contraseña" class="input-field">
-             <input type="email" id="regEmail" placeholder="Email Real (Código)" class="input-field">
-             <div class="phone-group">
-                 <select id="regPrefix" class="input-field prefix"><option value="+34">🇪🇸 +34</option><option value="+1">🇺🇸 +1</option></select>
-                 <input type="tel" id="regPhone" placeholder="Teléfono" class="input-field phone">
-             </div>
-             <button class="btn-action" onclick="doRegister()">CREAR CUENTA</button>
-             <div class="auth-footer"><a onclick="switchModal('registerModal', 'loginModal')">Ya tengo cuenta</a></div>
-        </div>
-    </div>
-
-    <div id="verifyModal" class="modal hidden">
-        <div class="modal-content auth-modal">
-             <h2><i class="fa-solid fa-envelope-circle-check"></i> Verificar Email</h2>
-             <p style="color:#aaa; text-align:center; font-size:0.9rem; margin-bottom:20px;">
-                 Código enviado a: <b id="verifyEmailDisplay" style="color:white;">...</b>
-             </p>
-             <input type="text" id="verifyCodeInput" placeholder="Código (ej: 123456)" class="input-field" style="text-align:center; letter-spacing:5px; font-size:1.5rem;">
-             <button class="btn-action" onclick="doVerify()">VERIFICAR</button>
-             <div class="auth-footer"><a onclick="switchModal('verifyModal', 'loginModal')">Volver al login</a></div>
-        </div>
+        <div class="modal-content auth-modal"><h2>Nueva Contraseña</h2><input type="text" id="resetCode" placeholder="Código (6 dígitos)" class="input-field" style="text-align:center; letter-spacing:5px;"><input type="password" id="resetNewPass" placeholder="Nueva Contraseña" class="input-field"><button class="btn-action" onclick="doResetPassword()">CAMBIAR</button></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>

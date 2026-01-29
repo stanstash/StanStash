@@ -246,3 +246,43 @@ img { max-width: 100%; display: block; }
 .mobile-only { display: flex; } .desktop-only { display: none; }
 @media (max-width: 768px) { .profile-dashboard-grid { grid-template-columns: 1fr; } .chat-sidebar { width: 100%; } }
 @media (min-width: 1024px) { .mobile-only { display: none !important; } .desktop-only { display: block !important; } body { padding-left: 260px; padding-bottom: 0; } .top-navbar { padding-left: 280px; } .desktop-sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background: var(--bg-card); border-right: 1px solid var(--border); padding-top: var(--nav-height); display: flex; flex-direction: column; justify-content: space-between; z-index: 999; } .sidebar-menu a { display: block; padding: 15px 25px; color: var(--text-muted); text-decoration: none; border-left: 3px solid transparent; display: flex; align-items: center; gap: 10px; } .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(255,255,255,0.03); color: white; border-left-color: var(--accent); } .sidebar-footer { padding: 20px; border-top: 1px solid var(--border); } .btn-logout-side { width: 100%; background: transparent; border: 1px solid #ff4757; color: #ff4757; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; } }
+
+
+/* ... [MANTÉN TODO EL CSS DE ANTES] ... */
+
+/* === NUEVO: NOTIFICACIONES TOAST BONITAS === */
+#toast-container {
+    position: fixed; top: 20px; right: 20px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 10px;
+}
+
+.toast {
+    background: rgba(22, 27, 34, 0.95);
+    backdrop-filter: blur(10px);
+    border-left: 4px solid #30363d;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+    display: flex; align-items: center; gap: 12px;
+    font-size: 0.95rem; font-weight: 500;
+    min-width: 280px;
+    animation: slideInToast 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.3s ease;
+}
+
+.toast.toast-success { border-left-color: #00ff88; }
+.toast.toast-success i { color: #00ff88; }
+
+.toast.toast-error { border-left-color: #ff4757; }
+.toast.toast-error i { color: #ff4757; }
+
+.toast.toast-info { border-left-color: #2f81f7; }
+.toast.toast-info i { color: #2f81f7; }
+
+.toast.removing { opacity: 0; transform: translateX(100%); }
+
+@keyframes slideInToast {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+}
