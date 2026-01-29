@@ -51,13 +51,36 @@ from .games.crash import crash_engine # Importamos el motor
 
 @socketio.on('join_crash')
 def handle_join_crash():
-    """Cuando entras a la página de juegos"""
-    emit('crash_sync', {
-        'state': crash_engine.state,
-        'multiplier': f"{crash_engine.multiplier:.2f}",
-        'bets': crash_engine.bets
-    })
+    """Sincroniza el estado del juego al entrar o recargar"""
+    
+    # 1. Preparar lista de jugadores actuales para enviarla
+    current_players = []
+    user_active_bet = None # Para saber si YO tengo apuesta
 
+    for user_id, info in crash_engine.bets.items():
+        # Formato para la lista visual
+        current_players.append({
+            'username': info['username'],
+            'amount': info['amount'],
+            'avatar': info['avatar'],
+            'cashed_out': info['cashed_out'],
+            # Si ya retiró, mandamos cuanto ganó
+            'win': (info['amount'] * crash_engine.multiplier) if info['cashed_out'] else 0,
+            'mult': crash_engine.multiplier if info['cashed_out'] else 0
+        })
+
+        # Verificar si ESTE usuario que conecta tiene apuesta activa
+        if current_user.is_authenticated and user_id == current_user.id:
+            user_active_bet = info
+
+    # 2. Enviar todo el paquete de sincronización
+    emit('crash_sync', {
+        'state': crash_engine.state,         # IDLE, WAITING, RUNNING...
+        'multiplier': f"{crash_engine.multiplier:.2f}",
+        'time_left': getattr(crash_engine, 'next_round_time', 0) - time.time(),
+        'players': current_players,          # La lista de gente
+        'my_bet': user_active_bet            # Mi apuesta (si existe)
+    })
 # ... (imports) ...
 from app import db # Asegúrate de importar db
 from .games.crash import crash_engine

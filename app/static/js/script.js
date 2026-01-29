@@ -228,6 +228,106 @@ function switchModal(from, to) { closeModal(from); openModal(to); }
 let currentCrashBet = 0;
 
 // Sockets
+
+// === SOCKETS CRASH ===
+
+// 1. SINCRONIZACIÓN TOTAL (Al entrar o recargar)
+socket.on('crash_sync', (data) => {
+    // A. Actualizar Estado Visual (Multiplicador o Cuenta atrás)
+    const display = document.getElementById('crashDisplay');
+    const statusText = document.getElementById('crashStatusText');
+
+    if (data.state === 'IDLE') {
+        statusText.innerText = "ESPERANDO JUGADORES...";
+        display.classList.remove('running', 'crashed');
+    } else if (data.state === 'WAITING') {
+        // Si hay tiempo negativo, poner 0
+        const t = Math.max(0, data.time_left).toFixed(1);
+        statusText.innerText = `INICIO EN ${t}s`;
+        statusText.className = "status-badge waiting";
+        display.classList.remove('running', 'crashed');
+    } else if (data.state === 'RUNNING') {
+        statusText.innerText = "";
+        display.classList.add('running');
+        document.getElementById('crashMultiplier').innerText = data.multiplier + "x";
+    } else if (data.state === 'CRASHED') {
+        statusText.innerText = "CRASHED";
+        display.classList.add('crashed');
+    }
+
+    // B. Reconstruir Lista de Jugadores
+    const list = document.getElementById('crashPlayersList');
+    list.innerHTML = ''; // Limpiar
+    data.players.forEach(player => {
+        addPlayerToTable(player); // Función auxiliar que crearemos abajo
+        // Si ya retiró, marcarlo visualmente
+        if(player.cashed_out) {
+            markPlayerWin(player.username, player.win, player.mult);
+        }
+    });
+
+    // C. RECUPERAR MI APUESTA (Si recargué la página)
+    if (data.my_bet) {
+        currentCrashBet = data.my_bet.amount;
+        
+        // Si no he retirado y el juego no ha explotado
+        if (!data.my_bet.cashed_out && data.state !== 'CRASHED') {
+            // Restaurar botón de RETIRAR
+            document.getElementById('btnBet').classList.add('hidden');
+            const btnCash = document.getElementById('btnCashout');
+            btnCash.classList.remove('hidden');
+            
+            if (data.state === 'RUNNING') {
+                btnCash.disabled = false;
+                btnCash.style.background = "#ffbe0b";
+                btnCash.innerHTML = `<span>RETIRAR</span> <small>Juego en curso</small>`;
+            } else {
+                btnCash.disabled = true;
+                btnCash.style.background = "#30363d";
+                btnCash.innerHTML = `<span>APOSTADO</span> <small>${data.my_bet.amount}$</small>`;
+            }
+        }
+    } else {
+        // Si no tengo apuesta, asegurar que botones están en modo "Apostar"
+        // (Solo si no estamos en medio de un vuelo y yo mirando)
+        if (!currentCrashBet) resetButtons(data.state === 'IDLE' || data.state === 'WAITING');
+    }
+});
+
+// Función auxiliar para añadir gente a la tabla (Para no repetir código)
+function addPlayerToTable(data) {
+    const list = document.getElementById('crashPlayersList');
+    // Evitar duplicados
+    if(document.getElementById(`player-${data.username}`)) return;
+
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.id = `player-${data.username}`;
+    
+    // Avatar default si falla
+    let avatar = data.avatar ? `/static/uploads/${data.avatar}` : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+
+    row.innerHTML = `
+        <div style="display:flex; align-items:center; gap:10px;">
+            <img src="${avatar}" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
+            <span style="font-weight:bold; color:white;">${data.username}</span>
+        </div>
+        <div style="font-family:monospace; font-size:1rem;">${data.amount}$</div>
+    `;
+    list.appendChild(row);
+}
+
+// Función auxiliar para marcar ganador
+function markPlayerWin(username, win, mult) {
+    const row = document.getElementById(`player-${username}`);
+    if(row) {
+        row.classList.add('winner');
+        row.style.background = "rgba(0, 255, 136, 0.1)";
+        row.innerHTML += `<div class="win-badge-btn">+${parseFloat(win).toFixed(2)}$ (${mult}x)</div>`;
+    }
+}
+
+
 socket.on('crash_status', (data) => {
     // Limpieza visual
     document.getElementById('crashDisplay').classList.remove('running', 'crashed');
@@ -339,6 +439,14 @@ function resetButtons(canBet) {
         }
     }
 }
+
+socket.on('new_bet_crash', (data) => {
+    addPlayerToTable(data);
+});
+
+socket.on('player_cashed_out', (data) => {
+    markPlayerWin(data.username, data.win, data.mult);
+});
 
 // === NAVEGACIÓN DENTRO DE JUEGOS ===
 

@@ -447,3 +447,29 @@ img { max-width: 100%; display: block; }
     .game-controls-panel { flex-direction: column; align-items: stretch; }
     .btn-big-action { width: 100%; }
 }
+
+.players-panel { 
+    background: #0d1117; 
+    border-radius: 16px; 
+    border: 1px solid var(--border); 
+    overflow: hidden;
+    margin-top: 20px;
+}
+.players-scroll {
+    max_height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+}
+.player-row { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 10px; 
+    border-bottom: 1px solid #21262d; 
+    font-size: 0.9rem; 
+    border-radius: 8px;
+    margin-bottom: 4px;
+}
+.player-row.winner { 
+    border-left: 3px solid #00ff88;
+}
