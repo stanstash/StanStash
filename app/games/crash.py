@@ -10,6 +10,7 @@ class CrashGame:
         self.start_time = 0
         self.bets = {}
         self.next_round_time = 0
+        self.history = [] # <--- NUEVO: Lista para el historial
 
     def start(self, app):
         with app.app_context():
@@ -28,20 +29,16 @@ class CrashGame:
         current_time = time.time()
 
         if self.state == 'IDLE':
-            # MODO ESPERA: Emitimos siempre "WAITING" visualmente pero con tiempo 0
-            # para que salga el panel de apuestas
             if len(self.bets) > 0:
                 self.state = 'WAITING'
                 self.next_round_time = current_time + 15
+                socketio.emit('crash_status', {'status': 'WAITING', 'time_left': 15})
             else:
-                # Latido cada segundo
                 if int(current_time * 10) % 10 == 0:
-                    # Time left 0 fuerza la UI a modo apuesta
                     socketio.emit('crash_status', {'status': 'IDLE', 'time_left': 0})
 
         elif self.state == 'WAITING':
             time_left = self.next_round_time - current_time
-            # Emitimos SIEMPRE el tiempo
             socketio.emit('crash_status', {'status': 'WAITING', 'time_left': round(time_left, 1)})
             
             if time_left <= 0:
@@ -69,13 +66,22 @@ class CrashGame:
 
     def crash(self):
         self.state = 'CRASHED'
-        socketio.emit('crash_boom', {'crash_point': self.crash_point})
+        
+        # --- NUEVO: GUARDAR EN HISTORIAL ---
+        self.history.insert(0, self.crash_point) # Insertar al principio
+        if len(self.history) > 20: # Mantener solo 20
+            self.history.pop()
+            
+        socketio.emit('crash_boom', {
+            'crash_point': self.crash_point,
+            'history': self.history # Enviamos el historial actualizado
+        })
+        # -----------------------------------
     
     def reset_game(self):
         self.state = 'IDLE'
         self.multiplier = 1.00
         self.bets = {}
-        # Aviso explícito de reinicio
         socketio.emit('crash_status', {'status': 'IDLE', 'time_left': 0})
 
 crash_engine = CrashGame()

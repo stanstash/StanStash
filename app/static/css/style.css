@@ -710,3 +710,85 @@ img { max-width: 100%; display: block; }
         justify-content: center;
     }
 }
+
+/* NAVEGACIÓN DE JUEGO MEJORADA */
+.game-nav-container {
+    max-width: 1000px;
+    margin: 0 auto 15px auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.btn-cyber-back {
+    background: #161b22;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 10px 20px;
+    border-radius: 50px; /* Redondo */
+    cursor: pointer;
+    font-weight: bold;
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s ease;
+    text-transform: uppercase; font-size: 0.85rem;
+}
+.btn-cyber-back:hover {
+    background: #21262d;
+    color: white;
+    border-color: white;
+    transform: translateX(-3px);
+}
+
+.game-title-badge {
+    background: rgba(0, 255, 136, 0.1);
+    color: #00ff88;
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-weight: 900;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+}
+
+/* HISTORIAL BARRA */
+.history-bar-container {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 16px 16px 0 0; /* Pegado a la pantalla de juego */
+    padding: 10px;
+    overflow: hidden;
+    height: 50px;
+    display: flex; align-items: center;
+    margin-bottom: -1px; /* Unir visualmente con el display */
+    position: relative; z-index: 5;
+}
+
+.history-scroll {
+    display: flex;
+    gap: 8px;
+    flex-direction: row-reverse; /* El más nuevo a la izquierda */
+    justify-content: flex-end; /* Alinear a la derecha visualmente */
+    width: 100%;
+    overflow-x: auto;
+}
+
+.history-pill {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    background: #21262d;
+    color: #8b949e;
+    min-width: 50px;
+    text-align: center;
+    font-family: monospace;
+}
+
+/* Colores Historial */
+.history-pill.bad { color: #8b949e; background: rgba(139, 148, 158, 0.1); }
+.history-pill.good { color: #00ff88; background: rgba(0, 255, 136, 0.1); }
+.history-pill.jackpot { color: #ffbe0b; background: rgba(255, 190, 11, 0.1); border: 1px solid rgba(255,190,11,0.3); }
+
+/* Ajuste display juego para que encaje con el historial */
+.crash-display { border-top-left-radius: 0; border-top-right-radius: 0; }

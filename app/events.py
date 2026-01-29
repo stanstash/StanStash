@@ -4,6 +4,7 @@ from flask_socketio import emit
 from . import socketio, db
 from .games.crash import crash_engine
 
+# ... imports ...
 @socketio.on('join_crash')
 def handle_join_crash():
     current_players = []
@@ -26,8 +27,11 @@ def handle_join_crash():
         'multiplier': f"{crash_engine.multiplier:.2f}",
         'time_left': getattr(crash_engine, 'next_round_time', 0) - time.time(),
         'players': current_players,
-        'my_bet': user_active_bet
+        'my_bet': user_active_bet,
+        'history': crash_engine.history # <--- NUEVO
     })
+
+# ... resto del archivo igual ...
 
 @socketio.on('place_bet_crash')
 def handle_place_bet(data):
