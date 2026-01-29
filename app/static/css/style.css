@@ -325,3 +325,65 @@ img { max-width: 100%; display: block; }
 .players-list { background: #161b22; border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
 .player-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 0.9rem; }
 .player-row.winner { color: #00ff88; }
+
+/* === NUEVOS ESTILOS DE JUEGO (MEJORADOS) === */
+
+/* Botón Volver */
+.btn-back-games { background: transparent; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+.btn-back-games:hover { color: white; transform: translateX(-5px); }
+
+/* Pantalla Crash */
+.crash-display {
+    height: 400px; background: #0d1117; border-radius: 20px; 
+    border: 1px solid var(--border); position: relative; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    overflow: hidden; margin-bottom: 20px; box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+}
+
+.multiplier-text { font-size: 6rem; font-weight: 900; color: white; z-index: 10; font-family: 'Inter', monospace; text-shadow: 0 0 20px rgba(255,255,255,0.1); transition: color 0.2s; }
+
+/* Estados del juego */
+.crash-display.running .multiplier-text { color: var(--accent); text-shadow: 0 0 30px rgba(0,255,136,0.3); }
+.crash-display.crashed .multiplier-text { color: #ff4757; text-shadow: 0 0 30px rgba(255, 71, 87, 0.3); }
+
+.status-badge { position: absolute; top: 50%; transform: translateY(60px); font-size: 1.2rem; font-weight: bold; letter-spacing: 3px; color: var(--text-muted); }
+
+/* Cohete Animado */
+.rocket-area { position: absolute; font-size: 3rem; color: white; transition: transform 0.1s linear; z-index: 5; }
+.exhaust-flame { width: 10px; height: 30px; background: orange; position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); border-radius: 50%; opacity: 0; transition: opacity 0.2s; box-shadow: 0 0 10px red; }
+.crash-display.running .exhaust-flame { opacity: 1; animation: flicker 0.1s infinite; }
+@keyframes flicker { 0% { height: 30px; } 100% { height: 40px; } }
+
+/* Controles de Apuesta */
+.game-controls-panel { background: #161b22; padding: 25px; border-radius: 20px; display: flex; gap: 20px; align-items: center; border: 1px solid var(--border); margin-bottom: 20px; }
+.bet-section { flex: 1; }
+.bet-input-wrapper { display: flex; background: #0d1117; border: 1px solid var(--border); border-radius: 12px; padding: 5px; align-items: center; margin-top: 8px; }
+.currency-icon { padding: 0 15px; color: var(--text-muted); font-weight: bold; }
+.bet-input-wrapper input { background: transparent; border: none; color: white; font-size: 1.2rem; font-weight: bold; width: 100%; outline: none; }
+.bet-modifiers { display: flex; gap: 5px; }
+.bet-modifiers button { background: #21262d; border: none; color: var(--text-muted); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+.bet-modifiers button:hover { background: #30363d; color: white; }
+
+/* Botones Grandes de Acción */
+.btn-big-action { width: 200px; height: 70px; border: none; border-radius: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.2s; }
+.btn-big-action span { font-size: 1.4rem; font-weight: 900; }
+.btn-big-action small { font-size: 0.75rem; font-weight: bold; opacity: 0.8; }
+
+.btn-big-action.bet { background: var(--accent); color: #000; box-shadow: 0 0 20px rgba(0,255,136,0.2); }
+.btn-big-action.bet:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,255,136,0.4); }
+.btn-big-action.bet:disabled { background: #30363d; color: #8b949e; cursor: not-allowed; box-shadow: none; transform: none; }
+
+.btn-big-action.cashout { background: #ffbe0b; color: #000; box-shadow: 0 0 20px rgba(255, 190, 11, 0.2); }
+.btn-big-action.cashout:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255, 190, 11, 0.4); }
+
+/* Overlay de Ganancia */
+.win-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.win-text { font-size: 2rem; color: #ffbe0b; font-weight: 900; text-transform: uppercase; letter-spacing: 5px; }
+.win-amount { font-size: 3.5rem; color: #00ff88; font-weight: 900; text-shadow: 0 0 20px rgba(0,255,136,0.5); margin-top: 10px; }
+@keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .game-controls-panel { flex-direction: column; align-items: stretch; }
+    .btn-big-action { width: 100%; }
+}

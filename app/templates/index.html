@@ -32,45 +32,95 @@
             </div>
             <div class="live-wins-section"><div class="section-header"><div class="live-indicator"><span class="blink"></span> GANADORES EN VIVO</div></div><table class="wins-table"><tbody id="liveWinsBody"></tbody></table></div>
         </section>
-
-        <section id="view-games" class="view-section hidden">
-            <div class="game-container">
-                
-                <div class="crash-display">
-                    <div class="crash-canvas">
-                        <div class="rocket-container">
-                            <i class="fa-solid fa-shuttle-space" id="rocketIcon"></i>
-                        </div>
-                        <h1 id="crashMultiplier">1.00x</h1>
-                        <div id="crashStatusText" class="status-text">ESPERANDO...</div>
-                    </div>
-                </div>
-
-                <div class="game-controls">
-                    <div class="bet-input-area">
-                        <label>Tu Apuesta</label>
-                        <div class="input-with-icon">
-                            <i class="fa-solid fa-dollar-sign"></i>
-                            <input type="number" id="betInput" value="10" min="1">
-                        </div>
-                        <div class="quick-bets">
-                            <button onclick="setBet(10)">10</button>
-                            <button onclick="setBet(50)">50</button>
-                            <button onclick="setBet(100)">100</button>
-                            <button onclick="document.getElementById('betInput').value *= 2">x2</button>
+<section id="view-games" class="view-section hidden">
+            
+            <div id="gamesMenu" class="games-menu-container">
+                <h2 class="page-title">Selecciona un Juego</h2>
+                <div class="games-grid">
+                    <div class="game-card" onclick="enterGame('crash')">
+                        <div class="live-badge">LIVE</div>
+                        <div class="game-poster crash-bg"><i class="fa-solid fa-shuttle-space"></i></div>
+                        <div class="game-details">
+                            <h3>Crash</h3>
+                            <p>Multiplicador x1000</p>
                         </div>
                     </div>
                     
-                    <div class="action-buttons">
-                        <button id="btnBet" class="btn-game-action" onclick="placeBet()">APOSTAR</button>
-                        <button id="btnCashout" class="btn-game-action hidden cashed" onclick="doCashOut()">RETIRAR</button>
+                    <div class="game-card" onclick="showToast('Próximamente', 'info')">
+                        <div class="game-poster mines-bg"><i class="fa-solid fa-bomb"></i></div>
+                        <div class="game-details">
+                            <h3>Mines</h3>
+                            <p>Estrategia Pura</p>
+                        </div>
+                    </div>
+                    
+                    <div class="game-card locked">
+                        <div class="game-poster slots-bg" style="opacity:0.5"><i class="fa-solid fa-lock"></i></div>
+                        <div class="game-details">
+                            <h3>Slots VIP</h3>
+                            <p>En desarrollo</p>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="players-list">
-                    <h3>Jugadores en ronda</h3>
-                    <div id="crashPlayersList">
+            <div id="gameInterface-crash" class="game-interface hidden">
+                <button class="btn-back-games" onclick="backToGames()">
+                    <i class="fa-solid fa-arrow-left"></i> Volver al Menú
+                </button>
+
+                <div class="game-container">
+                    <div class="crash-display" id="crashDisplay">
+                        <div class="crash-info">
+                            <span class="network-status"><i class="fa-solid fa-wifi"></i> Live Network</span>
+                            <span class="last-history">Historial: <span style="color:#aaa">1.2x 4.5x 1.1x</span></span>
                         </div>
+                        
+                        <div class="rocket-area">
+                            <i class="fa-solid fa-rocket" id="rocketIcon"></i>
+                            <div class="exhaust-flame"></div>
+                        </div>
+                        
+                        <h1 id="crashMultiplier" class="multiplier-text">1.00x</h1>
+                        <div id="crashStatusText" class="status-badge waiting">ESPERANDO...</div>
+                        
+                        <div id="winOverlay" class="win-overlay hidden">
+                            <div class="win-text">¡GANASTE!</div>
+                            <div class="win-amount" id="winOverlayAmount">+0.00$</div>
+                        </div>
+                    </div>
+
+                    <div class="game-controls-panel">
+                        <div class="bet-section">
+                            <label>Importe de Apuesta</label>
+                            <div class="bet-input-wrapper">
+                                <span class="currency-icon">$</span>
+                                <input type="number" id="betInput" value="10" min="1">
+                                <div class="bet-modifiers">
+                                    <button onclick="modifyBet('half')">½</button>
+                                    <button onclick="modifyBet('double')">2x</button>
+                                    <button onclick="modifyBet('max')">MAX</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-section">
+                            <button id="btnBet" class="btn-big-action bet" onclick="placeBet()">
+                                <span>APOSTAR</span>
+                                <small>Próxima Ronda</small>
+                            </button>
+                            
+                            <button id="btnCashout" class="btn-big-action cashout hidden" onclick="doCashOut()">
+                                <span>RETIRAR</span>
+                                <small id="cashoutProfitPreview">Ganancia: 0.00$</small>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="players-panel">
+                        <div class="panel-header"><i class="fa-solid fa-users"></i> Jugadores</div>
+                        <div id="crashPlayersList" class="players-scroll"></div>
+                    </div>
                 </div>
             </div>
         </section>
