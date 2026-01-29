@@ -513,3 +513,18 @@ img { max-width: 100%; display: block; }
     border-left: 3px solid #00ff88;
     background: rgba(0, 255, 136, 0.05);
 }
+
+/* TOASTS MODERNOS */
+#toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+.toast { background: rgba(22, 27, 34, 0.95); backdrop-filter: blur(10px); border-left: 4px solid #30363d; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 12px; font-size: 0.95rem; animation: slideInToast 0.4s; transition: 0.3s; }
+.toast-success { border-color: #00ff88; } .toast-success i { color: #00ff88; }
+.toast-error { border-color: #ff4757; } .toast-error i { color: #ff4757; }
+.toast.removing { opacity: 0; transform: translateX(100%); }
+@keyframes slideInToast { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+
+/* CRASH DISPLAY (Capas arregladas) */
+.crash-display { position: relative; height: 400px; background: #0d1117; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; box-shadow: inset 0 0 80px rgba(0,0,0,0.5); }
+.multiplier-text { font-size: 6rem; font-weight: 900; color: white; z-index: 10; font-family: monospace; text-shadow: 0 10px 30px rgba(0,0,0,0.8); margin: 0; position: relative; }
+.rocket-area { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10rem; color: rgba(255,255,255,0.03); z-index: 1; transition: 0.1s linear; display: flex; align-items: center; justify-content: center; }
+.crash-display.running .multiplier-text { color: #00ff88; }
+.crash-display.crashed .multiplier-text { color: #ff4757; }
