@@ -651,3 +651,23 @@ img { max-width: 100%; display: block; }
 /* CAPA DE JUEGO */
 .multiplier-text { font-size: 6rem; color: white; z-index: 30; }
 .rocket-area { position: absolute; font-size: 10rem; opacity: 0.1; }
+
+/* === FIX MÓVIL: TEXTO ESPERANDO === */
+@media (max-width: 600px) {
+    /* Ajustar tamaño del contador gigante */
+    .big-counter {
+        font-size: 3rem; /* Más pequeño en móvil */
+    }
+    
+    /* Ajustar texto de espera para que no se salga */
+    .waiting-content h2 {
+        font-size: 0.9rem;
+        white-space: nowrap; /* Que no salte de línea si es posible */
+    }
+    
+    /* El status badge antiguo (por si se usa en otro lado) */
+    .status-badge {
+        font-size: 0.9rem;
+        padding: 5px 10px;
+    }
+}
