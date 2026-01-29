@@ -8,8 +8,8 @@ from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 
-# CONFIGURACIÓN
-app.config['SECRET_KEY'] = 'clave_secreta_super_segura_v17'
+# --- CONFIGURACIÓN ---
+app.config['SECRET_KEY'] = 'clave_secreta_super_segura_v18'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/casino_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
@@ -21,7 +21,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# INICIALIZAR SOCKETIO (Para el Chat)
+# INICIALIZAR SOCKETIO
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # --- MODELOS ---
@@ -34,7 +34,6 @@ class Usuario(UserMixin, db.Model):
     telefono = db.Column(db.String(30), nullable=True)
     saldo = db.Column(db.Numeric(10, 2), default=0.00)
     avatar = db.Column(db.String(200), default='default.png')
-    role = db.Column(db.String(20), default='user') # user, admin, mod
 
 class Payment(db.Model):
     __tablename__ = 'payments'
@@ -47,7 +46,6 @@ class Payment(db.Model):
     status = db.Column(db.String(20), default='waiting')
     created_at = db.Column(db.Integer, default=int(time.time()))
 
-# NUEVO MODELO PARA MENSAJES DE CHAT
 class ChatMessage(db.Model):
     __tablename__ = 'chat_messages'
     id = db.Column(db.Integer, primary_key=True)
@@ -55,13 +53,14 @@ class ChatMessage(db.Model):
     username = db.Column(db.String(50))
     message = db.Column(db.String(500))
     timestamp = db.Column(db.Integer, default=int(time.time()))
+    # Relación para sacar el avatar actualizado del usuario
     user = db.relationship('Usuario', backref='messages')
 
 @login_manager.user_loader
 def load_user(user_id):
     return Usuario.query.get(int(user_id))
 
-# --- RUTAS NORMALES ---
+# --- RUTAS PRINCIPALES ---
 @app.route('/')
 def home(): return render_template('index.html')
 
@@ -71,12 +70,25 @@ def check_session():
         return jsonify({'logged_in': True, 'user': current_user.username, 'saldo': float(current_user.saldo), 'avatar': current_user.avatar})
     return jsonify({'logged_in': False})
 
-# --- LOGICA DEL CHAT (SOCKETIO) ---
+# --- LÓGICA DEL CHAT (CORREGIDA: CON HISTORIAL) ---
 
 @socketio.on('connect')
 def handle_connect():
-    # Opcional: Enviar últimos mensajes al conectar
-    pass
+    # 1. Recuperar los últimos 50 mensajes de la base de datos
+    # Ordenamos por timestamp descendente (lo más nuevo primero) para coger los últimos, 
+    # pero luego los invertimos para enviarlos en orden cronológico (antiguo -> nuevo).
+    messages = ChatMessage.query.order_by(ChatMessage.timestamp.desc()).limit(50).all()
+    
+    for msg in reversed(messages):
+        # Intentamos obtener el avatar del usuario si existe, si no, default
+        avatar = msg.user.avatar if msg.user else 'default.png'
+        
+        emit('new_message', {
+            'username': msg.username,
+            'message': msg.message,
+            'avatar': avatar,
+            'timestamp': msg.timestamp
+        })
 
 @socketio.on('send_message')
 def handle_send_message(data):
@@ -85,12 +97,12 @@ def handle_send_message(data):
     msg_text = data.get('message', '').strip()
     if not msg_text or len(msg_text) > 500: return
 
-    # Guardar en BBDD
+    # Guardar en BBDD para siempre
     new_msg = ChatMessage(user_id=current_user.id, username=current_user.username, message=msg_text)
     db.session.add(new_msg)
     db.session.commit()
 
-    # Retransmitir a todos los conectados
+    # Enviar a todos los conectados
     emit('new_message', {
         'username': current_user.username,
         'message': msg_text,
@@ -99,7 +111,7 @@ def handle_send_message(data):
     }, broadcast=True)
 
 
-# --- SISTEMA DE PAGO (SIMULACIÓN MANTENIDA) ---
+# --- SISTEMA DE PAGO (SIMULACIÓN PARA TESTS) ---
 @app.route('/api/create_payment', methods=['POST'])
 @login_required
 def create_payment():
@@ -188,12 +200,12 @@ def change_password():
 @login_required
 def logout(): logout_user(); return jsonify({'status': 'success'})
 
-@app.route('/api/deposit', methods=['POST']) # Legacy
+@app.route('/api/deposit', methods=['POST'])
 @login_required
 def deposit(): return jsonify({'status': 'success'})
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    # IMPORTANTE: Usar socketio.run en lugar de app.run
+    # Ejecutamos con socketio
     socketio.run(app, host='0.0.0.0', port=8080, debug=True, allow_unsafe_werkzeug=True)
