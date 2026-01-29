@@ -223,3 +223,106 @@ function simulateLiveWins() { const games = ['Crash', 'Mines', 'Slots']; const u
 function openModal(id) { document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 function switchModal(from, to) { closeModal(from); openModal(to); }
+
+// === LÓGICA JUEGO CRASH ===
+let isBetting = false;
+
+// Al cargar, nos unimos a la sala de Crash si estamos en la vista de juegos
+document.addEventListener('DOMContentLoaded', () => {
+    // ... (tu codigo anterior) ...
+    // Si la vista inicial es juegos, unirse:
+    if(!document.getElementById('view-games').classList.contains('hidden')) {
+        socket.emit('join_crash');
+    }
+});
+
+// Sobrescribir la función navigate para unirse al juego al entrar
+const originalNavigate = navigate;
+navigate = function(viewId) {
+    originalNavigate(viewId);
+    if(viewId === 'games') {
+        socket.emit('join_crash');
+    }
+}
+
+// Eventos del Socket
+socket.on('crash_countdown', (data) => {
+    document.getElementById('crashMultiplier').innerText = "ESPERA";
+    document.getElementById('crashStatusText').innerText = `INICIO EN ${data.time_left}s`;
+    document.getElementById('crashDisplay').classList.remove('crash-crashed');
+    resetButtons(true); // Habilitar apostar
+});
+
+socket.on('crash_start', () => {
+    document.getElementById('crashStatusText').innerText = "EN CURSO";
+    resetButtons(false); // Deshabilitar apostar, Habilitar retirar si apostaste
+});
+
+socket.on('crash_tick', (data) => {
+    document.getElementById('crashMultiplier').innerText = data.multiplier + "x";
+    // Animación simple: Mover cohete hacia arriba y derecha
+    const rocket = document.getElementById('rocketIcon');
+    rocket.style.transform = `translate(${data.multiplier * 20}px, -${data.multiplier * 20}px)`;
+});
+
+socket.on('crash_boom', (data) => {
+    document.getElementById('crashMultiplier').innerText = data.crash_point + "x";
+    document.getElementById('crashStatusText').innerText = "CRASHED";
+    document.querySelector('.crash-display').classList.add('crash-crashed');
+    
+    document.getElementById('btnBet').classList.remove('hidden');
+    document.getElementById('btnCashout').classList.add('hidden');
+    
+    showToast(`Crash en ${data.crash_point}x`, 'error');
+});
+
+socket.on('new_bet_crash', (data) => {
+    const list = document.getElementById('crashPlayersList');
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.id = `player-${data.username}`;
+    row.innerHTML = `<span><img src="/static/uploads/${data.avatar}" style="width:20px; display:inline; border-radius:50%"> ${data.username}</span> <span>${data.amount}$</span>`;
+    list.appendChild(row);
+});
+
+socket.on('player_cashed_out', (data) => {
+    const row = document.getElementById(`player-${data.username}`);
+    if(row) {
+        row.classList.add('winner');
+        row.innerHTML += ` <span>+${data.win}$ (${data.mult}x)</span>`;
+    }
+});
+
+// Funciones de Botones
+function placeBet() {
+    const amount = document.getElementById('betInput').value;
+    socket.emit('place_bet_crash', {amount: amount});
+    // Cambio visual botones
+    document.getElementById('btnBet').classList.add('hidden');
+    document.getElementById('btnCashout').classList.remove('hidden');
+    isBetting = true;
+}
+
+function doCashOut() {
+    socket.emit('cash_out_crash');
+    document.getElementById('btnCashout').disabled = true;
+}
+
+function resetButtons(canBet) {
+    if(canBet) {
+        document.getElementById('btnBet').classList.remove('hidden');
+        document.getElementById('btnBet').disabled = false;
+        document.getElementById('btnCashout').classList.add('hidden');
+        document.getElementById('btnCashout').disabled = false;
+        document.getElementById('crashPlayersList').innerHTML = ''; // Limpiar lista
+    } else {
+        document.getElementById('btnBet').disabled = true;
+    }
+}
+
+function setBet(amount) { document.getElementById('betInput').value = amount; }
+socket.on('balance_update', (data) => {
+    document.getElementById('userBalance').innerText = data.saldo.toFixed(2);
+    document.getElementById('profileBalanceDisplay').innerText = data.saldo.toFixed(2);
+});
+socket.on('error_msg', (data) => showToast(data.msg, 'error'));

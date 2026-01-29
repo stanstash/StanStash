@@ -34,10 +34,44 @@
         </section>
 
         <section id="view-games" class="view-section hidden">
-            <div class="games-grid">
-                <div class="game-card" onclick="showToast('Mantenimiento temporal', 'info')"><div class="live-badge">LIVE</div><div class="game-poster crash-bg"><i class="fa-solid fa-plane-up"></i></div><div class="game-details"><h3>Crash</h3><p>x1000</p></div></div>
-                <div class="game-card" onclick="showToast('Mantenimiento temporal', 'info')"><div class="game-poster mines-bg"><i class="fa-solid fa-bomb"></i></div><div class="game-details"><h3>Mines</h3><p>Estrategia</p></div></div>
-                <div class="game-card locked"><div class="game-poster slots-bg" style="opacity:0.5"><i class="fa-solid fa-lock"></i></div><div class="game-details"><h3>Slots</h3><p>Pronto</p></div></div>
+            <div class="game-container">
+                
+                <div class="crash-display">
+                    <div class="crash-canvas">
+                        <div class="rocket-container">
+                            <i class="fa-solid fa-shuttle-space" id="rocketIcon"></i>
+                        </div>
+                        <h1 id="crashMultiplier">1.00x</h1>
+                        <div id="crashStatusText" class="status-text">ESPERANDO...</div>
+                    </div>
+                </div>
+
+                <div class="game-controls">
+                    <div class="bet-input-area">
+                        <label>Tu Apuesta</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            <input type="number" id="betInput" value="10" min="1">
+                        </div>
+                        <div class="quick-bets">
+                            <button onclick="setBet(10)">10</button>
+                            <button onclick="setBet(50)">50</button>
+                            <button onclick="setBet(100)">100</button>
+                            <button onclick="document.getElementById('betInput').value *= 2">x2</button>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="btnBet" class="btn-game-action" onclick="placeBet()">APOSTAR</button>
+                        <button id="btnCashout" class="btn-game-action hidden cashed" onclick="doCashOut()">RETIRAR</button>
+                    </div>
+                </div>
+
+                <div class="players-list">
+                    <h3>Jugadores en ronda</h3>
+                    <div id="crashPlayersList">
+                        </div>
+                </div>
             </div>
         </section>
 

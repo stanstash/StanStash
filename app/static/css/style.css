@@ -286,3 +286,42 @@ img { max-width: 100%; display: block; }
     from { opacity: 0; transform: translateX(100%); }
     to { opacity: 1; transform: translateX(0); }
 }
+
+/* === JUEGO CRASH === */
+.game-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+.crash-display {
+    height: 350px; background: #161b22; border-radius: 16px; 
+    border: 1px solid var(--border); position: relative; 
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; margin-bottom: 20px;
+}
+.crash-display::before {
+    content: ''; position: absolute; width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(0,255,136,0.1) 0%, transparent 60%);
+    animation: rotateBg 10s linear infinite; opacity: 0.5;
+}
+@keyframes rotateBg { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+#crashMultiplier { font-size: 5rem; font-weight: 900; color: white; z-index: 2; font-family: monospace; }
+.rocket-container { position: absolute; bottom: 20px; left: 20px; font-size: 2rem; color: var(--accent); transition: all 0.1s; }
+.status-text { position: absolute; top: 20px; color: var(--text-muted); font-weight: bold; letter-spacing: 2px; }
+
+.crash-crashed #crashMultiplier { color: #ff4757; }
+.crash-crashed .status-text { color: #ff4757; }
+
+.game-controls { background: #0d1117; padding: 20px; border-radius: 16px; display: flex; gap: 20px; align-items: flex-end; border: 1px solid var(--border); margin-bottom: 20px; }
+.bet-input-area { flex: 1; }
+.input-with-icon { position: relative; margin-top: 10px; }
+.input-with-icon i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+.input-with-icon input { width: 100%; padding: 15px 15px 15px 40px; background: #161b22; border: 1px solid var(--border); color: white; border-radius: 8px; font-size: 1.2rem; font-weight: bold; }
+
+.quick-bets { display: flex; gap: 5px; margin-top: 10px; }
+.quick-bets button { flex: 1; background: #21262d; border: 1px solid var(--border); color: var(--text-muted); padding: 5px; border-radius: 4px; cursor: pointer; }
+
+.btn-game-action { width: 150px; height: 60px; border: none; border-radius: 8px; font-weight: 900; font-size: 1.2rem; cursor: pointer; }
+#btnBet { background: var(--accent); color: black; }
+#btnCashout { background: #ffbe0b; color: black; }
+
+.players-list { background: #161b22; border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+.player-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 0.9rem; }
+.player-row.winner { color: #00ff88; }

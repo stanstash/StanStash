@@ -41,3 +41,82 @@ def handle_send_message(data):
         'avatar': current_user.avatar,
         'timestamp': int(time.time())
     }, broadcast=True)
+
+    # ... (imports anteriores) ...
+from .games.crash import crash_engine # Importamos el motor
+
+# --- EVENTOS DEL JUEGO CRASH ---
+
+@socketio.on('join_crash')
+def handle_join_crash():
+    """Cuando entras a la página de juegos"""
+    emit('crash_sync', {
+        'state': crash_engine.state,
+        'multiplier': f"{crash_engine.multiplier:.2f}",
+        'bets': crash_engine.bets
+    })
+
+@socketio.on('place_bet_crash')
+def handle_place_bet(data):
+    if not current_user.is_authenticated: return
+    if crash_engine.state != 'WAITING':
+        emit('error_msg', {'msg': 'La ronda ya ha empezado'})
+        return
+
+    amount = float(data.get('amount'))
+    if amount <= 0 or amount > current_user.saldo:
+        emit('error_msg', {'msg': 'Saldo insuficiente o inválido'})
+        return
+
+    # 1. Restar saldo inmediatamente
+    current_user.saldo = float(current_user.saldo) - amount
+    db.session.commit()
+
+    # 2. Registrar apuesta en memoria del juego
+    crash_engine.bets[current_user.id] = {
+        'username': current_user.username,
+        'amount': amount,
+        'cashed_out': False,
+        'avatar': current_user.avatar
+    }
+
+    # 3. Avisar a todos
+    emit('new_bet_crash', {
+        'username': current_user.username,
+        'amount': amount,
+        'avatar': current_user.avatar
+    }, broadcast=True)
+    
+    # 4. Actualizar saldo visual del usuario
+    emit('balance_update', {'saldo': float(current_user.saldo)})
+
+@socketio.on('cash_out_crash')
+def handle_cash_out():
+    if not current_user.is_authenticated: return
+    if crash_engine.state != 'RUNNING': return
+
+    bet_info = crash_engine.bets.get(current_user.id)
+    
+    # Si apostó y no ha retirado aún
+    if bet_info and not bet_info['cashed_out']:
+        current_mult = crash_engine.multiplier
+        win_amount = bet_info['amount'] * current_mult
+        
+        # 1. Marcar como retirado
+        crash_engine.bets[current_user.id]['cashed_out'] = True
+        
+        # 2. Pagar
+        current_user.saldo = float(current_user.saldo) + win_amount
+        db.session.commit()
+
+        # 3. Avisar
+        emit('player_cashed_out', {
+            'username': current_user.username,
+            'mult': f"{current_mult:.2f}",
+            'win': f"{win_amount:.2f}"
+        }, broadcast=True)
+
+        emit('balance_update', {'saldo': float(current_user.saldo)})
+        emit('cashout_success', {'win': win_amount})
+
+        
