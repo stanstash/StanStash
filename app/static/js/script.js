@@ -339,3 +339,49 @@ function resetButtons(canBet) {
         }
     }
 }
+
+// === NAVEGACIÓN DENTRO DE JUEGOS ===
+
+function enterGame(gameName) {
+    console.log("Intentando entrar a:", gameName); // Debug en consola
+
+    // 1. Verificar Login
+    if (!currentUser) {
+        openModal('loginModal');
+        showToast("Debes iniciar sesión para jugar", "info");
+        return;
+    }
+
+    // 2. Cambiar interfaz
+    if (gameName === 'crash') {
+        const menu = document.getElementById('gamesMenu');
+        const game = document.getElementById('gameInterface-crash');
+
+        if(menu && game) {
+            menu.classList.add('hidden');
+            game.classList.remove('hidden');
+            
+            // 3. Conectar socket
+            socket.emit('join_crash');
+        } else {
+            console.error("Error: No encuentro los elementos HTML del juego");
+        }
+    }
+}
+
+function backToGames() {
+    // Ocultar juego, mostrar menú
+    document.getElementById('gameInterface-crash').classList.add('hidden');
+    document.getElementById('gamesMenu').classList.remove('hidden');
+}
+
+// Modificar la navegación global para resetear vistas
+const originalNavigate = navigate;
+navigate = function(viewId) {
+    originalNavigate(viewId);
+    if(viewId === 'games') {
+        // Al volver a la pestaña juegos, mostrar siempre el menú primero
+        document.getElementById('gamesMenu').classList.remove('hidden');
+        document.getElementById('gameInterface-crash').classList.add('hidden');
+    }
+}
