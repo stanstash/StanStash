@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Stanstash | Crypto Casino</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=15.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=17.0">
 </head>
 <body>
 
@@ -47,19 +47,9 @@
 
         <section id="view-games" class="view-section hidden">
             <div class="games-grid">
-                <div class="game-card" onclick="alert('Mantenimiento')">
-                    <div class="live-badge">LIVE</div>
-                    <div class="game-poster crash-bg"><i class="fa-solid fa-plane-up"></i></div>
-                    <div class="game-details"><h3>Crash</h3><p>x1000</p></div>
-                </div>
-                <div class="game-card" onclick="alert('Mantenimiento')">
-                    <div class="game-poster mines-bg"><i class="fa-solid fa-bomb"></i></div>
-                    <div class="game-details"><h3>Mines</h3><p>Estrategia</p></div>
-                </div>
-                <div class="game-card locked">
-                    <div class="game-poster slots-bg" style="opacity:0.5"><i class="fa-solid fa-lock"></i></div>
-                    <div class="game-details"><h3>Slots</h3><p>Pronto</p></div>
-                </div>
+                <div class="game-card" onclick="alert('Mantenimiento')"><div class="live-badge">LIVE</div><div class="game-poster crash-bg"><i class="fa-solid fa-plane-up"></i></div><div class="game-details"><h3>Crash</h3><p>x1000</p></div></div>
+                <div class="game-card" onclick="alert('Mantenimiento')"><div class="game-poster mines-bg"><i class="fa-solid fa-bomb"></i></div><div class="game-details"><h3>Mines</h3><p>Estrategia</p></div></div>
+                <div class="game-card locked"><div class="game-poster slots-bg" style="opacity:0.5"><i class="fa-solid fa-lock"></i></div><div class="game-details"><h3>Slots</h3><p>Pronto</p></div></div>
             </div>
         </section>
 
@@ -74,101 +64,61 @@
                                     <label for="avatarInput" class="camera-btn"><i class="fa-solid fa-camera"></i></label>
                                     <input type="file" id="avatarInput" hidden onchange="uploadAvatar()" accept="image/*">
                                 </div>
-                                <div class="profile-text">
-                                    <h3 id="profileUsername">...</h3>
-                                    <span class="user-badge verified">Cuenta Verificada</span>
-                                </div>
+                                <div class="profile-text"><h3 id="profileUsername">...</h3><span class="user-badge verified">Cuenta Verificada</span></div>
                             </div>
                         </div>
                         <div class="wallet-card">
                             <div class="wallet-header">SALDO DISPONIBLE</div>
                             <div class="wallet-amount" id="profileBalanceDisplay">0.00</div>
-                            <div class="wallet-actions">
-                                <button class="btn-dep" onclick="navigate('deposit')">Depositar</button>
-                                <button class="btn-wd" onclick="alert('Retiros en 24h')">Retirar</button>
-                            </div>
+                            <div class="wallet-actions"><button class="btn-dep" onclick="navigate('deposit')">Depositar</button><button class="btn-wd" onclick="alert('Retiros en 24h')">Retirar</button></div>
                         </div>
                     </div>
                     <div class="settings-list">
-                        <div class="settings-item" onclick="togglePasswordEdit()">
-                            <div class="set-icon"><i class="fa-solid fa-lock"></i></div><div class="set-text">Cambiar Contraseña</div><i class="fa-solid fa-chevron-down arrow"></i>
-                        </div>
+                        <div class="settings-item" onclick="togglePasswordEdit()"><div class="set-icon"><i class="fa-solid fa-lock"></i></div><div class="set-text">Cambiar Contraseña</div><i class="fa-solid fa-chevron-down arrow" id="passChevron"></i></div>
                         <div id="passwordEditSection" class="password-form hidden">
-                            <input type="password" id="currentPass" placeholder="Actual" class="input-field-sm">
-                            <input type="password" id="newPass1" placeholder="Nueva" class="input-field-sm">
-                            <input type="password" id="newPass2" placeholder="Confirmar" class="input-field-sm">
-                            <button class="btn-save-pass" onclick="changePassword()">Guardar</button>
+                            <input type="password" id="currentPass" placeholder="Actual" class="input-field-sm"><input type="password" id="newPass1" placeholder="Nueva" class="input-field-sm"><input type="password" id="newPass2" placeholder="Confirmar" class="input-field-sm"><button class="btn-save-pass" onclick="changePassword()">Guardar</button>
                         </div>
-                        <div class="settings-item danger" onclick="doLogout()">
-                            <div class="set-icon"><i class="fa-solid fa-power-off"></i></div><div class="set-text">Cerrar Sesión</div>
-                        </div>
+                        <div class="settings-item danger" onclick="doLogout()"><div class="set-icon"><i class="fa-solid fa-power-off"></i></div><div class="set-text">Cerrar Sesión</div></div>
                     </div>
                 </div>
             </div>
         </section>
 
-       <section id="view-deposit" class="view-section hidden">
+        <section id="view-deposit" class="view-section hidden">
             <div class="deposit-page-container">
                 <div class="deposit-wrapper">
                     <h2 class="page-title"><i class="fa-solid fa-wallet"></i> Añadir Fondos</h2>
-                    
                     <div id="depositForm">
                         <div class="method-grid">
                             <div class="method-card active"><i class="fa-brands fa-bitcoin"></i><span>Cripto</span><div class="check-mark"><i class="fa-solid fa-check"></i></div></div>
                             <div class="method-card disabled"><i class="fa-solid fa-credit-card"></i><span>Tarjeta</span><small>(Pronto)</small></div>
                         </div>
-
                         <div class="deposit-box">
                             <label class="input-label">Selecciona Moneda</label>
-                            
                             <div class="crypto-scroll-container">
-                                <div class="crypto-option selected" id="opt-btc" onclick="selectCrypto('btc')">
-                                    <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=026"> BTC
-                                </div>
-                                <div class="crypto-option" id="opt-eth" onclick="selectCrypto('eth')">
-                                    <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=026"> ETH
-                                </div>
-                                <div class="crypto-option" id="opt-sol" onclick="selectCrypto('sol')">
-                                    <img src="https://cryptologos.cc/logos/solana-sol-logo.png?v=026"> SOL
-                                </div>
-                                <div class="crypto-option" id="opt-usdt" onclick="selectCrypto('usdt')">
-                                    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=026"> USDT
-                                </div>
-                                <div class="crypto-option" id="opt-trx" onclick="selectCrypto('trx')">
-                                    <img src="https://cryptologos.cc/logos/tron-trx-logo.png?v=026"> TRX
-                                </div>
-                                <div class="crypto-option" id="opt-ltc" onclick="selectCrypto('ltc')">
-                                    <img src="https://cryptologos.cc/logos/litecoin-ltc-logo.png?v=026"> LTC
-                                </div>
-                                <div class="crypto-option" id="opt-doge" onclick="selectCrypto('doge')">
-                                    <img src="https://cryptologos.cc/logos/dogecoin-doge-logo.png?v=026"> DOGE
-                                </div>
+                                <div class="crypto-option selected" id="opt-btc" onclick="selectCrypto('btc')"><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=026"> BTC</div>
+                                <div class="crypto-option" id="opt-eth" onclick="selectCrypto('eth')"><img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=026"> ETH</div>
+                                <div class="crypto-option" id="opt-sol" onclick="selectCrypto('sol')"><img src="https://cryptologos.cc/logos/solana-sol-logo.png?v=026"> SOL</div>
+                                <div class="crypto-option" id="opt-usdt" onclick="selectCrypto('usdt')"><img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=026"> USDT</div>
+                                <div class="crypto-option" id="opt-trx" onclick="selectCrypto('trx')"><img src="https://cryptologos.cc/logos/tron-trx-logo.png?v=026"> TRX</div>
+                                <div class="crypto-option" id="opt-ltc" onclick="selectCrypto('ltc')"><img src="https://cryptologos.cc/logos/litecoin-ltc-logo.png?v=026"> LTC</div>
+                                <div class="crypto-option" id="opt-doge" onclick="selectCrypto('doge')"><img src="https://cryptologos.cc/logos/dogecoin-doge-logo.png?v=026"> DOGE</div>
+                                <div class="crypto-option" id="opt-xrp" onclick="selectCrypto('xrp')"><img src="https://cryptologos.cc/logos/xrp-xrp-logo.png?v=026"> XRP</div>
                             </div>
-
                             <label class="input-label">Monto (USD)</label>
-                            <div class="amount-input-group">
-                                <span class="currency-symbol">$</span>
-                                <input type="number" id="depositAmount" placeholder="50.00" class="amount-field">
-                            </div>
-
+                            <div class="amount-input-group"><span class="currency-symbol">$</span><input type="number" id="depositAmount" placeholder="50.00" class="amount-field"></div>
                             <button class="btn-pay-now" onclick="createPayment()">GENERAR DIRECCIÓN</button>
                             <p class="deposit-note">Mínimo 10$. Procesado por NOWPayments.</p>
                         </div>
                     </div>
-
                     <div id="depositWaiting" class="hidden">
                         <div class="deposit-box center-content">
                             <div class="spinner-box"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
                             <h3>Esperando Pago...</h3>
                             <p>Envía <b>exactamente</b> <span id="payAmountDisplay" style="color:#00ff88">0</span> <span id="payCurrencyDisplay">BTC</span> a:</p>
-                            
-                            <div class="address-box" onclick="copyAddress()">
-                                <span id="payAddressDisplay">Generando...</span>
-                                <i class="fa-solid fa-copy"></i>
-                            </div>
-                            
+                            <div class="address-box" onclick="copyAddress()"><span id="payAddressDisplay">Generando...</span><i class="fa-solid fa-copy"></i></div>
                             <div class="timer-bar"><div class="timer-fill"></div></div>
-                            <p class="deposit-note">Detectando transacción en blockchain...</p>
+                            <p class="deposit-note">Detectando transacción en blockchain... (Simulación 5s)</p>
                             <button class="btn-cancel" onclick="cancelPayment()">CANCELAR</button>
                         </div>
                     </div>
@@ -182,21 +132,33 @@
             <a href="#" onclick="navigate('home')" class="sidebar-item active" id="side-home"><i class="fa-solid fa-house"></i> Inicio</a>
             <a href="#" onclick="navigate('games')" class="sidebar-item" id="side-games"><i class="fa-solid fa-gamepad"></i> Juegos</a>
             <a href="#" onclick="navigate('deposit')" class="sidebar-item" id="side-deposit"><i class="fa-solid fa-wallet"></i> Cartera</a>
-            <a href="#" onclick="alert('Chat Global: Conectando...')" class="sidebar-item"><i class="fa-solid fa-comments"></i> Chat Global</a>
+            <a href="#" onclick="toggleChat()" class="sidebar-item"><i class="fa-solid fa-comments"></i> Chat Global</a>
             <a href="#" onclick="navigate('profile')" class="sidebar-item" id="side-profile"><i class="fa-solid fa-user"></i> Mi Perfil</a>
         </nav>
-        <div class="sidebar-footer hidden" id="desktopLogout">
-            <button class="btn-logout-side" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button>
-        </div>
+        <div class="sidebar-footer hidden" id="desktopLogout"><button class="btn-logout-side" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button></div>
     </aside>
 
     <nav class="bottom-nav mobile-only">
         <a href="#" onclick="navigate('home')" class="nav-item active" id="nav-home"><i class="fa-solid fa-house"></i><span>Inicio</span></a>
         <a href="#" onclick="navigate('deposit')" class="nav-item" id="nav-deposit"><i class="fa-solid fa-wallet"></i><span>Cartera</span></a>
         <div class="nav-center" onclick="navigate('games')"><i class="fa-solid fa-play"></i></div>
-        <a href="#" onclick="alert('Chat móvil próximamente')" class="nav-item"><i class="fa-solid fa-comments"></i><span>Chat</span></a>
+        <a href="#" onclick="toggleChat()" class="nav-item"><i class="fa-solid fa-comments"></i><span>Chat</span></a>
         <a href="#" onclick="navigate('profile')" class="nav-item" id="nav-profile"><i class="fa-solid fa-user"></i><span>Perfil</span></a>
     </nav>
+
+    <div id="chatSidebar" class="chat-sidebar closed">
+        <div class="chat-header">
+            <h3>Chat Global <span class="online-count">● LIVE</span></h3>
+            <button class="btn-close-chat" onclick="toggleChat()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg system">Bienvenido al chat global. Sé respetuoso.</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Escribe un mensaje..." onkeypress="handleChatKeyPress(event)">
+            <button class="btn-send-chat" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
 
     <div id="loginModal" class="modal hidden">
         <div class="modal-content auth-modal">
@@ -224,6 +186,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

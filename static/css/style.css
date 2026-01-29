@@ -1,10 +1,10 @@
-:root { --bg-dark: #090b10; --bg-card: #161b22; --accent: #00ff88; --text-main: #ffffff; --text-muted: #8b949e; --border: #30363d; --nav-height: 70px; }
+:root { --bg-dark: #090b10; --bg-card: #161b22; --accent: #00ff88; --text-main: #ffffff; --text-muted: #8b949e; --border: #30363d; --nav-height: 70px; --chat-width: 320px; }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Inter', system-ui, sans-serif; background-color: var(--bg-dark); color: var(--text-main); padding-top: var(--nav-height); padding-bottom: 90px; overflow-x: hidden; }
 .hidden { display: none !important; }
 img { max-width: 100%; display: block; }
 
-/* NAVBAR & GENERAL (Mantenido igual) */
+/* NAVBAR & GENERAL */
 .top-navbar { position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height); background: rgba(9, 11, 16, 0.95); backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 500; border-bottom: 1px solid var(--border); }
 .logo-container { display: flex; align-items: center; gap: 10px; cursor: pointer; } .accent-color { color: var(--accent); font-size: 1.5rem; } .brand-name { font-weight: 800; font-size: 1.3rem; }
 .user-panel, .guest-view, .logged-view { display: flex; align-items: center; gap: 15px; height: 100%; }
@@ -15,7 +15,7 @@ img { max-width: 100%; display: block; }
 .nav-avatar { width: 42px; height: 42px; border-radius: 50%; overflow: hidden; border: 2px solid var(--accent); cursor: pointer; background: #000; flex-shrink: 0; }
 .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-/* HOME & GAMES (Mantenido igual) */
+/* HOME & GAMES */
 .hero-banner { background: linear-gradient(170deg, #161b22 0%, #0d1117 60%, #002211 100%); padding: 50px 20px; border-radius: 16px; text-align: center; border: 1px solid var(--border); margin: 20px; position: relative; overflow: hidden; }
 .hero-text h1 { font-size: 2.2rem; font-weight: 900; line-height: 1.1; margin-bottom: 15px; }
 .text-gradient { background: linear-gradient(to right, #fff, #999); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -34,7 +34,7 @@ img { max-width: 100%; display: block; }
 .game-details { padding: 15px; background: var(--bg-card); } .game-details h3 { font-size: 1rem; margin: 0; color: #fff; } .game-details p { font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; }
 .live-badge { position: absolute; top: 10px; right: 10px; background: #ff4757; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
 
-/* PERFIL */
+/* PERFIL & DEPÓSITO */
 .profile-page-container, .deposit-page-container { padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 80vh; }
 .profile-wrapper, .deposit-wrapper { width: 100%; max-width: 800px; }
 .profile-dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
@@ -64,7 +64,7 @@ img { max-width: 100%; display: block; }
 .input-field-sm { width: 100%; background: #161b22; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 6px; margin-bottom: 10px; outline: none; }
 .btn-save-pass { width: 100%; background: var(--accent); border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-/* === PÁGINA DEPÓSITO (ESTILOS NUEVOS) === */
+/* DEPÓSITO ESPECÍFICO */
 .deposit-wrapper { width: 100%; max-width: 550px; }
 .page-title { color: white; margin-bottom: 25px; font-size: 1.5rem; }
 .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
@@ -75,11 +75,14 @@ img { max-width: 100%; display: block; }
 .check-mark { position: absolute; top: 10px; right: 10px; color: var(--accent); display: none; }
 .method-card.active .check-mark { display: block; }
 .method-card.disabled { cursor: not-allowed; opacity: 0.4; }
-
 .deposit-box { background: var(--bg-card); padding: 30px; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
 .input-label { color: var(--text-muted); font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; display: block; text-transform: uppercase; }
-.crypto-selector { display: flex; gap: 10px; margin-bottom: 20px; }
-.crypto-option { flex: 1; background: #0d1117; border: 1px solid var(--border); padding: 12px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: 0.2s; color: var(--text-muted); }
+/* ARREGLO LOGOS ENORMES: Se asegura que las imágenes dentro de crypto-option tengan tamaño fijo */
+.crypto-scroll-container { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+.crypto-scroll-container::-webkit-scrollbar { height: 4px; } .crypto-scroll-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.crypto-option { min-width: 90px; flex: 0 0 auto; background: #0d1117; border: 1px solid var(--border); padding: 12px; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: 0.2s; color: var(--text-muted); }
+/* Esta regla fuerza el tamaño pequeño de los iconos */
+.crypto-option img { width: 24px; height: 24px; object-fit: contain; }
 .crypto-option.selected { border-color: var(--accent); background: rgba(0, 255, 136, 0.1); color: white; }
 .amount-input-group { position: relative; margin-bottom: 25px; }
 .currency-symbol { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem; }
@@ -87,14 +90,30 @@ img { max-width: 100%; display: block; }
 .amount-field:focus { border-color: var(--accent); }
 .btn-pay-now { width: 100%; background: var(--accent); color: black; border: none; padding: 16px; border-radius: 12px; font-weight: 900; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
 .deposit-note { text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 15px; }
-
-/* Waiting Screen */
 .center-content { text-align: center; }
 .spinner-box { font-size: 3rem; color: var(--accent); margin-bottom: 20px; }
 .address-box { background: #000; padding: 15px; border-radius: 8px; border: 1px dashed var(--accent); margin: 20px 0; font-family: monospace; font-size: 0.9rem; word-break: break-all; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 .btn-cancel { background: transparent; border: 1px solid #ff4757; color: #ff4757; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-/* MODALES Y NAV MÓVIL */
+/* === ESTILOS DEL CHAT GLOBAL === */
+.chat-sidebar { position: fixed; top: 0; right: 0; width: var(--chat-width); height: 100vh; background: var(--bg-card); border-left: 1px solid var(--border); z-index: 1500; display: flex; flex-direction: column; transition: transform 0.3s ease-in-out; padding-top: var(--nav-height); }
+.chat-sidebar.closed { transform: translateX(100%); }
+.chat-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid var(--border); background: rgba(9, 11, 16, 0.95); }
+.chat-header h3 { font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+.online-count { font-size: 0.7rem; color: var(--accent); }
+.btn-close-chat { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
+.chat-msg { font-size: 0.9rem; line-height: 1.4; word-break: break-word; }
+.chat-msg.system { text-align: center; color: var(--text-muted); font-style: italic; font-size: 0.8rem; margin: 10px 0; }
+.msg-user-row { display: flex; align-items: flex-start; gap: 8px; }
+.chat-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.msg-content { background: #0d1117; padding: 8px 12px; border-radius: 0 12px 12px 12px; border: 1px solid var(--border); }
+.msg-username { font-weight: bold; font-size: 0.8rem; color: var(--accent); margin-bottom: 2px; display: block; }
+.chat-input-area { padding: 15px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: var(--bg-card); }
+#chatInput { flex: 1; background: #090b10; border: 1px solid var(--border); color: white; padding: 10px 15px; border-radius: 20px; outline: none; }
+.btn-send-chat { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; color: black; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+/* MODALES & MEDIA QUERIES (Igual que antes) */
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
 .modal-content { background: #161b22; width: 100%; max-width: 400px; border-radius: 20px; padding: 35px; border: 1px solid var(--border); position: relative; }
 .close { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; }
@@ -107,49 +126,6 @@ img { max-width: 100%; display: block; }
 .nav-item i { font-size: 1.5rem; margin-bottom: 5px; } .nav-item.active { color: var(--accent); }
 .nav-center { width: 60px; height: 60px; background: var(--accent); border-radius: 50%; margin-bottom: 35px; display: flex; align-items: center; justify-content: center; color: black; font-size: 1.8rem; border: 6px solid var(--bg-dark); box-shadow: 0 0 15px rgba(0,255,136,0.3); cursor: pointer; }
 
-/* MEDIA QUERIES */
 .mobile-only { display: flex; } .desktop-only { display: none; }
-@media (max-width: 768px) { .profile-dashboard-grid { grid-template-columns: 1fr; } }
-@media (min-width: 1024px) {
-    .mobile-only { display: none !important; } .desktop-only { display: block !important; }
-    body { padding-left: 260px; padding-bottom: 0; } .top-navbar { padding-left: 280px; }
-    .desktop-sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background: var(--bg-card); border-right: 1px solid var(--border); padding-top: var(--nav-height); display: flex; flex-direction: column; justify-content: space-between; z-index: 999; }
-    .sidebar-menu a { display: block; padding: 15px 25px; color: var(--text-muted); text-decoration: none; border-left: 3px solid transparent; display: flex; align-items: center; gap: 10px; }
-    .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(255,255,255,0.03); color: white; border-left-color: var(--accent); }
-    .sidebar-footer { padding: 20px; border-top: 1px solid var(--border); }
-    .btn-logout-side { width: 100%; background: transparent; border: 1px solid #ff4757; color: #ff4757; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-}
-
-/* ... CSS ANTERIOR ... */
-
-/* Selector Cripto (Scroll Horizontal) */
-.crypto-scroll-container { 
-    display: flex; 
-    gap: 10px; 
-    margin-bottom: 20px; 
-    overflow-x: auto; /* Permite deslizar si hay muchas monedas */
-    padding-bottom: 5px; /* Espacio para scrollbar */
-}
-/* Ocultar barra de scroll fea en webkit */
-.crypto-scroll-container::-webkit-scrollbar { height: 4px; }
-.crypto-scroll-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-.crypto-option { 
-    min-width: 90px; /* Tamaño mínimo para que no se aplasten */
-    flex: 0 0 auto;
-    background: #0d1117; 
-    border: 1px solid var(--border); 
-    padding: 12px; 
-    border-radius: 10px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 8px; 
-    cursor: pointer; 
-    font-weight: bold; 
-    font-size: 0.9rem; 
-    transition: 0.2s; 
-    color: var(--text-muted); 
-}
-.crypto-option img { width: 22px; height: 22px; }
-.crypto-option.selected { border-color: var(--accent); background: rgba(0, 255, 136, 0.1); color: white; }
+@media (max-width: 768px) { .profile-dashboard-grid { grid-template-columns: 1fr; } .chat-sidebar { width: 100%; } /* Chat pantalla completa en móvil */ }
+@media (min-width: 1024px) { .mobile-only { display: none !important; } .desktop-only { display: block !important; } body { padding-left: 260px; padding-bottom: 0; } .top-navbar { padding-left: 280px; } .desktop-sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background: var(--bg-card); border-right: 1px solid var(--border); padding-top: var(--nav-height); display: flex; flex-direction: column; justify-content: space-between; z-index: 999; } .sidebar-menu a { display: block; padding: 15px 25px; color: var(--text-muted); text-decoration: none; border-left: 3px solid transparent; display: flex; align-items: center; gap: 10px; } .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(255,255,255,0.03); color: white; border-left-color: var(--accent); } .sidebar-footer { padding: 20px; border-top: 1px solid var(--border); } .btn-logout-side { width: 100%; background: transparent; border: 1px solid #ff4757; color: #ff4757; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; } }
