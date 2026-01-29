@@ -1,4 +1,5 @@
 let currentUser = null;
+let paymentInterval = null; // Para el polling de pago
 
 document.addEventListener('DOMContentLoaded', () => {
     navigate('home');
@@ -11,6 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- SPA NAVIGATION ---
 function navigate(viewId) {
+    // Si intenta ir a depósito o perfil sin login, bloquear
+    if ((viewId === 'deposit' || viewId === 'profile') && !currentUser) {
+        return openModal('loginModal');
+    }
+
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     document.getElementById('view-' + viewId).classList.remove('hidden');
     
@@ -21,6 +27,7 @@ function navigate(viewId) {
     document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
     const sideItem = document.getElementById('side-' + viewId);
     if(sideItem) sideItem.classList.add('active');
+    
     window.scrollTo(0, 0);
 }
 
@@ -50,13 +57,81 @@ function loginSuccess(data) {
 function updateAllAvatars(filename) {
     const defaultImage = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
     let url = defaultImage;
-    if (filename && filename !== 'default.png' && filename !== 'null') url = `/static/uploads/${filename}`;
+    if (filename && filename !== 'default.png') url = `/static/uploads/${filename}`;
     
     if(document.getElementById('navAvatarImg')) document.getElementById('navAvatarImg').src = url;
     if(document.getElementById('profileAvatarBig')) document.getElementById('profileAvatarBig').src = url;
 }
 
-// --- PERFIL ---
+// --- PAGOS (Lógica de NowPayments Simulada) ---
+let selectedCurrency = 'btc';
+
+function selectCrypto(coin) {
+    selectedCurrency = coin;
+    document.querySelectorAll('.crypto-option').forEach(el => el.classList.remove('selected'));
+    document.getElementById('opt-' + coin).classList.add('selected');
+}
+
+async function createPayment() {
+    const amount = document.getElementById('depositAmount').value;
+    if (!amount || amount < 10) return alert("Mínimo 10 USD");
+
+    const res = await fetch('/api/create_payment', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({amount: amount, currency: selectedCurrency})
+    });
+    const data = await res.json();
+
+    if(data.status === 'success') {
+        // Mostrar pantalla de espera
+        document.getElementById('depositForm').classList.add('hidden');
+        document.getElementById('depositWaiting').classList.remove('hidden');
+        
+        // Poner datos
+        document.getElementById('payAmountDisplay').innerText = data.pay_amount;
+        document.getElementById('payCurrencyDisplay').innerText = data.pay_currency.toUpperCase();
+        document.getElementById('payAddressDisplay').innerText = data.pay_address;
+        
+        // Iniciar Polling (Preguntar cada 3s si ya pagó)
+        startPaymentPolling(data.payment_id);
+    } else {
+        alert(data.message);
+    }
+}
+
+function startPaymentPolling(paymentId) {
+    if(paymentInterval) clearInterval(paymentInterval);
+    
+    paymentInterval = setInterval(async () => {
+        const res = await fetch('/api/check_status', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({payment_id: paymentId})
+        });
+        const data = await res.json();
+        
+        if(data.payment_status === 'finished') {
+            clearInterval(paymentInterval);
+            alert("✅ ¡PAGO RECIBIDO! Saldo actualizado.");
+            window.location.reload();
+        }
+    }, 3000); // Chequear cada 3 segundos
+}
+
+function cancelPayment() {
+    if(paymentInterval) clearInterval(paymentInterval);
+    document.getElementById('depositWaiting').classList.add('hidden');
+    document.getElementById('depositForm').classList.remove('hidden');
+}
+
+function copyAddress() {
+    const text = document.getElementById('payAddressDisplay').innerText;
+    navigator.clipboard.writeText(text);
+    alert("Dirección copiada");
+}
+
+// --- PERFIL Y OTROS ---
 function handleProfileClick() {
     if (!currentUser) openModal('loginModal');
     else navigate('profile');
@@ -72,42 +147,25 @@ async function uploadAvatar() {
     if(data.status === 'success') updateAllAvatars(data.avatar);
 }
 
-// --- CAMBIAR CONTRASEÑA ---
-function togglePasswordEdit() {
-    const form = document.getElementById('passwordEditSection');
-    const chev = document.getElementById('passChevron');
-    form.classList.toggle('hidden');
-    chev.classList.toggle('fa-chevron-up');
-    chev.classList.toggle('fa-chevron-down');
-}
+function togglePasswordEdit() { document.getElementById('passwordEditSection').classList.toggle('hidden'); }
 
 async function changePassword() {
     const current = document.getElementById('currentPass').value;
     const new1 = document.getElementById('newPass1').value;
     const new2 = document.getElementById('newPass2').value;
-
-    if (!current || !new1 || !new2) return alert("Rellena todos los campos");
-    if (new1 !== new2) return alert("Las contraseñas nuevas no coinciden");
-
+    if (new1 !== new2) return alert("No coinciden");
+    
     const res = await fetch('/api/change_password', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({current: current, new: new1})
     });
     const data = await res.json();
-    
-    if(data.status === 'success') {
-        alert("Contraseña actualizada con éxito");
-        togglePasswordEdit();
-        document.getElementById('currentPass').value = '';
-        document.getElementById('newPass1').value = '';
-        document.getElementById('newPass2').value = '';
-    } else {
-        alert("Error: " + data.message);
-    }
+    if(data.status === 'success') { alert("Contraseña cambiada"); togglePasswordEdit(); }
+    else alert(data.message);
 }
 
-// --- LOGIN/REGISTRO ---
+// --- AUTH (Standard) ---
 async function doLogin() {
     const user = document.getElementById('loginUser').value;
     const pass = document.getElementById('loginPass').value;
@@ -127,7 +185,7 @@ async function doRegister() {
     const email = document.getElementById('regEmail').value;
     const phone = document.getElementById('regPhone').value;
     if(!user || !pass || !email) return alert("Rellena datos");
-
+    
     const res = await fetch('/api/register', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -143,17 +201,10 @@ async function doLogout() {
     window.location.reload();
 }
 
-async function confirmPayment() {
-    alert("Procesando pago...");
-    closeModal('depositModal');
-}
-
-// --- GANADORES ---
 function simulateLiveWins() {
     const games = ['Crash', 'Mines', 'Slots'];
     const users = ['hecproll', 'Daniel remon', 'PascualGamerRTX', 'ikerLozanoRomero', 'dudu9439'];
     const tbody = document.getElementById('liveWinsBody');
-
     function addWin() {
         if(!tbody) return;
         const game = games[Math.floor(Math.random() * games.length)];
@@ -170,58 +221,6 @@ function simulateLiveWins() {
 }
 
 // UTILS
-function openModal(id) {
-    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-}
+function openModal(id) { document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 function switchModal(from, to) { closeModal(from); openModal(to); }
-
-// ... (CÓDIGO ANTERIOR SIN CAMBIOS HASTA EL FINAL) ...
-
-// --- FUNCIONES DEPÓSITO (NUEVAS) ---
-
-function selectCrypto(coin) {
-    // Visual update
-    document.querySelectorAll('.crypto-option').forEach(el => el.classList.remove('selected'));
-    // Encontrar el elemento clicado es más complejo con eventos inline, simplificamos visualmente:
-    event.currentTarget.classList.add('selected');
-}
-
-async function initPrivyPayment() {
-    const amount = document.getElementById('depositAmount').value;
-    if (!amount || amount < 10) return alert("El depósito mínimo es de 10$");
-
-    // AQUÍ IRÍA LA INTEGRACIÓN REAL CON PRIVY SDK
-    // Privy.login() -> connect wallet -> sendTransaction()
-    
-    // Simulación:
-    const btn = document.querySelector('.btn-pay-privy');
-    const originalText = btn.innerHTML;
-    
-    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Conectando Privy...';
-    btn.disabled = true;
-
-    setTimeout(() => {
-        // Simular que abre el modal de Privy
-        const mockTxid = "0x" + Math.random().toString(16).substr(2, 40);
-        const confirm = window.confirm(`Simulación Privy:\n\nSolicitud de conexión aprobada.\n¿Confirmar envío de ${amount}$ en Crypto?`);
-        
-        if (confirm) {
-            // Enviar al backend
-            fetch('/api/deposit', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({txid: mockTxid, amount: amount})
-            }).then(() => {
-                alert("¡Depósito Detectado!\nSaldo actualizado.");
-                window.location.reload();
-            });
-        } else {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }
-    }, 1500);
-}
-
-// ... (RESTO DEL CÓDIGO DE UTILS) ...

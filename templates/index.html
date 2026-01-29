@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Stanstash | Crypto Casino</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=14.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=15.0">
 </head>
 <body>
 
@@ -13,27 +13,24 @@
         <div class="logo-container" onclick="navigate('home')">
             <i class="fa-solid fa-bolt accent-color"></i> <span class="brand-name">STANSTASH</span>
         </div>
-        
         <div class="user-panel">
             <div class="guest-view" id="guestNav">
                 <button class="btn-login" onclick="openModal('loginModal')">ENTRAR</button>
                 <button class="btn-register desktop-only" onclick="openModal('registerModal')">REGISTRO</button>
             </div>
-            
             <div class="logged-view hidden" id="loggedNav">
                 <div class="balance-pill" onclick="navigate('deposit')">
                     <span id="userBalance">0.00</span> <i class="fa-brands fa-bitcoin"></i>
                     <span class="add-fund-icon"><i class="fa-solid fa-plus"></i></span>
                 </div>
                 <div class="nav-avatar desktop-only" onclick="navigate('profile')">
-                    <img id="navAvatarImg" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Avatar">
+                    <img id="navAvatarImg" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png">
                 </div>
             </div>
         </div>
     </header>
 
     <main class="main-content">
-        
         <section id="view-home" class="view-section active">
             <div class="hero-banner">
                 <div class="hero-text">
@@ -43,27 +40,25 @@
                 </div>
             </div>
             <div class="live-wins-section">
-                <div class="section-header">
-                    <div class="live-indicator"><span class="blink"></span> GANADORES EN VIVO</div>
-                </div>
+                <div class="section-header"><div class="live-indicator"><span class="blink"></span> GANADORES EN VIVO</div></div>
                 <table class="wins-table"><tbody id="liveWinsBody"></tbody></table>
             </div>
         </section>
 
         <section id="view-games" class="view-section hidden">
             <div class="games-grid">
-                <div class="game-card" onclick="alert('Crash en Mantenimiento')">
+                <div class="game-card" onclick="alert('Mantenimiento')">
                     <div class="live-badge">LIVE</div>
                     <div class="game-poster crash-bg"><i class="fa-solid fa-plane-up"></i></div>
-                    <div class="game-details"><h3>Crash</h3><p>Multiplicador x1000</p></div>
+                    <div class="game-details"><h3>Crash</h3><p>x1000</p></div>
                 </div>
-                <div class="game-card" onclick="alert('Mines en Mantenimiento')">
+                <div class="game-card" onclick="alert('Mantenimiento')">
                     <div class="game-poster mines-bg"><i class="fa-solid fa-bomb"></i></div>
-                    <div class="game-details"><h3>Mines</h3><p>Estrategia Pura</p></div>
+                    <div class="game-details"><h3>Mines</h3><p>Estrategia</p></div>
                 </div>
                 <div class="game-card locked">
                     <div class="game-poster slots-bg" style="opacity:0.5"><i class="fa-solid fa-lock"></i></div>
-                    <div class="game-details"><h3>Slots VIP</h3><p>Próximamente</p></div>
+                    <div class="game-details"><h3>Slots</h3><p>Pronto</p></div>
                 </div>
             </div>
         </section>
@@ -80,8 +75,8 @@
                                     <input type="file" id="avatarInput" hidden onchange="uploadAvatar()" accept="image/*">
                                 </div>
                                 <div class="profile-text">
-                                    <h3 id="profileUsername">Cargando...</h3>
-                                    <span class="user-badge verified"><i class="fa-solid fa-check-circle"></i> Cuenta Verificada</span>
+                                    <h3 id="profileUsername">...</h3>
+                                    <span class="user-badge verified">Cuenta Verificada</span>
                                 </div>
                             </div>
                         </div>
@@ -90,23 +85,19 @@
                             <div class="wallet-amount" id="profileBalanceDisplay">0.00</div>
                             <div class="wallet-actions">
                                 <button class="btn-dep" onclick="navigate('deposit')">Depositar</button>
-                                <button class="btn-wd" onclick="alert('Retiros próximamente')">Retirar</button>
+                                <button class="btn-wd" onclick="alert('Retiros en 24h')">Retirar</button>
                             </div>
                         </div>
                     </div>
-                    
                     <div class="settings-list">
-                        <div class="settings-item" onclick="alert('Soporte 24/7 disponible pronto')">
-                            <div class="set-icon"><i class="fa-solid fa-headset"></i></div><div class="set-text">Soporte & Ayuda</div><i class="fa-solid fa-chevron-right arrow"></i>
-                        </div>
                         <div class="settings-item" onclick="togglePasswordEdit()">
-                            <div class="set-icon"><i class="fa-solid fa-lock"></i></div><div class="set-text">Cambiar Contraseña</div><i class="fa-solid fa-chevron-down arrow" id="passChevron"></i>
+                            <div class="set-icon"><i class="fa-solid fa-lock"></i></div><div class="set-text">Cambiar Contraseña</div><i class="fa-solid fa-chevron-down arrow"></i>
                         </div>
                         <div id="passwordEditSection" class="password-form hidden">
-                            <input type="password" id="currentPass" placeholder="Contraseña Actual" class="input-field-sm">
-                            <input type="password" id="newPass1" placeholder="Nueva Contraseña" class="input-field-sm">
-                            <input type="password" id="newPass2" placeholder="Confirmar Nueva" class="input-field-sm">
-                            <button class="btn-save-pass" onclick="changePassword()">Guardar Nueva Contraseña</button>
+                            <input type="password" id="currentPass" placeholder="Actual" class="input-field-sm">
+                            <input type="password" id="newPass1" placeholder="Nueva" class="input-field-sm">
+                            <input type="password" id="newPass2" placeholder="Confirmar" class="input-field-sm">
+                            <button class="btn-save-pass" onclick="changePassword()">Guardar</button>
                         </div>
                         <div class="settings-item danger" onclick="doLogout()">
                             <div class="set-icon"><i class="fa-solid fa-power-off"></i></div><div class="set-text">Cerrar Sesión</div>
@@ -119,49 +110,47 @@
         <section id="view-deposit" class="view-section hidden">
             <div class="deposit-page-container">
                 <div class="deposit-wrapper">
-                    
                     <h2 class="page-title"><i class="fa-solid fa-wallet"></i> Añadir Fondos</h2>
                     
-                    <div class="method-grid">
-                        <div class="method-card active">
-                            <i class="fa-brands fa-bitcoin"></i>
-                            <span>Privy / Crypto</span>
-                            <div class="check-mark"><i class="fa-solid fa-check"></i></div>
-                        </div>
-                        <div class="method-card disabled">
-                            <i class="fa-solid fa-credit-card"></i>
-                            <span>Tarjeta</span>
-                            <small>(Pronto)</small>
-                        </div>
-                    </div>
-
-                    <div class="deposit-box">
-                        <label class="input-label">Selecciona Red</label>
-                        <div class="crypto-selector">
-                            <div class="crypto-option selected" onclick="selectCrypto('LTC')"><img src="https://cryptologos.cc/logos/litecoin-ltc-logo.png?v=026"> LTC</div>
-                            <div class="crypto-option" onclick="selectCrypto('BTC')"><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=026"> BTC</div>
-                            <div class="crypto-option" onclick="selectCrypto('ETH')"><img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=026"> ETH</div>
+                    <div id="depositForm">
+                        <div class="method-grid">
+                            <div class="method-card active"><i class="fa-brands fa-bitcoin"></i><span>Cripto</span><div class="check-mark"><i class="fa-solid fa-check"></i></div></div>
+                            <div class="method-card disabled"><i class="fa-solid fa-credit-card"></i><span>Tarjeta</span><small>(Pronto)</small></div>
                         </div>
 
-                        <label class="input-label">Monto a Depositar (USD)</label>
-                        <div class="amount-input-group">
-                            <span class="currency-symbol">$</span>
-                            <input type="number" id="depositAmount" placeholder="0.00" class="amount-field">
-                        </div>
-
-                        <button class="btn-pay-privy" onclick="initPrivyPayment()">
-                            CONECTAR BILLETERA (PRIVY)
-                        </button>
-                        
-                        <p class="deposit-note"><i class="fa-solid fa-circle-info"></i> Depósito mínimo: 10$. Procesado por Privy.</p>
-                    </div>
-
-                    <div class="history-section">
-                        <h4>Transacciones Recientes</h4>
-                        <div class="history-list">
-                            <div class="history-item empty">
-                                <i class="fa-solid fa-receipt"></i> No hay depósitos recientes
+                        <div class="deposit-box">
+                            <label class="input-label">Selecciona Moneda</label>
+                            <div class="crypto-selector">
+                                <div class="crypto-option selected" id="opt-btc" onclick="selectCrypto('btc')">BTC</div>
+                                <div class="crypto-option" id="opt-ltc" onclick="selectCrypto('ltc')">LTC</div>
+                                <div class="crypto-option" id="opt-eth" onclick="selectCrypto('eth')">ETH</div>
                             </div>
+
+                            <label class="input-label">Monto (USD)</label>
+                            <div class="amount-input-group">
+                                <span class="currency-symbol">$</span>
+                                <input type="number" id="depositAmount" placeholder="50.00" class="amount-field">
+                            </div>
+
+                            <button class="btn-pay-now" onclick="createPayment()">GENERAR DIRECCIÓN DE PAGO</button>
+                            <p class="deposit-note">Mínimo 10$. Procesado automáticamente.</p>
+                        </div>
+                    </div>
+
+                    <div id="depositWaiting" class="hidden">
+                        <div class="deposit-box center-content">
+                            <div class="spinner-box"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+                            <h3>Esperando Pago...</h3>
+                            <p>Envía exactamente <b id="payAmountDisplay" style="color:#00ff88">0</b> <span id="payCurrencyDisplay">BTC</span> a:</p>
+                            
+                            <div class="address-box" onclick="copyAddress()">
+                                <span id="payAddressDisplay">Generando...</span>
+                                <i class="fa-solid fa-copy"></i>
+                            </div>
+                            
+                            <div class="timer-bar"><div class="timer-fill"></div></div>
+                            <p class="deposit-note">Tu saldo se actualizará en cuanto se detecte la transacción (aprox 10 seg en demo).</p>
+                            <button class="btn-cancel" onclick="cancelPayment()">CANCELAR</button>
                         </div>
                     </div>
 
