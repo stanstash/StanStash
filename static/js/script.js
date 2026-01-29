@@ -12,30 +12,79 @@ document.addEventListener('DOMContentLoaded', () => {
     simulateLiveWins();
 });
 
-// --- CHAT GLOBAL ---
-// Escuchar mensajes nuevos del servidor
+// --- CHAT GLOBAL (ESTÉTICO) ---
+
+// Escuchar mensajes nuevos
 socket.on('new_message', (data) => {
     const chatBox = document.getElementById('chatMessages');
-    const isScrolledToBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 10;
+    const isScrolledToBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 50;
 
     const msgDiv = document.createElement('div');
-    msgDiv.className = 'chat-msg msg-user-row fadeIn';
     
+    // Determinar si el mensaje es mío o de otro
+    const isMe = currentUser && data.username === currentUser;
+    msgDiv.className = isMe ? 'chat-msg mine' : 'chat-msg theirs';
+    
+    // Avatar
     let avatarUrl = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
     if(data.avatar && data.avatar !== 'default.png') avatarUrl = `/static/uploads/${data.avatar}`;
     
+    // HTML del mensaje
     msgDiv.innerHTML = `
         <img src="${avatarUrl}" class="chat-avatar" alt="Avatar">
         <div class="msg-content">
-            <span class="msg-username">${data.username}</span>
+            ${!isMe ? `<span class="msg-username">${data.username}</span>` : ''}
             ${escapeHtml(data.message)}
         </div>
     `;
+    
     chatBox.appendChild(msgDiv);
 
-    // Auto-scroll si estaba abajo
-    if (isScrolledToBottom) chatBox.scrollTop = chatBox.scrollHeight;
+    // Auto-scroll solo si el usuario no ha subido para leer historial
+    if (isScrolledToBottom) {
+        setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 50);
+    }
 });
+
+function toggleChat() {
+    const chat = document.getElementById('chatSidebar');
+    chat.classList.toggle('closed');
+    // Al abrir, scroll al final
+    if(!chat.classList.contains('closed')) {
+        setTimeout(() => {
+            const chatBox = document.getElementById('chatMessages');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 300);
+    }
+}
+
+function sendMessage() {
+    if(!currentUser) return openModal('loginModal');
+    
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (message) {
+        socket.emit('send_message', { message: message });
+        input.value = '';
+        input.focus();
+    }
+}
+
+function handleChatKeyPress(e) { 
+    if(e.key === 'Enter') sendMessage(); 
+}
+
+// Seguridad XSS (Evitar que metan HTML)
+function escapeHtml(text) {
+    if (!text) return text;
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 function toggleChat() {
     const chat = document.getElementById('chatSidebar');
