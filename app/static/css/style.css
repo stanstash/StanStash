@@ -562,3 +562,52 @@ img { max-width: 100%; display: block; }
 .win-overlay.hidden {
     display: none !important;
 }
+
+/* ARREGLO VISUAL CONTADOR Y BOTONES */
+
+/* Contenedor para centrar el estado */
+.status-container {
+    position: absolute;
+    top: 60%; /* Un poco debajo del número grande */
+    left: 0; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 50; /* Por encima del cohete */
+}
+
+.status-badge {
+    background: rgba(22, 27, 34, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* Estilo específico para Cuenta Atrás */
+.status-badge.waiting {
+    background: rgba(255, 190, 11, 0.15); /* Fondo amarillo suave */
+    color: #ffbe0b; /* Texto amarillo neón */
+    border-color: #ffbe0b;
+    box-shadow: 0 0 15px rgba(255, 190, 11, 0.2);
+    font-size: 1.4rem; /* Más grande */
+}
+
+/* Estilo para Crashed */
+.status-badge.crashed {
+    background: rgba(255, 71, 87, 0.15);
+    color: #ff4757;
+    border-color: #ff4757;
+}
+
+/* Asegurar que el botón retirar sea visible */
+#btnCashout:disabled {
+    cursor: not-allowed;
+    opacity: 0.9; /* Que no se vea tan apagado si ganaste */
+}
