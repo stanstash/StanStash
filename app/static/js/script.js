@@ -7,7 +7,7 @@ let recoveryEmail = "";
 let paymentInterval = null;
 const socket = io();
 
-// 1. INICIO
+// 1. INICIALIZACIÓN
 document.addEventListener('DOMContentLoaded', () => {
     navigate('home');
     checkSession();
@@ -19,46 +19,17 @@ document.addEventListener('DOMContentLoaded', () => {
 socket.on('disconnect', () => showToast("🔴 Conexión perdida", "error"));
 
 // 2. SALDO
-function updateGlobalBalance(newBalance) {
-    const formatted = parseFloat(newBalance).toFixed(2);
-    const navBal = document.getElementById('userBalance');
-    if(navBal) {
-        navBal.innerText = formatted;
-        navBal.style.color = "#00ff88";
-        setTimeout(() => navBal.style.color = "", 500);
-    }
-    const profBal = document.getElementById('profileBalanceDisplay');
-    if(profBal) profBal.innerText = formatted;
-}
-socket.on('balance_update', (data) => updateGlobalBalance(data.saldo));
+function updateGlobalBalance(n){const f=parseFloat(n).toFixed(2);const b=document.getElementById('userBalance');if(b){b.innerText=f;b.style.color="#00ff88";setTimeout(()=>b.style.color="",500);}const p=document.getElementById('profileBalanceDisplay');if(p)p.innerText=f;}
+socket.on('balance_update',(d)=>updateGlobalBalance(d.saldo));
 
-// 3. JUEGO CRASH
-function enterGame(gameName) {
-    if (!currentUser) return openModal('loginModal');
-    if (gameName === 'crash') {
-        document.getElementById('gamesMenu').classList.add('hidden');
-        document.getElementById('gameInterface-crash').classList.remove('hidden');
-        socket.emit('join_crash');
-    }
-}
-
-function backToGames() {
-    document.getElementById('gameInterface-crash').classList.add('hidden');
-    document.getElementById('gamesMenu').classList.remove('hidden');
-}
-
-// === CAPAS VISUALES ===
-function showLayer(layerId) {
-    document.getElementById('gameLayer').className = 'layer hidden';
-    document.getElementById('waitingLayer').className = 'layer hidden';
-    document.getElementById('crashedLayer').className = 'layer hidden';
-    document.getElementById(layerId).className = 'layer visible';
-}
+// 3. NAVEGACIÓN
+function enterGame(n){if(!currentUser)return openModal('loginModal');if(n==='crash'){document.getElementById('gamesMenu').classList.add('hidden');document.getElementById('gameInterface-crash').classList.remove('hidden');socket.emit('join_crash');}}
+function backToGames(){document.getElementById('gameInterface-crash').classList.add('hidden');document.getElementById('gamesMenu').classList.remove('hidden');}
+function showLayer(id){document.getElementById('gameLayer').className='layer hidden';document.getElementById('waitingLayer').className='layer hidden';document.getElementById('crashedLayer').className='layer hidden';document.getElementById(id).className='layer visible';}
 
 // === SOCKETS CRASH ===
 
 socket.on('crash_sync', (data) => {
-    // Restaurar mis datos
     if (data.my_bet) {
         currentCrashBet = data.my_bet.amount;
         hasCashedOut = data.my_bet.cashed_out;
@@ -67,12 +38,9 @@ socket.on('crash_sync', (data) => {
         hasCashedOut = false;
     }
     lastGameState = data.state;
-
-    // Restaurar UI
     handleGameState(data.state, data.multiplier, data.time_left);
     updateButtons(data.state);
 
-    // Restaurar Tabla (Limpia y rellena)
     const list = document.getElementById('crashPlayersList');
     list.innerHTML = '';
     data.players.forEach(p => {
@@ -82,19 +50,11 @@ socket.on('crash_sync', (data) => {
 });
 
 socket.on('crash_status', (data) => {
-    // === FIX 1: LIMPIEZA DE TABLA AL CAMBIAR DE RONDA ===
-    // Si la ronda anterior terminó (CRASHED) y ahora entramos en IDLE o WAITING
     if (lastGameState === 'CRASHED' && (data.status === 'IDLE' || data.status === 'WAITING')) {
-        console.log("🔄 Nueva ronda: Limpiando tabla y apuestas...");
-        
-        // 1. Borrar Tabla
         document.getElementById('crashPlayersList').innerHTML = '';
-        
-        // 2. Resetear variables locales
         currentCrashBet = 0;
         hasCashedOut = false;
     }
-    
     lastGameState = data.status;
     handleGameState(data.status, 1.00, data.time_left);
     updateButtons(data.status);
@@ -109,10 +69,25 @@ socket.on('crash_start', () => {
 socket.on('crash_tick', (data) => {
     document.getElementById('crashMultiplier').innerText = data.multiplier.toFixed(2) + "x";
     
+    // Cohete
+    const rocket = document.getElementById('rocketIcon');
+    const rot = (data.multiplier * 2) % 5;
+    rocket.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(${1 + data.multiplier/100})`;
+
+    // === SOLUCIÓN AL PROBLEMA DE CLIC ===
+    // Solo actualizamos el TEXTO, no el botón entero.
     if(currentCrashBet > 0 && !hasCashedOut) {
-        const win = (currentCrashBet * data.multiplier).toFixed(2);
+        const winAmount = (currentCrashBet * data.multiplier).toFixed(2);
+        
+        // Actualizar solo los spans internos (DOM Reflow mínimo)
+        const txtLabel = document.getElementById('cashText');
+        const txtAmount = document.getElementById('cashAmount');
+        
+        if(txtLabel) txtLabel.innerText = "RETIRAR";
+        if(txtAmount) txtAmount.innerText = `+${winAmount}$`;
+
+        // Asegurar que esté habilitado (solo tocamos la propiedad si es necesario)
         const btn = document.getElementById('btnCashout');
-        btn.innerHTML = `<span>RETIRAR</span> <small style="color:#00ff88">+${win}$</small>`;
         if(btn.disabled) btn.disabled = false;
     }
 });
@@ -121,12 +96,7 @@ socket.on('crash_boom', (data) => {
     lastGameState = 'CRASHED';
     handleGameState('CRASHED', data.crash_point, 0);
     updateButtons('CRASHED');
-    
-    // Auto-limpieza de seguridad a los 3s
-    setTimeout(() => {
-        currentCrashBet = 0;
-        hasCashedOut = false;
-    }, 3000);
+    setTimeout(() => { currentCrashBet = 0; hasCashedOut = false; }, 3000);
 });
 
 // ACCIONES
@@ -150,73 +120,27 @@ socket.on('error_msg', (data) => {
     const btn = document.getElementById('btnBet');
     if(btn.disabled && currentCrashBet === 0) {
         btn.disabled = false;
-        btn.innerHTML = `<span>APOSTAR</span><small>Próxima Ronda</small>`;
+        btn.querySelector('span').innerText = "APOSTAR";
     }
 });
 
-// === FIX 2: TABLA ROBUSTA ===
 socket.on('new_bet_crash', (data) => addPlayerToTable(data));
 socket.on('player_cashed_out', (data) => markPlayerWin(data.username, data.win, data.mult));
 
-function addPlayerToTable(data) {
-    const list = document.getElementById('crashPlayersList');
-    
-    // Evitar duplicados (Importante)
-    if(document.getElementById(`player-${data.username}`)) return;
-
-    const row = document.createElement('div');
-    row.className = 'player-row';
-    row.id = `player-${data.username}`;
-    
-    let avatar = data.avatar ? `/static/uploads/${data.avatar}` : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
-    
-    // Usamos data.amount DIRECTAMENTE, sin variables globales que puedan contaminarse
-    const safeAmount = parseFloat(data.amount).toFixed(2); // Forzar formato número
-
-    row.innerHTML = `
-        <div style="display:flex; align-items:center; gap:10px;">
-            <img src="${avatar}" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
-            <span style="font-weight:bold; color:#e6edf3;">${data.username}</span>
-        </div>
-        <div style="font-family:monospace; font-size:1rem; font-weight:bold; color:#ffbe0b;">${safeAmount}$</div>
-    `;
-    list.appendChild(row);
-}
-
-function markPlayerWin(username, win, mult) {
-    const row = document.getElementById(`player-${username}`);
-    if(row) {
-        row.classList.add('winner');
-        // Check si ya tiene el badge para no repetirlo
-        if(!row.querySelector('.win-badge-btn')) {
-            row.innerHTML += `
-                <div class="win-badge-btn" style="margin-left:auto; background:rgba(0,255,136,0.2); color:#00ff88; padding:2px 6px; border-radius:4px; font-size:0.8rem; font-weight:bold;">
-                    +${parseFloat(win).toFixed(2)}$ (${mult}x)
-                </div>
-            `;
-        }
-    }
-}
-
-// === GESTOR DE ESTADOS ===
+// UI HELPERS
 function handleGameState(state, mult, time) {
     const timeNum = parseFloat(time);
-
     if (state === 'IDLE') {
         showLayer('waitingLayer');
         document.getElementById('countdownBig').innerText = "ESPERANDO...";
         document.getElementById('progressBarFill').style.width = "0%";
-    } 
-    else if (state === 'WAITING') {
+    } else if (state === 'WAITING') {
         showLayer('waitingLayer');
         document.getElementById('countdownBig').innerText = timeNum.toFixed(1) + "s";
-        const pct = (timeNum / 15) * 100;
-        document.getElementById('progressBarFill').style.width = pct + "%";
-    } 
-    else if (state === 'RUNNING') {
+        document.getElementById('progressBarFill').style.width = ((timeNum / 15) * 100) + "%";
+    } else if (state === 'RUNNING') {
         showLayer('gameLayer');
-    } 
-    else if (state === 'CRASHED') {
+    } else if (state === 'CRASHED') {
         showLayer('crashedLayer');
         document.getElementById('finalCrashPoint').innerText = "@ " + parseFloat(mult).toFixed(2) + "x";
     }
@@ -226,7 +150,6 @@ function updateButtons(state) {
     const btnBet = document.getElementById('btnBet');
     const btnCash = document.getElementById('btnCashout');
 
-    // FASE APUESTAS
     if (state === 'IDLE' || state === 'WAITING') {
         if (currentCrashBet === 0) {
             btnBet.classList.remove('hidden'); btnBet.disabled = false;
@@ -236,33 +159,34 @@ function updateButtons(state) {
             btnBet.classList.add('hidden');
             btnCash.classList.remove('hidden'); btnCash.disabled = true;
             btnCash.style.background = "#30363d";
-            btnCash.innerHTML = `<span>APOSTADO</span><small>${currentCrashBet}</small>`;
+            document.getElementById('cashText').innerText = "APOSTADO";
+            document.getElementById('cashAmount').innerText = currentCrashBet;
         }
-    }
-    // FASE JUEGO
-    else if (state === 'RUNNING') {
+    } else if (state === 'RUNNING') {
         btnBet.classList.add('hidden');
         if (currentCrashBet > 0 && !hasCashedOut) {
             btnCash.classList.remove('hidden'); btnCash.disabled = false;
             btnCash.style.background = "#ffbe0b";
+            // El texto se actualiza en crash_tick
         } else if (currentCrashBet > 0 && hasCashedOut) {
             btnCash.classList.remove('hidden'); btnCash.disabled = true;
             btnCash.style.background = "#00ff88"; btnCash.style.color = "black";
-            btnCash.innerHTML = `<span>GANADO</span>`;
+            document.getElementById('cashText').innerText = "GANADO";
+            document.getElementById('cashAmount').innerText = "¡Bien!";
         } else {
             btnCash.classList.add('hidden');
         }
-    }
-    // FASE CRASH
-    else if (state === 'CRASHED') {
+    } else if (state === 'CRASHED') {
         btnBet.classList.add('hidden');
         btnCash.classList.remove('hidden'); btnCash.disabled = true;
         if(currentCrashBet > 0 && !hasCashedOut) {
             btnCash.style.background = "#ff4757"; btnCash.style.color = "white";
-            btnCash.innerHTML = `<span>PERDIDO</span>`;
+            document.getElementById('cashText').innerText = "PERDIDO";
+            document.getElementById('cashAmount').innerText = "-" + currentCrashBet;
         } else if (currentCrashBet > 0 && hasCashedOut) {
             btnCash.style.background = "#00ff88"; btnCash.style.color = "black";
-            btnCash.innerHTML = `<span>GANADO</span>`;
+            document.getElementById('cashText').innerText = "GANADO";
+            document.getElementById('cashAmount').innerText = "¡Bien!";
         } else {
             btnCash.classList.add('hidden');
             btnBet.classList.remove('hidden'); btnBet.disabled = true;
@@ -271,20 +195,35 @@ function updateButtons(state) {
     }
 }
 
-// RESTO DE FUNCIONES (IGUALES)
+// FUNCIONES USUARIO
 function placeBet() { const a = parseFloat(document.getElementById('betInput').value); if(a>0) { document.getElementById('btnBet').disabled=true; socket.emit('place_bet_crash', {amount:a}); }}
-function doCashOut() { socket.emit('cash_out_crash'); document.getElementById('btnCashout').disabled = true; }
+
+function doCashOut() {
+    // 1. Enviar evento
+    socket.emit('cash_out_crash');
+    
+    // 2. Bloqueo inmediato para feedback visual y evitar doble clic
+    const btn = document.getElementById('btnCashout');
+    btn.disabled = true;
+    document.getElementById('cashText').innerText = "PROCESANDO";
+}
+
 function modifyBet(type) { const i=document.getElementById('betInput'); let v=parseFloat(i.value); if(type==='half')v=Math.max(1,v/2); if(type==='double')v=v*2; i.value=v.toFixed(2); }
-function showToast(m,t='info'){const c=document.getElementById('toast-container');const d=document.createElement('div');d.className=`toast toast-${t}`;d.innerHTML=`<span>${m}</span>`;c.appendChild(d);setTimeout(()=>d.remove(),3000);}
+function addPlayerToTable(d) { const l=document.getElementById('crashPlayersList'); if(document.getElementById(`player-${d.username}`))return; const r=document.createElement('div'); r.className='player-row'; r.id=`player-${d.username}`; let a=d.avatar?`/static/uploads/${d.avatar}`:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'; r.innerHTML=`<div style="display:flex;align-items:center;gap:10px;"><img src="${a}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;"><span style="font-weight:bold;color:#e6edf3;">${d.username}</span></div><div style="font-family:monospace;font-weight:bold;color:#ffbe0b;">${parseFloat(d.amount).toFixed(2)}$</div>`; l.appendChild(r); }
+function markPlayerWin(u,w,m) { const r=document.getElementById(`player-${u}`); if(r){ r.classList.add('winner'); if(!r.querySelector('.win-badge-btn')) r.innerHTML+=`<div class="win-badge-btn" style="margin-left:auto;background:rgba(0,255,136,0.2);color:#00ff88;padding:2px 6px;border-radius:4px;font-size:0.8rem;font-weight:bold;">+${parseFloat(w).toFixed(2)}$ (${m}x)</div>`; } }
+
+// UTILS GENÉRICOS
+function showToast(m,t='info'){const c=document.getElementById('toast-container');const d=document.createElement('div');d.className=`toast toast-${t}`;d.innerHTML=`<span>${m}</span>`;c.appendChild(d);setTimeout(()=>{d.remove()},3000);}
 function openModal(id){document.getElementById(id).classList.remove('hidden');}
 function closeModal(id){document.getElementById(id).classList.add('hidden');}
 function switchModal(f,t){closeModal(f);openModal(t);}
-function navigate(v){if((v==='deposit'||v==='profile')&&!currentUser)return openModal('loginModal');document.querySelectorAll('.view-section').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v).classList.remove('hidden');if(v!=='games'){document.getElementById('gameInterface-crash').classList.add('hidden');document.getElementById('gamesMenu').classList.remove('hidden');}}
-async function checkSession(){try{const r=await fetch('/api/check_session');const d=await r.json();if(d.logged_in){currentUser=d.user;updateGlobalBalance(d.saldo);document.getElementById('guestNav').classList.add('hidden');document.getElementById('loggedNav').classList.remove('hidden');document.getElementById('desktopLogout').classList.remove('hidden');}}catch(e){}}
+function navigate(v){if((v==='deposit'||v==='profile')&&!currentUser)return openModal('loginModal');document.querySelectorAll('.view-section').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v).classList.remove('hidden');if(v!=='games'){document.getElementById('gameInterface-crash').classList.add('hidden');document.getElementById('gamesMenu').classList.remove('hidden');}window.scrollTo(0,0);}
+async function checkSession(){try{const r=await fetch('/api/check_session');const d=await r.json();if(d.logged_in){currentUser=d.user;updateGlobalBalance(d.saldo);document.getElementById('guestNav').classList.add('hidden');document.getElementById('loggedNav').classList.remove('hidden');document.getElementById('desktopLogout').classList.remove('hidden');document.getElementById('profileUsername').innerText=d.user;const u=d.avatar!=='default.png'?`/static/uploads/${d.avatar}`:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';if(document.getElementById('navAvatarImg'))document.getElementById('navAvatarImg').src=u;if(document.getElementById('profileAvatarBig'))document.getElementById('profileAvatarBig').src=u;}}catch(e){}}
 async function doLogin(){const u=document.getElementById('loginUser').value;const p=document.getElementById('loginPass').value;const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});const d=await r.json();if(d.status==='success')window.location.reload();else if(d.status==='unverified'){pendingEmail=d.email;closeModal('loginModal');openModal('verifyModal');}else showToast(d.message,'error');}
 async function doRegister(){const u=document.getElementById('regUser').value;const p=document.getElementById('regPass').value;const e=document.getElementById('regEmail').value;const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p,email:e})});const d=await r.json();if(d.status==='verify_needed'){pendingEmail=e;closeModal('registerModal');openModal('verifyModal');}else showToast(d.message,'error');}
 async function doVerify(){const c=document.getElementById('verifyCodeInput').value;const r=await fetch('/api/verify_code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:pendingEmail,code:c})});const d=await r.json();if(d.status==='success')window.location.reload();else showToast(d.message,'error');}
 async function doLogout(){await fetch('/api/logout');window.location.reload();}
+// Chat/Pagos
 function renderMessage(d,b){const div=document.createElement('div');div.className=(currentUser&&d.username===currentUser)?'chat-msg mine':'chat-msg theirs';let a=d.avatar!=='default.png'?`/static/uploads/${d.avatar}`:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';div.innerHTML=`<img src="${a}" class="chat-avatar"><div class="msg-content">${div.className.includes('theirs')?`<span class="msg-username">${d.username}</span>`:''}${d.message}</div>`;b.appendChild(div);}
 socket.on('chat_history',(d)=>{const b=document.getElementById('chatMessages');b.innerHTML='';d.messages.forEach(m=>renderMessage(m,b));b.scrollTop=b.scrollHeight;});
 socket.on('new_message',(d)=>{const b=document.getElementById('chatMessages');renderMessage(d,b);b.scrollTop=b.scrollHeight;});
@@ -294,3 +233,10 @@ async function createPayment(){const a=document.getElementById('depositAmount').
 function startPaymentPolling(pid){paymentInterval=setInterval(async()=>{const r=await fetch('/api/check_status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({payment_id:pid})});const d=await r.json();if(d.payment_status==='finished'){clearInterval(paymentInterval);showToast("Pago OK",'success');setTimeout(()=>window.location.reload(),2000);}},3000);}
 function cancelPayment(){clearInterval(paymentInterval);document.getElementById('depositWaiting').classList.add('hidden');document.getElementById('depositForm').classList.remove('hidden');}
 function copyAddress(){navigator.clipboard.writeText(document.getElementById('payAddressDisplay').innerText);showToast("Copiado",'info');}
+function selectCrypto(c){document.querySelectorAll('.crypto-option').forEach(e=>e.classList.remove('selected'));document.getElementById('opt-'+c).classList.add('selected');}
+// Otros (Password, Avatar, Forgot)
+async function sendForgotCode(){const e=document.getElementById('forgotEmail').value;const r=await fetch('/api/forgot_password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e})});const d=await r.json();if(d.status==='success'){recoveryEmail=e;switchModal('forgotModal','resetModal');}else showToast(d.message,'error');}
+async function doResetPassword(){const c=document.getElementById('resetCode').value;const n=document.getElementById('resetNewPass').value;const r=await fetch('/api/reset_password_with_code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:recoveryEmail,code:c,password:n})});const d=await r.json();if(d.status==='success'){showToast("Hecho",'success');switchModal('resetModal','loginModal');}else showToast(d.message,'error');}
+async function uploadAvatar(){const i=document.getElementById('avatarInput');if(i.files.length===0)return;const f=new FormData();f.append('file',i.files[0]);const r=await fetch('/api/upload_avatar',{method:'POST',body:f});const d=await r.json();if(d.status==='success'){showToast("OK",'success');setTimeout(()=>window.location.reload(),1000);}}
+function togglePasswordEdit(){document.getElementById('passwordEditSection').classList.toggle('hidden');}
+async function changePassword(){const c=document.getElementById('currentPass').value;const n=document.getElementById('newPass1').value;const r=await fetch('/api/change_password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({current:c,new:n})});const d=await r.json();if(d.status==='success'){showToast("OK",'success');togglePasswordEdit();}else showToast(d.message,'error');}
