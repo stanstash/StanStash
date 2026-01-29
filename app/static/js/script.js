@@ -231,36 +231,49 @@ let currentCrashBet = 0;
 
 // === SOCKETS CRASH ===
 
-// 1. SINCRONIZACIÓN TOTAL (Al entrar o recargar)
+// === SOCKETS CRASH ===
+
+// 1. SINCRONIZACIÓN TOTAL (Al entrar o recargar F5)
 socket.on('crash_sync', (data) => {
-    // A. Actualizar Estado Visual (Multiplicador o Cuenta atrás)
+    // A. Restaurar Estado Visual (Texto y Colores)
     const display = document.getElementById('crashDisplay');
     const statusText = document.getElementById('crashStatusText');
+    const multText = document.getElementById('crashMultiplier');
+
+    // Resetear clases visuales
+    display.classList.remove('running', 'crashed');
+    document.getElementById('winOverlay').classList.add('hidden'); // Ocultar victoria vieja
 
     if (data.state === 'IDLE') {
         statusText.innerText = "ESPERANDO JUGADORES...";
-        display.classList.remove('running', 'crashed');
+        statusText.className = "status-badge";
+        multText.innerText = "1.00x";
     } else if (data.state === 'WAITING') {
-        // Si hay tiempo negativo, poner 0
         const t = Math.max(0, data.time_left).toFixed(1);
         statusText.innerText = `INICIO EN ${t}s`;
         statusText.className = "status-badge waiting";
-        display.classList.remove('running', 'crashed');
+        multText.innerText = "1.00x";
     } else if (data.state === 'RUNNING') {
         statusText.innerText = "";
         display.classList.add('running');
-        document.getElementById('crashMultiplier').innerText = data.multiplier + "x";
+        multText.innerText = data.multiplier + "x";
+        
+        // Mover cohete a la posición actual
+        const rocket = document.getElementById('rocketIcon');
+        const rot = (data.multiplier * 2) % 5;
+        rocket.style.transform = `rotate(${rot}deg) scale(1.1)`;
     } else if (data.state === 'CRASHED') {
         statusText.innerText = "CRASHED";
         display.classList.add('crashed');
+        multText.innerText = data.multiplier + "x";
     }
 
     // B. Reconstruir Lista de Jugadores
     const list = document.getElementById('crashPlayersList');
-    list.innerHTML = ''; // Limpiar
+    list.innerHTML = ''; // Limpiar lista vieja
     data.players.forEach(player => {
-        addPlayerToTable(player); // Función auxiliar que crearemos abajo
-        // Si ya retiró, marcarlo visualmente
+        addPlayerToTable(player); 
+        // Si este jugador ya retiró, lo marcamos en verde
         if(player.cashed_out) {
             markPlayerWin(player.username, player.win, player.mult);
         }
@@ -268,62 +281,99 @@ socket.on('crash_sync', (data) => {
 
     // C. RECUPERAR MI APUESTA (Si recargué la página)
     if (data.my_bet) {
-        currentCrashBet = data.my_bet.amount;
+        currentCrashBet = data.my_bet.amount; // Restaurar variable global
         
-        // Si no he retirado y el juego no ha explotado
-        if (!data.my_bet.cashed_out && data.state !== 'CRASHED') {
-            // Restaurar botón de RETIRAR
-            document.getElementById('btnBet').classList.add('hidden');
-            const btnCash = document.getElementById('btnCashout');
-            btnCash.classList.remove('hidden');
-            
-            if (data.state === 'RUNNING') {
-                btnCash.disabled = false;
-                btnCash.style.background = "#ffbe0b";
-                btnCash.innerHTML = `<span>RETIRAR</span> <small>Juego en curso</small>`;
-            } else {
-                btnCash.disabled = true;
-                btnCash.style.background = "#30363d";
-                btnCash.innerHTML = `<span>APOSTADO</span> <small>${data.my_bet.amount}$</small>`;
-            }
+        const btnBet = document.getElementById('btnBet');
+        const btnCash = document.getElementById('btnCashout');
+
+        // Ocultar botón apostar
+        btnBet.classList.add('hidden');
+        btnCash.classList.remove('hidden');
+
+        // Configurar botón RETIRAR según estado
+        if (!data.my_bet.cashed_out && data.state === 'RUNNING') {
+            // Juego corriendo y NO he retirado -> HABILITAR RETIRO
+            btnCash.disabled = false;
+            btnCash.style.background = "#ffbe0b";
+            btnCash.innerHTML = `<span>RETIRAR</span> <small>Juego en curso</small>`;
+        } else if (!data.my_bet.cashed_out && (data.state === 'IDLE' || data.state === 'WAITING')) {
+            // Juego esperando -> MOSTRAR APUESTA
+            btnCash.disabled = true;
+            btnCash.style.background = "#30363d";
+            btnCash.innerHTML = `<span>APOSTADO</span> <small>${data.my_bet.amount}$</small>`;
+        } else {
+            // Ya retiré o explotó -> DESHABILITAR
+            btnCash.disabled = true;
+            btnCash.style.background = "#30363d";
+            if(data.my_bet.cashed_out) btnCash.innerHTML = `<span>GANADO</span> <small>Espera próx. ronda</small>`;
+            else btnCash.innerHTML = `<span>PERDIDO</span> <small>Intenta de nuevo</small>`;
         }
     } else {
-        // Si no tengo apuesta, asegurar que botones están en modo "Apostar"
-        // (Solo si no estamos en medio de un vuelo y yo mirando)
-        if (!currentCrashBet) resetButtons(data.state === 'IDLE' || data.state === 'WAITING');
+        // Si NO tengo apuesta, asegurar que puedo apostar (si no está corriendo)
+        if (data.state === 'IDLE' || data.state === 'WAITING') {
+            resetButtons(true);
+        } else {
+            resetButtons(false); // Bloquear si ya empezó y yo no entré
+        }
     }
 });
 
-// Función auxiliar para añadir gente a la tabla (Para no repetir código)
+// EVENTOS EN TIEMPO REAL
+socket.on('crash_status', (data) => {
+    // ... (Mismo código de antes para status)
+    if (data.status === 'IDLE') {
+        document.getElementById('crashStatusText').innerText = "ESPERANDO...";
+        resetButtons(true);
+    } else if (data.status === 'WAITING') {
+        document.getElementById('crashStatusText').innerText = `INICIO EN ${data.time_left}s`;
+        document.getElementById('crashStatusText').className = "status-badge waiting";
+        // IMPORTANTE: Si ya aposté, no resetees mis botones
+        if(currentCrashBet === 0) resetButtons(true);
+    }
+});
+
+socket.on('new_bet_crash', (data) => {
+    addPlayerToTable(data);
+});
+
+socket.on('player_cashed_out', (data) => {
+    markPlayerWin(data.username, data.win, data.mult);
+});
+
+// --- FUNCIONES AUXILIARES (NUEVAS) ---
+
 function addPlayerToTable(data) {
     const list = document.getElementById('crashPlayersList');
-    // Evitar duplicados
+    // Evitar duplicados por si acaso
     if(document.getElementById(`player-${data.username}`)) return;
 
     const row = document.createElement('div');
     row.className = 'player-row';
     row.id = `player-${data.username}`;
     
-    // Avatar default si falla
+    // Avatar con fallback
     let avatar = data.avatar ? `/static/uploads/${data.avatar}` : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
 
     row.innerHTML = `
         <div style="display:flex; align-items:center; gap:10px;">
-            <img src="${avatar}" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
-            <span style="font-weight:bold; color:white;">${data.username}</span>
+            <img src="${avatar}" style="width:24px; height:24px; border-radius:50%; object-fit:cover; border:1px solid #333;">
+            <span style="font-weight:bold; color:#e6edf3;">${data.username}</span>
         </div>
-        <div style="font-family:monospace; font-size:1rem;">${data.amount}$</div>
+        <div style="font-family:monospace; font-size:1rem; font-weight:bold; color:#ffbe0b;">${data.amount}$</div>
     `;
     list.appendChild(row);
 }
 
-// Función auxiliar para marcar ganador
 function markPlayerWin(username, win, mult) {
     const row = document.getElementById(`player-${username}`);
     if(row) {
         row.classList.add('winner');
-        row.style.background = "rgba(0, 255, 136, 0.1)";
-        row.innerHTML += `<div class="win-badge-btn">+${parseFloat(win).toFixed(2)}$ (${mult}x)</div>`;
+        // Añadir etiqueta de victoria a la derecha
+        row.innerHTML += `
+            <div style="margin-left:auto; background:rgba(0,255,136,0.2); color:#00ff88; padding:2px 6px; border-radius:4px; font-size:0.8rem; font-weight:bold;">
+                +${parseFloat(win).toFixed(2)}$ (${mult}x)
+            </div>
+        `;
     }
 }
 

@@ -51,36 +51,38 @@ from .games.crash import crash_engine # Importamos el motor
 
 @socketio.on('join_crash')
 def handle_join_crash():
-    """Sincroniza el estado del juego al entrar o recargar"""
+    """Sincroniza el estado del juego al entrar o recargar la página"""
     
-    # 1. Preparar lista de jugadores actuales para enviarla
     current_players = []
-    user_active_bet = None # Para saber si YO tengo apuesta
+    user_active_bet = None # Aquí guardaremos si TÚ has apostado
 
+    # Recorremos todas las apuestas activas en la memoria del juego
     for user_id, info in crash_engine.bets.items():
-        # Formato para la lista visual
+        # Creamos la lista para enviarla al frontend
         current_players.append({
             'username': info['username'],
             'amount': info['amount'],
             'avatar': info['avatar'],
             'cashed_out': info['cashed_out'],
-            # Si ya retiró, mandamos cuanto ganó
+            # Si ya retiró, calculamos cuánto ganó para pintarlo en verde
             'win': (info['amount'] * crash_engine.multiplier) if info['cashed_out'] else 0,
             'mult': crash_engine.multiplier if info['cashed_out'] else 0
         })
 
-        # Verificar si ESTE usuario que conecta tiene apuesta activa
+        # Si el ID de la apuesta coincide con el usuario conectado, es TU apuesta
         if current_user.is_authenticated and user_id == current_user.id:
             user_active_bet = info
 
-    # 2. Enviar todo el paquete de sincronización
+    # Enviamos el paquete completo de datos
     emit('crash_sync', {
-        'state': crash_engine.state,         # IDLE, WAITING, RUNNING...
+        'state': crash_engine.state,         # IDLE, WAITING, RUNNING, CRASHED
         'multiplier': f"{crash_engine.multiplier:.2f}",
         'time_left': getattr(crash_engine, 'next_round_time', 0) - time.time(),
-        'players': current_players,          # La lista de gente
-        'my_bet': user_active_bet            # Mi apuesta (si existe)
+        'players': current_players,          # La lista de todos
+        'my_bet': user_active_bet            # Tus datos (si apostaste)
     })
+
+
 # ... (imports) ...
 from app import db # Asegúrate de importar db
 from .games.crash import crash_engine
