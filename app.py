@@ -202,13 +202,19 @@ def logout():
 
 @socketio.on('connect')
 def handle_connect():
-    # 1. Recuperar últimos 50 mensajes
-    messages = ChatMessage.query.order_by(ChatMessage.timestamp.desc()).limit(50).all()
+    # 1. Obtenemos los últimos 50 mensajes basándonos en el ID (El ID más alto es el más nuevo)
+    # Esto garantiza el orden perfecto aunque se envíen en el mismo segundo.
+    recent_messages = ChatMessage.query.order_by(ChatMessage.id.desc()).limit(50).all()
+    
+    # 2. Le damos la vuelta a la lista con [::-1] para que quede: [Más Viejo -> Más Nuevo]
+    # Así el JS los pintará de arriba a abajo correctamente.
+    chronological_messages = recent_messages[::-1]
     
     history = []
-    # Los invertimos para que la lista vaya de [Viejo -> Nuevo]
-    for msg in reversed(messages):
+    for msg in chronological_messages:
+        # Obtenemos avatar o ponemos default si no tiene
         avatar = msg.user.avatar if msg.user else 'default.png'
+        
         history.append({
             'username': msg.username,
             'message': msg.message,
@@ -216,7 +222,7 @@ def handle_connect():
             'timestamp': msg.timestamp
         })
     
-    # 2. Enviar todo el historial de golpe
+    # 3. Enviamos la lista ya ordenada correctamente
     emit('chat_history', {'messages': history})
 
 @socketio.on('send_message')

@@ -46,23 +46,25 @@ function renderMessage(data, chatBox) {
     chatBox.appendChild(msgDiv);
 }
 
-// 1. Cargar Historial al conectar (Viejos arriba, nuevos abajo)
+// Recibir historial al conectar
 socket.on('chat_history', (data) => {
     const chatBox = document.getElementById('chatMessages');
-    chatBox.innerHTML = ''; // Limpiar chat al entrar
+    
+    // 1. LIMPIAR EL CHAT (Vital para que no se dupliquen o mezclen al recargar)
+    chatBox.innerHTML = ''; 
     
     if(data.messages.length === 0) {
         chatBox.innerHTML = '<div class="chat-msg system"><div class="sys-text">Bienvenido al chat global.</div></div>';
     } else {
+        // Como Python ya nos manda la lista [Viejo, Medio, Nuevo], solo hacemos append
         data.messages.forEach(msg => {
             renderMessage(msg, chatBox);
         });
     }
     
-    // Forzar scroll al fondo inmediatamente
+    // 2. FORZAR SCROLL ABAJO (Para ver lo último escrito)
     chatBox.scrollTop = chatBox.scrollHeight;
 });
-
 // 2. Recibir mensaje nuevo en tiempo real
 socket.on('new_message', (data) => {
     const chatBox = document.getElementById('chatMessages');
