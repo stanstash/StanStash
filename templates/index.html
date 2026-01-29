@@ -241,8 +241,34 @@
              <h2>Bienvenido</h2>
              <input type="text" id="loginUser" placeholder="Usuario" class="input-field">
              <input type="password" id="loginPass" placeholder="Contraseña" class="input-field">
+             
+             <div style="text-align:right; margin-bottom:15px;">
+                 <a onclick="switchModal('loginModal', 'forgotModal')" style="color:#8b949e; font-size:0.8rem; cursor:pointer; text-decoration:none;">¿Olvidaste tu contraseña?</a>
+             </div>
+
              <button class="btn-action" onclick="doLogin()">INICIAR SESIÓN</button>
              <div class="auth-footer"><a onclick="switchModal('loginModal', 'registerModal')">Crear cuenta nueva</a></div>
+        </div>
+    </div>
+
+    <div id="forgotModal" class="modal hidden">
+        <div class="modal-content auth-modal">
+             <span class="close" onclick="closeModal('forgotModal')">&times;</span>
+             <h2>Recuperar</h2>
+             <p style="color:#aaa; text-align:center; font-size:0.9rem; margin-bottom:20px;">Introduce tu email y te enviaremos un código.</p>
+             <input type="email" id="forgotEmail" placeholder="Tu Email Registrado" class="input-field">
+             <button class="btn-action" onclick="sendForgotCode()">ENVIAR CÓDIGO</button>
+             <div class="auth-footer"><a onclick="switchModal('forgotModal', 'loginModal')">Volver</a></div>
+        </div>
+    </div>
+
+    <div id="resetModal" class="modal hidden">
+        <div class="modal-content auth-modal">
+             <h2>Nueva Contraseña</h2>
+             <p style="color:#aaa; text-align:center; font-size:0.9rem; margin-bottom:20px;">Código enviado a tu correo.</p>
+             <input type="text" id="resetCode" placeholder="Código (6 dígitos)" class="input-field" style="text-align:center; letter-spacing:5px;">
+             <input type="password" id="resetNewPass" placeholder="Nueva Contraseña" class="input-field">
+             <button class="btn-action" onclick="doResetPassword()">CAMBIAR CONTRASEÑA</button>
         </div>
     </div>
 

@@ -435,3 +435,64 @@ function switchModal(from, to) {
     closeModal(from);
     openModal(to);
 }
+
+// --- RECUPERAR CONTRASEÑA ---
+
+// Variable para recordar el email durante el proceso
+let recoveryEmail = "";
+
+async function sendForgotCode() {
+    const email = document.getElementById('forgotEmail').value;
+    if(!email) return alert("Introduce tu email");
+
+    const btn = document.querySelector('#forgotModal .btn-action');
+    const originalText = btn.innerText;
+    btn.innerText = "ENVIANDO...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/forgot_password', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: email})
+        });
+        const data = await res.json();
+
+        if(data.status === 'success') {
+            recoveryEmail = email; // Guardamos el email
+            switchModal('forgotModal', 'resetModal');
+        } else {
+            alert(data.message);
+        }
+    } catch(e) {
+        alert("Error de conexión");
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
+
+async function doResetPassword() {
+    const code = document.getElementById('resetCode').value;
+    const newPass = document.getElementById('resetNewPass').value;
+
+    if(!code || !newPass) return alert("Rellena todos los campos");
+
+    const res = await fetch('/api/reset_password_with_code', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            email: recoveryEmail,
+            code: code,
+            password: newPass
+        })
+    });
+    const data = await res.json();
+
+    if(data.status === 'success') {
+        alert("✅ Contraseña actualizada. Ahora puedes iniciar sesión.");
+        switchModal('resetModal', 'loginModal');
+    } else {
+        alert("❌ " + data.message);
+    }
+}

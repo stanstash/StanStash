@@ -172,6 +172,54 @@ def verify_code():
     else:
         return jsonify({'status': 'error', 'message': 'Código incorrecto'})
 
+
+
+# --- AÑADIR ESTO EN app.py (Junto a login/register) ---
+
+@app.route('/api/forgot_password', methods=['POST'])
+def forgot_password():
+    data = request.json
+    email = data.get('email')
+    
+    user = Usuario.query.filter_by(email=email).first()
+    if not user:
+        # Por seguridad, no deberíamos decir si el email existe o no, 
+        # pero para este proyecto diremos que no se encontró para facilitar.
+        return jsonify({'status': 'error', 'message': 'Email no encontrado'})
+    
+    # Generar código
+    code = ''.join(random.choices(string.digits, k=6))
+    user.verification_code = code
+    db.session.commit()
+    
+    try:
+        msg = Message("Recuperar Contraseña - Stanstash", recipients=[email])
+        msg.body = f"Has solicitado restablecer tu contraseña.\n\nTu código es: {code}\n\nSi no fuiste tú, ignora este mensaje."
+        mail.send(msg)
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': 'Error al enviar el email'})
+
+@app.route('/api/reset_password_with_code', methods=['POST'])
+def reset_password_with_code():
+    data = request.json
+    email = data.get('email')
+    code = data.get('code')
+    new_password = data.get('password')
+    
+    user = Usuario.query.filter_by(email=email).first()
+    
+    if not user:
+        return jsonify({'status': 'error', 'message': 'Usuario no encontrado'})
+        
+    if user.verification_code == code:
+        user.password = new_password
+        user.verification_code = None # Borramos el código usado
+        db.session.commit()
+        return jsonify({'status': 'success'})
+    else:
+        return jsonify({'status': 'error', 'message': 'Código incorrecto'})
+
 # ====================================================
 # RUTAS DE LA APP (VISTAS)
 # ====================================================
