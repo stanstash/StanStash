@@ -287,45 +287,105 @@ img { max-width: 100%; display: block; }
     to { opacity: 1; transform: translateX(0); }
 }
 
-/* === JUEGO CRASH === */
-.game-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+/* === JUEGO CRASH (FIX VISUAL) === */
+.game-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+
 .crash-display {
-    height: 350px; background: #161b22; border-radius: 16px; 
-    border: 1px solid var(--border); position: relative; 
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden; margin-bottom: 20px;
+    height: 400px; 
+    background: #0d1117; 
+    border-radius: 20px; 
+    border: 1px solid var(--border); 
+    position: relative; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    overflow: hidden; 
+    margin-bottom: 20px; 
+    box-shadow: inset 0 0 80px rgba(0,0,0,0.8);
 }
-.crash-display::before {
-    content: ''; position: absolute; width: 200%; height: 200%;
-    background: radial-gradient(circle, rgba(0,255,136,0.1) 0%, transparent 60%);
-    animation: rotateBg 10s linear infinite; opacity: 0.5;
+
+/* El texto multiplicador (Grande y centrado) */
+.multiplier-text { 
+    font-size: 5rem; 
+    font-weight: 900; 
+    color: white; 
+    z-index: 10; /* Encima de todo */
+    font-family: monospace; 
+    text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    margin: 0;
+    line-height: 1;
 }
-@keyframes rotateBg { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-#crashMultiplier { font-size: 5rem; font-weight: 900; color: white; z-index: 2; font-family: monospace; }
-.rocket-container { position: absolute; bottom: 20px; left: 20px; font-size: 2rem; color: var(--accent); transition: all 0.1s; }
-.status-text { position: absolute; top: 20px; color: var(--text-muted); font-weight: bold; letter-spacing: 2px; }
+/* El estado (Debajo del número, sin montarse) */
+.status-badge { 
+    margin-top: 15px;
+    font-size: 1.1rem; 
+    font-weight: 700; 
+    letter-spacing: 2px; 
+    color: var(--text-muted); 
+    background: rgba(255,255,255,0.05);
+    padding: 5px 15px;
+    border-radius: 50px;
+    z-index: 10;
+}
+.status-badge.waiting { color: #ffbe0b; animation: pulse 1s infinite; }
 
-.crash-crashed #crashMultiplier { color: #ff4757; }
-.crash-crashed .status-text { color: #ff4757; }
+/* Historial (Arriba a la derecha, fijo) */
+.crash-info {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 20;
+    background: rgba(0,0,0,0.5);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
 
-.game-controls { background: #0d1117; padding: 20px; border-radius: 16px; display: flex; gap: 20px; align-items: flex-end; border: 1px solid var(--border); margin-bottom: 20px; }
-.bet-input-area { flex: 1; }
-.input-with-icon { position: relative; margin-top: 10px; }
-.input-with-icon i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-.input-with-icon input { width: 100%; padding: 15px 15px 15px 40px; background: #161b22; border: 1px solid var(--border); color: white; border-radius: 8px; font-size: 1.2rem; font-weight: bold; }
+/* Cohete (Fondo) */
+.rocket-area { 
+    position: absolute; 
+    font-size: 8rem; /* Grande pero sutil */
+    color: rgba(255,255,255,0.03); /* Casi transparente */
+    z-index: 1; 
+    transition: transform 0.1s linear;
+}
+/* Cuando corre, el cohete se ilumina un poco */
+.crash-display.running .rocket-area {
+    color: rgba(0, 255, 136, 0.1);
+}
 
-.quick-bets { display: flex; gap: 5px; margin-top: 10px; }
-.quick-bets button { flex: 1; background: #21262d; border: 1px solid var(--border); color: var(--text-muted); padding: 5px; border-radius: 4px; cursor: pointer; }
+/* Estados de color */
+.crash-display.running .multiplier-text { color: #00ff88; text-shadow: 0 0 30px rgba(0,255,136,0.2); }
+.crash-display.crashed .multiplier-text { color: #ff4757; text-shadow: 0 0 30px rgba(255, 71, 87, 0.3); }
 
-.btn-game-action { width: 150px; height: 60px; border: none; border-radius: 8px; font-weight: 900; font-size: 1.2rem; cursor: pointer; }
-#btnBet { background: var(--accent); color: black; }
-#btnCashout { background: #ffbe0b; color: black; }
+/* CONTROLES */
+.game-controls-panel { 
+    background: #161b22; 
+    padding: 20px; 
+    border-radius: 16px; 
+    display: flex; 
+    gap: 20px; 
+    border: 1px solid var(--border); 
+}
+.bet-section { flex: 1; }
+.action-section { width: 220px; display: flex; flex-direction: column; }
 
-.players-list { background: #161b22; border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
-.player-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 0.9rem; }
-.player-row.winner { color: #00ff88; }
-
+/* Notificación de Victoria Sutil (Dentro del botón) */
+.win-badge-btn {
+    background: #00ff88;
+    color: black;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 5px;
+    font-weight: bold;
+    display: inline-block;
+    animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popUp { from { transform: scale(0); } to { transform: scale(1); } }
 /* === NUEVOS ESTILOS DE JUEGO (MEJORADOS) === */
 
 /* Botón Volver */

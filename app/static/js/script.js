@@ -224,164 +224,118 @@ function openModal(id) { document.querySelectorAll('.modal').forEach(m => m.clas
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 function switchModal(from, to) { closeModal(from); openModal(to); }
 
-// === LÓGICA JUEGO CRASH (MEJORADA) ===
-let currentCrashBet = 0; // Para calcular ganancia en tiempo real
+// === LÓGICA JUEGO CRASH ===
+let currentCrashBet = 0;
 
-// 1. FUNCIÓN PARA ENTRAR AL JUEGO (PROTEGIDA)
-function enterGame(gameName) {
-    // PROTECCIÓN: Si no está logueado, abrir modal login
-    if (!currentUser) {
-        openModal('loginModal');
-        showToast("Inicia sesión para jugar", "info");
-        return;
-    }
-
-    if (gameName === 'crash') {
-        // Ocultar menú, mostrar juego
-        document.getElementById('gamesMenu').classList.add('hidden');
-        document.getElementById('gameInterface-crash').classList.remove('hidden');
-        
-        // Conectar al socket del juego
-        socket.emit('join_crash');
-    }
-}
-
-function backToGames() {
-    // Volver al menú
-    document.getElementById('gameInterface-crash').classList.add('hidden');
-    document.getElementById('gamesMenu').classList.remove('hidden');
-    // Opcional: socket.emit('leave_crash');
-}
-
-// Sobrescribir navigate para que siempre empiece en el menú
-const originalNavigate = navigate;
-navigate = function(viewId) {
-    originalNavigate(viewId);
-    if(viewId === 'games') {
-        // Asegurar que vemos el menú primero
-        document.getElementById('gamesMenu').classList.remove('hidden');
-        document.getElementById('gameInterface-crash').classList.add('hidden');
-    }
-}
-
-// 2. SOCKETS CRASH
-socket.on('crash_countdown', (data) => {
-    const display = document.getElementById('crashDisplay');
-    display.classList.remove('running', 'crashed');
+// Sockets
+socket.on('crash_status', (data) => {
+    // Limpieza visual
+    document.getElementById('crashDisplay').classList.remove('running', 'crashed');
     document.getElementById('crashMultiplier').innerText = "1.00x";
-    document.getElementById('crashStatusText').innerText = `INICIO EN ${data.time_left}s`;
     
-    // Ocultar overlay de victoria si estaba
-    document.getElementById('winOverlay').classList.add('hidden');
-    
-    resetButtons(true);
+    if (data.status === 'IDLE') {
+        document.getElementById('crashStatusText').innerText = "ESPERANDO JUGADORES...";
+        document.getElementById('crashStatusText').className = "status-badge"; // gris
+        resetButtons(true);
+    } 
+    else if (data.status === 'WAITING') {
+        document.getElementById('crashStatusText').innerText = `INICIO EN ${data.time_left}s`;
+        document.getElementById('crashStatusText').className = "status-badge waiting"; // amarillo
+        resetButtons(true);
+    }
 });
 
 socket.on('crash_start', () => {
     document.getElementById('crashDisplay').classList.add('running');
-    document.getElementById('crashStatusText').innerText = "";
-    resetButtons(false);
+    document.getElementById('crashStatusText').innerText = "VOLANDO...";
+    resetButtons(false); // Bloquear apuestas
 });
 
 socket.on('crash_tick', (data) => {
-    const mult = parseFloat(data.multiplier);
-    document.getElementById('crashMultiplier').innerText = mult.toFixed(2) + "x";
+    document.getElementById('crashMultiplier').innerText = data.multiplier.toFixed(2) + "x";
     
-    // Animación Cohete (Sube y vibra)
+    // Animación cohete suave (Rotación)
     const rocket = document.getElementById('rocketIcon');
-    const offsetY = Math.min(150, (mult - 1) * 50); // Tope de altura visual
-    const vibration = Math.random() * 2 - 1; // Vibración
-    rocket.style.transform = `translate(-50%, -${offsetY}px) rotate(${vibration}deg)`;
+    const rot = (data.multiplier * 2) % 5; 
+    rocket.style.transform = `rotate(${rot}deg) scale(1.1)`;
 
-    // ACTUALIZAR BOTÓN DE RETIRAR EN TIEMPO REAL
+    // Actualizar botón retirar (Feedback visual)
     if(currentCrashBet > 0) {
-        const potentialWin = (currentCrashBet * mult).toFixed(2);
-        document.getElementById('cashoutProfitPreview').innerText = `Ganancia: +${potentialWin}$`;
+        const win = (currentCrashBet * data.multiplier).toFixed(2);
+        document.getElementById('cashoutProfitPreview').innerHTML = `<span style="color:#000">Retirar</span> <b>+${win}$</b>`;
     }
 });
 
 socket.on('crash_boom', (data) => {
-    const display = document.getElementById('crashDisplay');
-    display.classList.remove('running');
-    display.classList.add('crashed');
+    document.getElementById('crashDisplay').classList.remove('running');
+    document.getElementById('crashDisplay').classList.add('crashed');
     document.getElementById('crashMultiplier').innerText = data.crash_point + "x";
     document.getElementById('crashStatusText').innerText = "CRASHED";
     
-    // Resetear variables
     currentCrashBet = 0;
     
+    // Volver a mostrar botón de apostar
     document.getElementById('btnBet').classList.remove('hidden');
     document.getElementById('btnCashout').classList.add('hidden');
 });
 
 socket.on('cashout_success', (data) => {
-    // MOSTRAR OVERLAY DE VICTORIA
-    const overlay = document.getElementById('winOverlay');
-    const amountTxt = document.getElementById('winOverlayAmount');
+    // NOTIFICACIÓN SUTIL (TOAST)
+    showToast(`🤑 Ganaste +${parseFloat(data.win).toFixed(2)}$`, 'success');
     
-    amountTxt.innerText = `+${parseFloat(data.win).toFixed(2)}$`;
-    overlay.classList.remove('hidden');
+    // Cambiar botón visualmente para confirmar
+    const btn = document.getElementById('btnCashout');
+    btn.innerHTML = `<span>¡GANADO!</span> <small>+${parseFloat(data.win).toFixed(2)}$</small>`;
+    btn.style.background = "#00ff88"; // Verde victoria
     
-    // Toast también por si acaso
-    showToast(`¡Has ganado ${parseFloat(data.win).toFixed(2)}$!`, 'success');
-    
-    currentCrashBet = 0; // Ya no estamos jugando
+    currentCrashBet = 0;
 });
 
-// 3. ACCIONES DE JUGADOR
-function modifyBet(type) {
-    const input = document.getElementById('betInput');
-    let val = parseFloat(input.value);
-    
-    if(type === 'half') val = Math.max(1, val / 2);
-    if(type === 'double') val = val * 2;
-    // Para MAX necesitaríamos saber el saldo del usuario en JS, 
-    // por simplicidad lo dejaremos en x2 o un valor alto seguro
-    
-    input.value = val.toFixed(2);
-}
-
+// Botones y Lógica
 function placeBet() {
     const amount = parseFloat(document.getElementById('betInput').value);
-    if(isNaN(amount) || amount <= 0) return showToast("Apuesta inválida", "error");
+    if(isNaN(amount) || amount <= 0) return showToast("Monto inválido", "error");
     
     socket.emit('place_bet_crash', {amount: amount});
     
-    // Cambio visual inmediato (Optimista)
+    // UI Optimista
     document.getElementById('btnBet').classList.add('hidden');
-    const btnCashout = document.getElementById('btnCashout');
-    btnCashout.classList.remove('hidden');
-    btnCashout.disabled = true; // Desactivado hasta que empiece la ronda
+    const btnCash = document.getElementById('btnCashout');
+    btnCash.classList.remove('hidden');
+    btnCash.style.background = ""; // Resetear color
+    btnCash.innerHTML = `<span>ESPERANDO...</span> <small>Apuesta: ${amount}$</small>`;
+    btnCash.disabled = true; // Desactivado hasta que arranque
     
     currentCrashBet = amount;
 }
 
 function doCashOut() {
     socket.emit('cash_out_crash');
+    // Evitar doble click
     document.getElementById('btnCashout').disabled = true;
-    document.getElementById('btnCashout').querySelector('span').innerText = "RETIRANDO...";
 }
 
 function resetButtons(canBet) {
     const btnBet = document.getElementById('btnBet');
-    const btnCashout = document.getElementById('btnCashout');
+    const btnCash = document.getElementById('btnCashout');
     
     if(canBet) {
         btnBet.classList.remove('hidden');
         btnBet.disabled = false;
         
-        btnCashout.classList.add('hidden');
-        btnCashout.querySelector('span').innerText = "RETIRAR";
-        btnCashout.disabled = false;
+        btnCash.classList.add('hidden');
+        btnCash.disabled = false;
+        btnCash.style.background = ""; // Reset color
         
+        // Limpiar lista de jugadores al reiniciar ronda
+        document.getElementById('crashPlayersList').innerHTML = '';
         currentCrashBet = 0;
     } else {
-        // La ronda empezó. Si aposté (currentCrashBet > 0), habilito el botón retirar
-        if(currentCrashBet > 0) {
-            btnCashout.disabled = false;
-        }
+        // Ronda empezada
         btnBet.disabled = true;
+        // Si aposté, habilitar retirar
+        if(currentCrashBet > 0) {
+            btnCash.disabled = false;
+        }
     }
 }
-
-// ... (Resto de sockets: players list, etc. igual que antes)

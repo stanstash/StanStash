@@ -3,6 +3,8 @@ from flask_login import current_user
 from flask_socketio import emit
 from . import socketio, db
 from .models import ChatMessage
+from app import db # Asegúrate de importar db
+from .games.crash import crash_engine
 
 @socketio.on('connect')
 def handle_connect():
@@ -56,23 +58,41 @@ def handle_join_crash():
         'bets': crash_engine.bets
     })
 
+# ... (imports) ...
+from app import db # Asegúrate de importar db
+from .games.crash import crash_engine
+
+# ... (join_crash igual que antes) ...
+
 @socketio.on('place_bet_crash')
 def handle_place_bet(data):
     if not current_user.is_authenticated: return
-    if crash_engine.state != 'WAITING':
-        emit('error_msg', {'msg': 'La ronda ya ha empezado'})
+    
+    # Solo se puede apostar en IDLE o WAITING
+    if crash_engine.state not in ['IDLE', 'WAITING']:
+        emit('error_msg', {'msg': 'Espera a la siguiente ronda'})
         return
 
-    amount = float(data.get('amount'))
-    if amount <= 0 or amount > current_user.saldo:
-        emit('error_msg', {'msg': 'Saldo insuficiente o inválido'})
+    # Verificar si ya apostó en esta ronda
+    if current_user.id in crash_engine.bets:
+        emit('error_msg', {'msg': 'Ya has apostado en esta ronda'})
         return
 
-    # 1. Restar saldo inmediatamente
+    try:
+        amount = float(data.get('amount'))
+    except:
+        return
+
+    if amount <= 0: return
+    if amount > float(current_user.saldo):
+        emit('error_msg', {'msg': 'Saldo insuficiente'})
+        return
+
+    # 1. RESTAR DINERO (Transacción DB)
     current_user.saldo = float(current_user.saldo) - amount
-    db.session.commit()
+    db.session.commit() # ¡Guardar cambios!
 
-    # 2. Registrar apuesta en memoria del juego
+    # 2. Registrar en el motor
     crash_engine.bets[current_user.id] = {
         'username': current_user.username,
         'amount': amount,
@@ -80,14 +100,15 @@ def handle_place_bet(data):
         'avatar': current_user.avatar
     }
 
-    # 3. Avisar a todos
+    # 3. Notificar cambios
+    # A todos (para la lista de jugadores)
     emit('new_bet_crash', {
         'username': current_user.username,
         'amount': amount,
         'avatar': current_user.avatar
     }, broadcast=True)
     
-    # 4. Actualizar saldo visual del usuario
+    # Al usuario (para actualizar su saldo visual)
     emit('balance_update', {'saldo': float(current_user.saldo)})
 
 @socketio.on('cash_out_crash')
@@ -97,19 +118,18 @@ def handle_cash_out():
 
     bet_info = crash_engine.bets.get(current_user.id)
     
-    # Si apostó y no ha retirado aún
     if bet_info and not bet_info['cashed_out']:
         current_mult = crash_engine.multiplier
         win_amount = bet_info['amount'] * current_mult
         
-        # 1. Marcar como retirado
+        # 1. Marcar retirado
         crash_engine.bets[current_user.id]['cashed_out'] = True
         
-        # 2. Pagar
+        # 2. SUMAR DINERO
         current_user.saldo = float(current_user.saldo) + win_amount
-        db.session.commit()
+        db.session.commit() # ¡Guardar cambios!
 
-        # 3. Avisar
+        # 3. Notificar
         emit('player_cashed_out', {
             'username': current_user.username,
             'mult': f"{current_mult:.2f}",
@@ -117,6 +137,6 @@ def handle_cash_out():
         }, broadcast=True)
 
         emit('balance_update', {'saldo': float(current_user.saldo)})
-        emit('cashout_success', {'win': win_amount})
-
         
+        # Notificación personal sutil
+        emit('cashout_success', {'win': win_amount, 'mult': current_mult})
