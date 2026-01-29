@@ -107,7 +107,7 @@
             </div>
         </section>
 
-        <section id="view-deposit" class="view-section hidden">
+       <section id="view-deposit" class="view-section hidden">
             <div class="deposit-page-container">
                 <div class="deposit-wrapper">
                     <h2 class="page-title"><i class="fa-solid fa-wallet"></i> Añadir Fondos</h2>
@@ -120,10 +120,29 @@
 
                         <div class="deposit-box">
                             <label class="input-label">Selecciona Moneda</label>
-                            <div class="crypto-selector">
-                                <div class="crypto-option selected" id="opt-btc" onclick="selectCrypto('btc')">BTC</div>
-                                <div class="crypto-option" id="opt-ltc" onclick="selectCrypto('ltc')">LTC</div>
-                                <div class="crypto-option" id="opt-eth" onclick="selectCrypto('eth')">ETH</div>
+                            
+                            <div class="crypto-scroll-container">
+                                <div class="crypto-option selected" id="opt-btc" onclick="selectCrypto('btc')">
+                                    <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=026"> BTC
+                                </div>
+                                <div class="crypto-option" id="opt-eth" onclick="selectCrypto('eth')">
+                                    <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=026"> ETH
+                                </div>
+                                <div class="crypto-option" id="opt-sol" onclick="selectCrypto('sol')">
+                                    <img src="https://cryptologos.cc/logos/solana-sol-logo.png?v=026"> SOL
+                                </div>
+                                <div class="crypto-option" id="opt-usdt" onclick="selectCrypto('usdt')">
+                                    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=026"> USDT
+                                </div>
+                                <div class="crypto-option" id="opt-trx" onclick="selectCrypto('trx')">
+                                    <img src="https://cryptologos.cc/logos/tron-trx-logo.png?v=026"> TRX
+                                </div>
+                                <div class="crypto-option" id="opt-ltc" onclick="selectCrypto('ltc')">
+                                    <img src="https://cryptologos.cc/logos/litecoin-ltc-logo.png?v=026"> LTC
+                                </div>
+                                <div class="crypto-option" id="opt-doge" onclick="selectCrypto('doge')">
+                                    <img src="https://cryptologos.cc/logos/dogecoin-doge-logo.png?v=026"> DOGE
+                                </div>
                             </div>
 
                             <label class="input-label">Monto (USD)</label>
@@ -132,8 +151,8 @@
                                 <input type="number" id="depositAmount" placeholder="50.00" class="amount-field">
                             </div>
 
-                            <button class="btn-pay-now" onclick="createPayment()">GENERAR DIRECCIÓN DE PAGO</button>
-                            <p class="deposit-note">Mínimo 10$. Procesado automáticamente.</p>
+                            <button class="btn-pay-now" onclick="createPayment()">GENERAR DIRECCIÓN</button>
+                            <p class="deposit-note">Mínimo 10$. Procesado por NOWPayments.</p>
                         </div>
                     </div>
 
@@ -141,7 +160,7 @@
                         <div class="deposit-box center-content">
                             <div class="spinner-box"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
                             <h3>Esperando Pago...</h3>
-                            <p>Envía exactamente <b id="payAmountDisplay" style="color:#00ff88">0</b> <span id="payCurrencyDisplay">BTC</span> a:</p>
+                            <p>Envía <b>exactamente</b> <span id="payAmountDisplay" style="color:#00ff88">0</span> <span id="payCurrencyDisplay">BTC</span> a:</p>
                             
                             <div class="address-box" onclick="copyAddress()">
                                 <span id="payAddressDisplay">Generando...</span>
@@ -149,15 +168,13 @@
                             </div>
                             
                             <div class="timer-bar"><div class="timer-fill"></div></div>
-                            <p class="deposit-note">Tu saldo se actualizará en cuanto se detecte la transacción (aprox 10 seg en demo).</p>
+                            <p class="deposit-note">Detectando transacción en blockchain...</p>
                             <button class="btn-cancel" onclick="cancelPayment()">CANCELAR</button>
                         </div>
                     </div>
-
                 </div>
             </div>
         </section>
-
     </main>
 
     <aside class="desktop-sidebar desktop-only">

@@ -69,7 +69,9 @@ let selectedCurrency = 'btc';
 function selectCrypto(coin) {
     selectedCurrency = coin;
     document.querySelectorAll('.crypto-option').forEach(el => el.classList.remove('selected'));
-    document.getElementById('opt-' + coin).classList.add('selected');
+    // Busca el ID específico
+    const el = document.getElementById('opt-' + coin);
+    if(el) el.classList.add('selected');
 }
 
 async function createPayment() {

@@ -119,3 +119,37 @@ img { max-width: 100%; display: block; }
     .sidebar-footer { padding: 20px; border-top: 1px solid var(--border); }
     .btn-logout-side { width: 100%; background: transparent; border: 1px solid #ff4757; color: #ff4757; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
 }
+
+/* ... CSS ANTERIOR ... */
+
+/* Selector Cripto (Scroll Horizontal) */
+.crypto-scroll-container { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 20px; 
+    overflow-x: auto; /* Permite deslizar si hay muchas monedas */
+    padding-bottom: 5px; /* Espacio para scrollbar */
+}
+/* Ocultar barra de scroll fea en webkit */
+.crypto-scroll-container::-webkit-scrollbar { height: 4px; }
+.crypto-scroll-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.crypto-option { 
+    min-width: 90px; /* Tamaño mínimo para que no se aplasten */
+    flex: 0 0 auto;
+    background: #0d1117; 
+    border: 1px solid var(--border); 
+    padding: 12px; 
+    border-radius: 10px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 8px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    font-size: 0.9rem; 
+    transition: 0.2s; 
+    color: var(--text-muted); 
+}
+.crypto-option img { width: 22px; height: 22px; }
+.crypto-option.selected { border-color: var(--accent); background: rgba(0, 255, 136, 0.1); color: white; }
