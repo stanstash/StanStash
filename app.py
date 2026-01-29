@@ -202,19 +202,42 @@ def logout():
 
 @socketio.on('connect')
 def handle_connect():
-    # Enviar los últimos 50 mensajes al conectar
+    # 1. Recuperar últimos 50 mensajes
     messages = ChatMessage.query.order_by(ChatMessage.timestamp.desc()).limit(50).all()
     
+    history = []
+    # Los invertimos para que la lista vaya de [Viejo -> Nuevo]
     for msg in reversed(messages):
-        # Obtener avatar actualizado
         avatar = msg.user.avatar if msg.user else 'default.png'
-        
-        emit('new_message', {
+        history.append({
             'username': msg.username,
             'message': msg.message,
             'avatar': avatar,
             'timestamp': msg.timestamp
         })
+    
+    # 2. Enviar todo el historial de golpe
+    emit('chat_history', {'messages': history})
+
+@socketio.on('send_message')
+def handle_send_message(data):
+    if not current_user.is_authenticated: return
+    
+    msg_text = data.get('message', '').strip()
+    if not msg_text or len(msg_text) > 500: return
+
+    # Guardar
+    new_msg = ChatMessage(user_id=current_user.id, username=current_user.username, message=msg_text)
+    db.session.add(new_msg)
+    db.session.commit()
+
+    # Enviar solo el mensaje nuevo a todos (append al final)
+    emit('new_message', {
+        'username': current_user.username,
+        'message': msg_text,
+        'avatar': current_user.avatar,
+        'timestamp': int(time.time())
+    }, broadcast=True)
 
 @socketio.on('send_message')
 def handle_send_message(data):

@@ -23,88 +23,83 @@ document.addEventListener('DOMContentLoaded', () => {
     simulateLiveWins();
 });
 
-// ==========================================
-// 1. LÓGICA DEL CHAT GLOBAL (SOCKET.IO)
-// ==========================================
+// --- CHAT GLOBAL MEJORADO ---
 
-// Recibir mensaje del servidor
-socket.on('new_message', (data) => {
-    const chatBox = document.getElementById('chatMessages');
-    
-    // Detectar si el usuario está mirando mensajes viejos para no bajarle de golpe
-    const isScrolledToBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 50;
-
+// Función auxiliar para pintar un mensaje (se usa en historial y en nuevos)
+function renderMessage(data, chatBox) {
     const msgDiv = document.createElement('div');
-    
-    // Determinar si el mensaje es mío (verde) o de otro (gris)
     const isMe = currentUser && data.username === currentUser;
     msgDiv.className = isMe ? 'chat-msg mine' : 'chat-msg theirs';
     
-    // Avatar del usuario del mensaje
     let avatarUrl = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
-    if(data.avatar && data.avatar !== 'default.png') {
-        avatarUrl = `/static/uploads/${data.avatar}`;
-    }
+    if(data.avatar && data.avatar !== 'default.png') avatarUrl = `/static/uploads/${data.avatar}`;
     
-    // Construir el HTML del mensaje
     msgDiv.innerHTML = `
-        <img src="${avatarUrl}" class="chat-avatar" alt="Avatar">
+        <img src="${avatarUrl}" class="chat-avatar">
         <div class="msg-content">
             ${!isMe ? `<span class="msg-username">${data.username}</span>` : ''}
             ${escapeHtml(data.message)}
         </div>
     `;
     
+    // IMPORTANTE: appendChild pone el mensaje AL FINAL (abajo)
     chatBox.appendChild(msgDiv);
+}
 
-    // Auto-scroll hacia abajo si estaba leyendo lo último
+// 1. Cargar Historial al conectar (Viejos arriba, nuevos abajo)
+socket.on('chat_history', (data) => {
+    const chatBox = document.getElementById('chatMessages');
+    chatBox.innerHTML = ''; // Limpiar chat al entrar
+    
+    if(data.messages.length === 0) {
+        chatBox.innerHTML = '<div class="chat-msg system"><div class="sys-text">Bienvenido al chat global.</div></div>';
+    } else {
+        data.messages.forEach(msg => {
+            renderMessage(msg, chatBox);
+        });
+    }
+    
+    // Forzar scroll al fondo inmediatamente
+    chatBox.scrollTop = chatBox.scrollHeight;
+});
+
+// 2. Recibir mensaje nuevo en tiempo real
+socket.on('new_message', (data) => {
+    const chatBox = document.getElementById('chatMessages');
+    
+    // Detectar si el usuario estaba abajo del todo
+    const isScrolledToBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 100;
+
+    renderMessage(data, chatBox);
+
+    // Si estaba abajo, bajar el scroll automáticamente para ver el nuevo
     if (isScrolledToBottom) {
-        setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 50);
+        chatBox.scrollTop = chatBox.scrollHeight;
     }
 });
 
-function toggleChat() {
-    const chat = document.getElementById('chatSidebar');
-    chat.classList.toggle('closed');
-    
-    // Al abrir, bajar el scroll al final
-    if(!chat.classList.contains('closed')) {
-        setTimeout(() => {
-            const chatBox = document.getElementById('chatMessages');
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }, 300);
-    }
+function toggleChat() { 
+    document.getElementById('chatSidebar').classList.toggle('closed'); 
+    // Al abrir, bajar scroll
+    setTimeout(() => { 
+        const cb = document.getElementById('chatMessages'); 
+        cb.scrollTop = cb.scrollHeight; 
+    }, 300); 
 }
 
-function sendMessage() {
-    if(!currentUser) return openModal('loginModal');
-    
-    const input = document.getElementById('chatInput');
-    const message = input.value.trim();
-    
-    if (message) {
-        // Enviar al servidor Python
-        socket.emit('send_message', { message: message });
-        input.value = '';
-        input.focus();
-    }
+function sendMessage() { 
+    if(!currentUser) return openModal('loginModal'); 
+    const input = document.getElementById('chatInput'); 
+    const message = input.value.trim(); 
+    if (message) { 
+        socket.emit('send_message', { message: message }); 
+        input.value = ''; 
+        input.focus(); 
+    } 
 }
 
-function handleChatKeyPress(e) { 
-    if(e.key === 'Enter') sendMessage(); 
-}
-
-// Seguridad: Evitar que la gente meta HTML malicioso en el chat
-function escapeHtml(text) {
-    if (!text) return text;
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
+function handleChatKeyPress(e) { if(e.key === 'Enter') sendMessage(); }
+function escapeHtml(text) { if (!text) return text; return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 // ==========================================
 // 2. NAVEGACIÓN (SPA)
 // ==========================================
