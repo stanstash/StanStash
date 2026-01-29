@@ -13,6 +13,9 @@ class Usuario(UserMixin, db.Model):
     avatar = db.Column(db.String(200), default='default.png')
     is_verified = db.Column(db.Boolean, default=False)
     verification_code = db.Column(db.String(6), nullable=True)
+    server_seed = db.Column(db.String(64), default='default_seed_change_me')
+    client_seed = db.Column(db.String(32), default='client_seed_initial')
+    nonce = db.Column(db.Integer, default=0)
 
 class Payment(db.Model):
     __tablename__ = 'payments'
