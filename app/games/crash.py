@@ -14,7 +14,7 @@ class CrashGame:
     def start(self, app):
         with app.app_context():
             while True:
-                socketio.sleep(0.1) # 10 FPS
+                socketio.sleep(0.1)
                 self.tick()
 
     def generate_round(self):
@@ -27,21 +27,21 @@ class CrashGame:
     def tick(self):
         current_time = time.time()
 
-        # 1. IDLE (Esperando gente)
         if self.state == 'IDLE':
+            # MODO ESPERA: Emitimos siempre "WAITING" visualmente pero con tiempo 0
+            # para que salga el panel de apuestas
             if len(self.bets) > 0:
                 self.state = 'WAITING'
-                self.next_round_time = current_time + 15 # 15 Segundos
-                socketio.emit('crash_status', {'status': 'WAITING', 'time_left': 15})
+                self.next_round_time = current_time + 15
             else:
-                if int(current_time) % 2 == 0:
+                # Latido cada segundo
+                if int(current_time * 10) % 10 == 0:
+                    # Time left 0 fuerza la UI a modo apuesta
                     socketio.emit('crash_status', {'status': 'IDLE', 'time_left': 0})
 
-        # 2. WAITING (Cuenta Atrás)
         elif self.state == 'WAITING':
             time_left = self.next_round_time - current_time
-            
-            # Emitir SIEMPRE el tiempo restante
+            # Emitimos SIEMPRE el tiempo
             socketio.emit('crash_status', {'status': 'WAITING', 'time_left': round(time_left, 1)})
             
             if time_left <= 0:
@@ -51,9 +51,8 @@ class CrashGame:
                 self.multiplier = 1.00
                 socketio.emit('crash_start', {})
             else:
-                socketio.sleep(0.5) # Emitir cada medio segundo para no saturar
+                socketio.sleep(0.1)
 
-        # 3. RUNNING (Juego)
         elif self.state == 'RUNNING':
             elapsed = current_time - self.start_time
             self.multiplier = 1.00 * (1.06 ** (elapsed * 2))
@@ -64,9 +63,8 @@ class CrashGame:
             else:
                 socketio.emit('crash_tick', {'multiplier': float(f"{self.multiplier:.2f}")})
 
-        # 4. CRASHED (Fin)
         elif self.state == 'CRASHED':
-            socketio.sleep(4)
+            socketio.sleep(3)
             self.reset_game()
 
     def crash(self):
@@ -77,6 +75,7 @@ class CrashGame:
         self.state = 'IDLE'
         self.multiplier = 1.00
         self.bets = {}
+        # Aviso explícito de reinicio
         socketio.emit('crash_status', {'status': 'IDLE', 'time_left': 0})
 
 crash_engine = CrashGame()
