@@ -891,3 +891,110 @@ img { max-width: 100%; display: block; }
     from { opacity: 0; transform: translateY(-10px) scale(0.8); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
+/* === CHAT SIDEBAR (CORREGIDO MÓVIL) === */
+#chatSidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100dvh; /* dvh se adapta mejor a móviles que vh */
+    background: #0d1117;
+    border-left: 1px solid var(--border);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 2000;
+    display: flex;       /* CLAVE: Flexbox vertical */
+    flex-direction: column;
+}
+
+#chatSidebar.open {
+    transform: translateX(0);
+}
+
+/* Cabecera del chat (Fijo arriba) */
+.chat-header {
+    padding: 15px;
+    background: #161b22;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0; /* No encoger */
+}
+
+/* Área de mensajes (Flexible, hace scroll) */
+#chatMessages {
+    flex: 1; /* Ocupa todo el espacio sobrante */
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Área de Input (Fijo abajo) */
+.chat-input-area {
+    padding: 15px;
+    background: #161b22;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0; /* No encoger, siempre visible */
+    display: flex;
+    gap: 10px;
+    /* Fix para teclados móviles */
+    position: sticky;
+    bottom: 0;
+}
+
+.chat-input-area input {
+    flex: 1;
+    background: #0d1117;
+    border: 1px solid var(--border);
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    outline: none;
+}
+
+.chat-input-area button {
+    background: var(--accent);
+    border: none;
+    color: black;
+    padding: 0 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Estilos de mensajes */
+.chat-msg { display: flex; gap: 10px; align-items: flex-start; font-size: 0.9rem; }
+.chat-msg.mine { flex-direction: row-reverse; text-align: right; }
+.chat-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+.msg-content { background: #21262d; padding: 8px 12px; border-radius: 12px; color: #c9d1d9; word-break: break-word; }
+.chat-msg.mine .msg-content { background: var(--accent); color: black; }
+.msg-username { display: block; font-size: 0.75rem; color: #8b949e; margin-bottom: 2px; }
+
+/* FIX MÓVIL RESPONSIVE */
+@media (max-width: 768px) {
+    #chatSidebar {
+        width: 100%; /* Pantalla completa en móvil */
+        height: 100%; /* Fallback */
+        height: 100dvh; /* Altura dinámica real */
+    }
+    
+    /* Botón flotante para abrir chat en móvil */
+    .chat-toggle-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1500;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: black;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem;
+    }
+}

@@ -95,3 +95,40 @@ def handle_cash_out():
         emit('player_cashed_out', {
             'username': current_user.username, 'mult': f"{mult:.2f}", 'win': f"{win:.2f}"
         }, broadcast=True)
+
+        # ... (Todo el código de Crash que ya tienes arriba) ...
+
+# === CHAT GLOBAL (AÑADIR ESTO AL FINAL) ===
+
+# Variable global simple para guardar últimos 50 mensajes
+chat_messages = []
+
+@socketio.on('connect')
+def handle_connect():
+    # Al conectar, enviamos el historial de chat (y lo de Crash si hiciera falta)
+    emit('chat_history', {'messages': chat_messages})
+    # (La lógica de Crash ya envía su sync por separado en join_crash)
+
+@socketio.on('send_message')
+def handle_send_message(data):
+    if not current_user.is_authenticated:
+        return
+    
+    msg = data.get('message', '').strip()
+    if not msg: return
+
+    # Crear objeto mensaje
+    message_data = {
+        'username': current_user.username,
+        'avatar': current_user.avatar,
+        'message': msg[:200], # Limitar caracteres
+        'timestamp': time.time()
+    }
+
+    # Guardar en memoria
+    chat_messages.append(message_data)
+    if len(chat_messages) > 50:
+        chat_messages.pop(0)
+
+    # Reenviar a TODOS
+    emit('new_message', message_data, broadcast=True)

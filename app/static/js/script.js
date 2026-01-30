@@ -18,6 +18,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('loggedNav').classList.add('hidden');
     document.getElementById('desktopLogout').classList.add('hidden');
     document.getElementById('guestNav').classList.remove('hidden');
+
+    // Añade esto dentro del document.addEventListener('DOMContentLoaded', ...)
+
+// Permitir enviar con ENTER
+const chatInput = document.getElementById('chatInput');
+if(chatInput) {
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+}
 });
 
 socket.on('connect', () => console.log("🟢 Conectado al servidor"));
@@ -508,7 +518,15 @@ function renderMessage(data, chatBox) {
 socket.on('chat_history', (data) => { const box = document.getElementById('chatMessages'); box.innerHTML = ''; data.messages.forEach(m => renderMessage(m, box)); box.scrollTop = box.scrollHeight; });
 socket.on('new_message', (data) => { const box = document.getElementById('chatMessages'); renderMessage(data, box); box.scrollTop = box.scrollHeight; });
 
-function toggleChat() { document.getElementById('chatSidebar').classList.toggle('closed'); }
+function toggleChat() { 
+    const sidebar = document.getElementById('chatSidebar');
+    // Si tiene la clase 'open', se la quitamos, si no, se la ponemos
+    if(sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+    } else {
+        sidebar.classList.add('open');
+    }
+}
 function sendMessage() { if(!currentUser) return openModal('loginModal'); const i = document.getElementById('chatInput'); if(i.value.trim()){ socket.emit('send_message', {message: i.value}); i.value = ''; } }
 
 let selectedCurrency = 'btc';
