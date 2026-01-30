@@ -792,3 +792,95 @@ img { max-width: 100%; display: block; }
 
 /* Ajuste display juego para que encaje con el historial */
 .crash-display { border-top-left-radius: 0; border-top-right-radius: 0; }
+
+/* === HISTORIAL BARRA PRO === */
+.history-bar-container {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-bottom: none; /* Se une visualmente al juego */
+    border-radius: 16px 16px 0 0;
+    padding: 0 15px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    z-index: 5;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* La etiqueta de texto "ANTERIORES" */
+.history-label {
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap; /* Que no se rompa el texto */
+    border-right: 1px solid #30363d; /* Separador vertical */
+    padding-right: 15px;
+    height: 60%;
+}
+
+.history-label i {
+    color: var(--accent); /* Icono verde */
+}
+
+/* Wrapper para el efecto de desvanecimiento */
+.history-fade-wrapper {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    /* Truco CSS Pro: Máscara para desvanecer el lado izquierdo */
+    mask-image: linear-gradient(to right, transparent, black 20px);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 20px);
+}
+
+.history-scroll {
+    display: flex;
+    gap: 8px;
+    flex-direction: row-reverse; /* Los nuevos aparecen a la derecha pero empujan a la izquierda */
+    justify-content: flex-end;   /* Alinear al final */
+    width: 100%;
+    overflow-x: auto;
+    padding-left: 20px; /* Espacio para el fade */
+    scrollbar-width: none; /* Ocultar barra scroll en Firefox */
+}
+.history-scroll::-webkit-scrollbar { display: none; } /* Ocultar en Chrome */
+
+/* Las Píldoras de números */
+.history-pill {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    font-family: 'Roboto Mono', monospace; /* Fuente técnica */
+    min-width: 60px;
+    text-align: center;
+    transition: transform 0.2s;
+    cursor: default;
+}
+
+.history-pill:hover { transform: translateY(-2px); }
+
+/* Colores */
+.history-pill.bad { 
+    color: #8b949e; 
+    background: rgba(22, 27, 34, 0.5); 
+    border: 1px solid rgba(139, 148, 158, 0.2);
+}
+.history-pill.good { 
+    color: #00ff88; 
+    background: rgba(0, 255, 136, 0.05); 
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    text-shadow: 0 0 10px rgba(0,255,136,0.2);
+}
+.history-pill.jackpot { 
+    color: #ffbe0b; 
+    background: rgba(255, 190, 11, 0.1); 
+    border: 1px solid #ffbe0b;
+    box-shadow: 0 0 10px rgba(255, 190, 11, 0.2);
+}
