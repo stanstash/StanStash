@@ -830,26 +830,28 @@ img { max-width: 100%; display: block; }
 }
 
 /* Wrapper para el efecto de desvanecimiento */
+/* Wrapper para el efecto de desvanecimiento */
 .history-fade-wrapper {
     flex: 1;
     overflow: hidden;
     position: relative;
-    /* Truco CSS Pro: Máscara para desvanecer el lado izquierdo */
-    mask-image: linear-gradient(to right, transparent, black 20px);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 20px);
+    /* CAMBIO: Ahora desvanece el lado DERECHO (donde van los viejos) */
+    mask-image: linear-gradient(to right, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, black 90%, transparent);
 }
 
 .history-scroll {
     display: flex;
     gap: 8px;
-    flex-direction: row-reverse; /* Los nuevos aparecen a la derecha pero empujan a la izquierda */
-    justify-content: flex-end;   /* Alinear al final */
+    /* CAMBIO: Flujo normal (Izquierda a Derecha) */
+    flex-direction: row; 
+    justify-content: flex-start; /* Empieza pegado a la etiqueta */
     width: 100%;
     overflow-x: auto;
-    padding-left: 20px; /* Espacio para el fade */
-    scrollbar-width: none; /* Ocultar barra scroll en Firefox */
+    padding-right: 20px; /* Espacio al final para el fade */
+    scrollbar-width: none;
 }
-.history-scroll::-webkit-scrollbar { display: none; } /* Ocultar en Chrome */
+.history-scroll::-webkit-scrollbar { display: none; }
 
 /* Las Píldoras de números */
 .history-pill {
@@ -883,4 +885,9 @@ img { max-width: 100%; display: block; }
     background: rgba(255, 190, 11, 0.1); 
     border: 1px solid #ffbe0b;
     box-shadow: 0 0 10px rgba(255, 190, 11, 0.2);
+}
+
+@keyframes fadeInPill {
+    from { opacity: 0; transform: translateY(-10px) scale(0.8); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
